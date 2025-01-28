@@ -1,88 +1,125 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
-import importPlugin from 'eslint-plugin-import';
-import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
+// Node.js built-ins
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-export default tseslint.config(
-  { ignores: ['dist', 'node_modules'] }, // Ignore built files
-  {
-    extends: [
-      js.configs.recommended, // Base JavaScript rules
-      ...tseslint.configs.recommended, // TypeScript best practices
-      ...tseslint.configs.strictTypeChecked,
-      ...tseslint.configs.stylisticTypeChecked,
-      react.configs.recommended, // React best practices
-      reactHooks.configs.recommended, // React Hooks best practices
-      prettierConfig // 👈 Disables ESLint rules that conflict with Prettier
-    ],
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2022, // Match with tsconfig.json
-      globals: {
-        ...globals.browser,
-        React: 'readonly',
-      },
-      sourceType: 'module',
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: __dirname,
-      },
-    },
-    plugins: {
-      react, // React plugin
-      'react-hooks': reactHooks, // Enforces Hooks rules
-      'react-refresh': reactRefresh, // Fast refresh checks
-      import: importPlugin, // Enforces import order & best practices
-      prettier: prettierPlugin, // 👈 Enables Prettier integration
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+// External packages
+import js from '@eslint/js'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import eslintPluginImport from 'eslint-plugin-import'
+import eslintPluginPrettier from 'eslint-plugin-prettier'
+import eslintPluginReact from 'eslint-plugin-react'
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
+import eslintPluginReactRefresh from 'eslint-plugin-react-refresh'
+import globals from 'globals'
+import * as tseslint from 'typescript-eslint'
 
-      /* ✅ Import rules for better module resolution */
-      'import/order': ['error', {
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Base configuration for all files
+const baseConfig = {
+  plugins: {
+    import: eslintPluginImport,
+    prettier: eslintPluginPrettier,
+  },
+  rules: {
+    'import/order': [
+      'error',
+      {
         'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type'],
         'newlines-between': 'always',
-        'alphabetize': { 'order': 'asc', 'caseInsensitive': true }
-      }],
-      'import/no-unresolved': 'error', // Prevent missing modules
-      'import/no-extraneous-dependencies': 'error', // Prevent wrong dependencies
-      'import/no-cycle': 'error',
-      'import/no-duplicates': 'error',
+        'alphabetize': { order: 'asc', caseInsensitive: true },
+      },
+    ],
+    'import/no-duplicates': 'error',
+    'prettier/prettier': 'error',
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-debugger': 'error',
+    'no-alert': 'error',
+    'prefer-const': 'error',
+    'no-var': 'error',
+    'eqeqeq': ['error', 'always'],
+  },
+}
 
-      /* ✅ React-specific rules */
-      'react/jsx-uses-react': 'off', // Not needed in React 17+
-      'react/react-in-jsx-scope': 'off', // Not needed in React 17+
-      'react/prop-types': 'off',
-      'react/jsx-curly-brace-presence': ['error', { 'props': 'never', 'children': 'never' }],
-      'react/self-closing-comp': 'error',
-
-      /* ✅ TypeScript rules */
-      ...tseslint.rules["no-explicit-any"],
-      ...tseslint.rules["explicit-function-return-type"],
-      ...tseslint.rules["consistent-type-imports"],
-      ...tseslint.rules["no-unused-vars"],
-
-      /* ✅ Prettier Integration */
-      'prettier/prettier': 'error', // 👈 Ensures Prettier formatting rules are enforced
-
-      /* ✅ Best practices */
-      'no-console': ['warn', { 'allow': ['warn', 'error'] }], // Avoid unnecessary console.logs
-      'no-debugger': 'error', // Prevent accidental debugger usage
-      'no-alert': 'error',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'eqeqeq': ['error', 'always'],
+// Configuration specific to JavaScript files
+const jsConfig = {
+  files: ['**/*.{js,mjs,cjs}'],
+  ...baseConfig,
+  languageOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    globals: {
+      ...globals.browser,
+      ...globals.node,
     },
-  }
-);
+  },
+}
+
+// Configuration specific to TypeScript and React files
+const tsConfig = {
+  files: ['**/*.{ts,tsx}'],
+  ...baseConfig,
+  plugins: {
+    ...baseConfig.plugins,
+    '@typescript-eslint': tseslint.plugin,
+    'react': eslintPluginReact,
+    'react-hooks': eslintPluginReactHooks,
+    'react-refresh': eslintPluginReactRefresh,
+  },
+  languageOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    parser: tseslint.parser,
+    parserOptions: {
+      project: './tsconfig.eslint.json',
+      tsconfigRootDir: __dirname,
+    },
+    globals: {
+      ...globals.browser,
+      React: true,
+    },
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
+  rules: {
+    ...baseConfig.rules,
+    ...js.configs.recommended.rules,
+    ...eslintPluginReact.configs.recommended.rules,
+    ...eslintPluginReactHooks.configs.recommended.rules,
+    ...tseslint.configs.recommendedTypeChecked.rules,
+    ...tseslint.configs.stylisticTypeChecked.rules,
+
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    'react/jsx-uses-react': 'off',
+    'react/react-in-jsx-scope': 'off',
+    'react/prop-types': 'off',
+    'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+    'react/self-closing-comp': 'error',
+
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/consistent-type-imports': 'error',
+    '@typescript-eslint/no-unused-vars': 'error',
+  },
+}
+
+export default [
+  {
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      '**/*.config.{js,ts}',
+      '**/*.d.ts',
+      'vite.config.ts',
+      'postcss.config.mjs',
+      'tailwind.config.ts',
+    ],
+  },
+  eslintConfigPrettier,
+  jsConfig,
+  tsConfig,
+]
