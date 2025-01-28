@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node Configuration",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+    /* ✅ Target latest stable ECMAScript for Node.js */
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "types": ["node"],
+
+    /* ✅ Optimized for Node.js */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    /* ✅ Improve module handling */
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* ✅ Improve type-checking */
+    "strict": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+
+    /* ✅ Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* ✅ Define build structure (even if `noEmit` is enabled) */
+    "rootDir": "./",
+    "outDir": "./dist",
+
+    /* ✅ Prevent unwanted output */
+    "noEmit": true,
+
+    /* ✅ Improve consistency in file names */
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}
