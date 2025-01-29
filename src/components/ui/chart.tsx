@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 const THEMES = { light: '', dark: '.dark' } as const
 
 export type ChartConfig = {
+  // eslint-disable-next-line no-unused-vars
   [k in string]: {
     label?: React.ReactNode
     icon?: React.ComponentType
@@ -129,10 +130,9 @@ const ChartTooltipContent = React.forwardRef<
       if (hideLabel || !payload?.length) {
         return null
       }
-
-      const [item] = payload
-      const key = `${labelKey || item.dataKey || item.name || 'value'}`
-      const itemConfig = getPayloadConfigFromPayload(config, item, key)
+      const [item] = payload || []
+      const key = `${labelKey || item?.dataKey || item?.name || 'value'}`
+      const itemConfig = item ? getPayloadConfigFromPayload(config, item, key) : undefined
       const value =
         !labelKey && typeof label === 'string'
           ? config[label as keyof typeof config]?.label || label
@@ -321,9 +321,9 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
 
 export {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
 }

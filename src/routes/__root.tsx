@@ -1,34 +1,31 @@
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Link, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 
-export const Route = createRootRoute({
+import type { QueryClient } from '@tanstack/react-query'
+
+import RootLayout from '@/layouts/root/RootLayout'
+
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
   component: RootComponent,
+  notFoundComponent: () => {
+    return (
+      <div className="p-2">
+        <h3>Page Not Found</h3>
+        <p>Sorry, we couldn&apos;t find the page you&apos;re looking for.</p>
+        <Link to="/">Go Home</Link>
+      </div>
+    )
+  },
 })
 
 function RootComponent() {
   return (
     <>
-      <div className="flex gap-2 p-2 text-lg">
-        <Link
-          to="/"
-          activeProps={{
-            className: 'font-bold',
-          }}
-          activeOptions={{ exact: true }}
-        >
-          Home
-        </Link>{' '}
-        <Link
-          to="/about"
-          activeProps={{
-            className: 'font-bold',
-          }}
-        >
-          About
-        </Link>
-      </div>
-      <hr />
-      <Outlet />
+      <RootLayout />
+      <ReactQueryDevtools buttonPosition="top-right" />
       <TanStackRouterDevtools position="bottom-right" />
     </>
   )

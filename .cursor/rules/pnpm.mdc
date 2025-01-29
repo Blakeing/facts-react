@@ -1,0 +1,8 @@
+---
+description: Pnpm
+globs: 
+---
+
+# Your rule content
+
+Always use pnpm package manager.

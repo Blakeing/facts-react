@@ -1,18 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
+import { DashboardView } from '@/features/dashboard/views/DashboardView'
 
 export const Route = createFileRoute('/')({
-  component: HomeComponent,
+  component: DashboardView,
 })
-
-function HomeComponent() {
-  return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-      <Button asChild>
-        <Link to="/about">About</Link>
-      </Button>
-    </div>
-  )
-}
