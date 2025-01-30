@@ -1,9 +1,9 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions } from "@tanstack/react-query";
 
-import { fetchPost } from '@/api/posts'
+import { fetchPost } from "@/api/posts";
 
 export const postQueryOptions = (postId: string) =>
-  queryOptions({
-    queryKey: ['posts', { postId }],
-    queryFn: () => fetchPost(postId),
-  })
+	queryOptions({
+		queryKey: ["posts", { postId }],
+		queryFn: () => fetchPost(postId),
+	});
