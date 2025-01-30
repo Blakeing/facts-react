@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import {
 	Folder,
 	type LucideIcon,
@@ -24,14 +23,12 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 
-type RouteUrl = "/" | "/posts" | "/about";
-
 export function NavProjects({
 	projects,
 }: {
 	projects: {
 		name: string;
-		url: RouteUrl;
+		url: string;
 		icon: LucideIcon;
 	}[];
 }) {
@@ -44,20 +41,15 @@ export function NavProjects({
 				{projects.map((item) => (
 					<SidebarMenuItem key={item.name}>
 						<SidebarMenuButton asChild>
-							<Link
-								to={item.url}
-								activeProps={{
-									className: "font-bold",
-								}}
-							>
-								<item.icon className="h-4 w-4" />
+							<a href={item.url}>
+								<item.icon />
 								<span>{item.name}</span>
-							</Link>
+							</a>
 						</SidebarMenuButton>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuAction showOnHover>
-									<MoreHorizontal className="h-4 w-4" />
+									<MoreHorizontal />
 									<span className="sr-only">More</span>
 								</SidebarMenuAction>
 							</DropdownMenuTrigger>
@@ -67,16 +59,16 @@ export function NavProjects({
 								align={isMobile ? "end" : "start"}
 							>
 								<DropdownMenuItem>
-									<Folder className="text-muted-foreground h-4 w-4" />
+									<Folder className="text-muted-foreground" />
 									<span>View Project</span>
 								</DropdownMenuItem>
 								<DropdownMenuItem>
-									<Share className="text-muted-foreground h-4 w-4" />
+									<Share className="text-muted-foreground" />
 									<span>Share Project</span>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
 								<DropdownMenuItem>
-									<Trash2 className="text-muted-foreground h-4 w-4" />
+									<Trash2 className="text-muted-foreground" />
 									<span>Delete Project</span>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -85,7 +77,7 @@ export function NavProjects({
 				))}
 				<SidebarMenuItem>
 					<SidebarMenuButton>
-						<MoreHorizontal className="h-4 w-4" />
+						<MoreHorizontal />
 						<span>More</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
