@@ -44,6 +44,11 @@
 			},
 			"correctness": {
 				"useExhaustiveDependencies": "warn"
+			},
+			"react": {
+				"recommended": true,
+				"noArrayIndexKey": "error",
+				"useKeyWithMapCallback": "error"
 			}
 		},
 		"ignore": [

@@ -1,32 +1,23 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Link, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { QueryClient } from "@tanstack/react-query";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
 
-import RootLayout from "@/layouts/root/RootLayout";
-
-export const Route = createRootRouteWithContext<{
+export interface RouterContext {
 	queryClient: QueryClient;
-}>()({
-	component: RootComponent,
-	notFoundComponent: () => {
-		return (
-			<div className="p-2">
-				<h3>Page Not Found</h3>
-				<p>Sorry, we couldn&apos;t find the page you&apos;re looking for.</p>
-				<Link to="/">Go Home</Link>
-			</div>
-		);
-	},
+}
+
+export const Route = createRootRoute<RouterContext>({
+	component: RootLayout,
 });
 
-function RootComponent() {
+function RootLayout() {
 	return (
-		<>
-			<RootLayout />
-			<ReactQueryDevtools buttonPosition="top-right" />
-			<TanStackRouterDevtools position="bottom-right" />
-		</>
+		<TooltipProvider>
+			<div className="min-h-screen bg-background">
+				<main className="container py-6">
+					<Outlet />
+				</main>
+			</div>
+		</TooltipProvider>
 	);
 }

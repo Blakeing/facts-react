@@ -11,24 +11,19 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as PostsImport } from './routes/posts'
-import { Route as AboutImport } from './routes/about'
+import { Route as ContractsImport } from './routes/contracts'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
-import { Route as PostsIndexImport } from './routes/posts.index'
-import { Route as PostsPostIdImport } from './routes/posts.$postId'
+import { Route as ContractsIndexImport } from './routes/contracts/index'
+import { Route as ContractsNewImport } from './routes/contracts/new'
+import { Route as ContractsLayoutImport } from './routes/contracts/layout'
+import { Route as ContractsContractIdImport } from './routes/contracts/$contractId'
 
 // Create/Update Routes
 
-const PostsRoute = PostsImport.update({
-  id: '/posts',
-  path: '/posts',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
+const ContractsRoute = ContractsImport.update({
+  id: '/contracts',
+  path: '/contracts',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -43,16 +38,28 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PostsIndexRoute = PostsIndexImport.update({
+const ContractsIndexRoute = ContractsIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => PostsRoute,
+  getParentRoute: () => ContractsRoute,
 } as any)
 
-const PostsPostIdRoute = PostsPostIdImport.update({
-  id: '/$postId',
-  path: '/$postId',
-  getParentRoute: () => PostsRoute,
+const ContractsNewRoute = ContractsNewImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => ContractsRoute,
+} as any)
+
+const ContractsLayoutRoute = ContractsLayoutImport.update({
+  id: '/layout',
+  path: '/layout',
+  getParentRoute: () => ContractsRoute,
+} as any)
+
+const ContractsContractIdRoute = ContractsContractIdImport.update({
+  id: '/$contractId',
+  path: '/$contractId',
+  getParentRoute: () => ContractsRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -73,106 +80,134 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
+    '/contracts': {
+      id: '/contracts'
+      path: '/contracts'
+      fullPath: '/contracts'
+      preLoaderRoute: typeof ContractsImport
       parentRoute: typeof rootRoute
     }
-    '/posts': {
-      id: '/posts'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsImport
-      parentRoute: typeof rootRoute
+    '/contracts/$contractId': {
+      id: '/contracts/$contractId'
+      path: '/$contractId'
+      fullPath: '/contracts/$contractId'
+      preLoaderRoute: typeof ContractsContractIdImport
+      parentRoute: typeof ContractsImport
     }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdImport
-      parentRoute: typeof PostsImport
+    '/contracts/layout': {
+      id: '/contracts/layout'
+      path: '/layout'
+      fullPath: '/contracts/layout'
+      preLoaderRoute: typeof ContractsLayoutImport
+      parentRoute: typeof ContractsImport
     }
-    '/posts/': {
-      id: '/posts/'
+    '/contracts/new': {
+      id: '/contracts/new'
+      path: '/new'
+      fullPath: '/contracts/new'
+      preLoaderRoute: typeof ContractsNewImport
+      parentRoute: typeof ContractsImport
+    }
+    '/contracts/': {
+      id: '/contracts/'
       path: '/'
-      fullPath: '/posts/'
-      preLoaderRoute: typeof PostsIndexImport
-      parentRoute: typeof PostsImport
+      fullPath: '/contracts/'
+      preLoaderRoute: typeof ContractsIndexImport
+      parentRoute: typeof ContractsImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface PostsRouteChildren {
-  PostsPostIdRoute: typeof PostsPostIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
+interface ContractsRouteChildren {
+  ContractsContractIdRoute: typeof ContractsContractIdRoute
+  ContractsLayoutRoute: typeof ContractsLayoutRoute
+  ContractsNewRoute: typeof ContractsNewRoute
+  ContractsIndexRoute: typeof ContractsIndexRoute
 }
 
-const PostsRouteChildren: PostsRouteChildren = {
-  PostsPostIdRoute: PostsPostIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
+const ContractsRouteChildren: ContractsRouteChildren = {
+  ContractsContractIdRoute: ContractsContractIdRoute,
+  ContractsLayoutRoute: ContractsLayoutRoute,
+  ContractsNewRoute: ContractsNewRoute,
+  ContractsIndexRoute: ContractsIndexRoute,
 }
 
-const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
+const ContractsRouteWithChildren = ContractsRoute._addFileChildren(
+  ContractsRouteChildren,
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof LayoutRoute
-  '/about': typeof AboutRoute
-  '/posts': typeof PostsRouteWithChildren
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts/': typeof PostsIndexRoute
+  '/contracts': typeof ContractsRouteWithChildren
+  '/contracts/$contractId': typeof ContractsContractIdRoute
+  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/contracts/': typeof ContractsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof LayoutRoute
-  '/about': typeof AboutRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts': typeof PostsIndexRoute
+  '/contracts/$contractId': typeof ContractsContractIdRoute
+  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/contracts': typeof ContractsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_layout': typeof LayoutRoute
-  '/about': typeof AboutRoute
-  '/posts': typeof PostsRouteWithChildren
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/posts/': typeof PostsIndexRoute
+  '/contracts': typeof ContractsRouteWithChildren
+  '/contracts/$contractId': typeof ContractsContractIdRoute
+  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/contracts/': typeof ContractsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/about' | '/posts' | '/posts/$postId' | '/posts/'
+  fullPaths:
+    | '/'
+    | ''
+    | '/contracts'
+    | '/contracts/$contractId'
+    | '/contracts/layout'
+    | '/contracts/new'
+    | '/contracts/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/about' | '/posts/$postId' | '/posts'
+  to:
+    | '/'
+    | ''
+    | '/contracts/$contractId'
+    | '/contracts/layout'
+    | '/contracts/new'
+    | '/contracts'
   id:
     | '__root__'
     | '/'
     | '/_layout'
-    | '/about'
-    | '/posts'
-    | '/posts/$postId'
-    | '/posts/'
+    | '/contracts'
+    | '/contracts/$contractId'
+    | '/contracts/layout'
+    | '/contracts/new'
+    | '/contracts/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LayoutRoute: typeof LayoutRoute
-  AboutRoute: typeof AboutRoute
-  PostsRoute: typeof PostsRouteWithChildren
+  ContractsRoute: typeof ContractsRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LayoutRoute: LayoutRoute,
-  AboutRoute: AboutRoute,
-  PostsRoute: PostsRouteWithChildren,
+  ContractsRoute: ContractsRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -187,8 +222,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_layout",
-        "/about",
-        "/posts"
+        "/contracts"
       ]
     },
     "/": {
@@ -197,23 +231,30 @@ export const routeTree = rootRoute
     "/_layout": {
       "filePath": "_layout.tsx"
     },
-    "/about": {
-      "filePath": "about.tsx"
-    },
-    "/posts": {
-      "filePath": "posts.tsx",
+    "/contracts": {
+      "filePath": "contracts.tsx",
       "children": [
-        "/posts/$postId",
-        "/posts/"
+        "/contracts/$contractId",
+        "/contracts/layout",
+        "/contracts/new",
+        "/contracts/"
       ]
     },
-    "/posts/$postId": {
-      "filePath": "posts.$postId.tsx",
-      "parent": "/posts"
+    "/contracts/$contractId": {
+      "filePath": "contracts/$contractId.tsx",
+      "parent": "/contracts"
     },
-    "/posts/": {
-      "filePath": "posts.index.tsx",
-      "parent": "/posts"
+    "/contracts/layout": {
+      "filePath": "contracts/layout.tsx",
+      "parent": "/contracts"
+    },
+    "/contracts/new": {
+      "filePath": "contracts/new.tsx",
+      "parent": "/contracts"
+    },
+    "/contracts/": {
+      "filePath": "contracts/index.tsx",
+      "parent": "/contracts"
     }
   }
 }

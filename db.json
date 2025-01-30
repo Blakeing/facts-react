@@ -1,0 +1,112 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "John Doe",
+      "email": "john@example.com"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "1",
+      "title": "Sample Contract",
+      "description": "This is a sample contract for testing purposes",
+      "status": "draft",
+      "createdAt": "2024-02-20T00:00:00.000Z",
+      "updatedAt": "2024-02-20T00:00:00.000Z",
+      "ownerId": "1",
+      "parties": [
+        {
+          "id": "1",
+          "name": "John Doe",
+          "email": "john@example.com",
+          "role": "owner"
+        },
+        {
+          "id": "2",
+          "name": "Jane Smith",
+          "email": "jane@example.com",
+          "role": "signer"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Active Contract",
+      "status": "cancelled",
+      "createdAt": "2024-02-20T00:00:00.000Z",
+      "updatedAt": "2025-01-30T20:07:34.258Z",
+      "ownerId": "1",
+      "parties": [
+        {
+          "id": "1",
+          "name": "John Doe",
+          "email": "john@example.com",
+          "role": "owner"
+        },
+        {
+          "id": "3",
+          "name": "Bob Wilson",
+          "email": "bob@example.com",
+          "role": "signer"
+        }
+      ]
+    },
+    {
+      "title": "1",
+      "description": "1",
+      "parties": [
+        {
+          "email": "1",
+          "role": "viewer"
+        }
+      ],
+      "id": "zue4DNz"
+    },
+    {
+      "title": "2",
+      "description": "2",
+      "parties": [
+        {
+          "email": "2",
+          "role": "viewer"
+        }
+      ],
+      "id": "qXn6kQt"
+    },
+    {
+      "title": "Test 1",
+      "description": "Test ",
+      "parties": [
+        {
+          "email": "Test 1",
+          "role": "viewer"
+        }
+      ],
+      "id": "P6NMJTC"
+    },
+    {
+      "title": "Test 2",
+      "description": "Test 2",
+      "parties": [
+        {
+          "email": "blakeingenthron@gmail.com",
+          "role": "viewer"
+        }
+      ],
+      "id": "jBoOJAh"
+    },
+    {
+      "title": "3",
+      "description": "3",
+      "parties": [
+        {
+          "email": "3",
+          "name": "3",
+          "role": "viewer"
+        }
+      ],
+      "id": "NjlA_XQ"
+    }
+  ]
+}
