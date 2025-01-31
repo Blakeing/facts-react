@@ -15,6 +15,8 @@ class ContractService {
 	}
 
 	async createContract(data: CreateContractDTO): Promise<Contract> {
+		console.log("Creating contract with data:", data);
+
 		// Validate contract data
 		if (!data.title.trim()) {
 			throw new Error("Contract title is required");
@@ -30,7 +32,14 @@ class ContractService {
 			throw new Error("Duplicate email addresses are not allowed");
 		}
 
-		return contractApi.createContract(data);
+		try {
+			const result = await contractApi.createContract(data);
+			console.log("Contract created successfully:", result);
+			return result;
+		} catch (error) {
+			console.error("Error in contractService.createContract:", error);
+			throw error;
+		}
 	}
 
 	async updateContract(

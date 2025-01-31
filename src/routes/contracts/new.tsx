@@ -17,11 +17,14 @@ function NewContractPage() {
 		data: Parameters<typeof ContractController.createContract>[0],
 	) => {
 		try {
+			console.log("Form data:", data);
 			setIsLoading(true);
 			setError(null);
-			await ContractController.createContract(data);
+			const result = await ContractController.createContract(data);
+			console.log("Contract created:", result);
 			navigate({ to: "/contracts" });
 		} catch (err) {
+			console.error("Error creating contract:", err);
 			setError(
 				err instanceof Error ? err.message : "Failed to create contract",
 			);

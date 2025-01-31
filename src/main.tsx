@@ -10,12 +10,15 @@ import "./styles/index.css";
 // Wait for the router to be ready before rendering
 await router.load();
 
-const root = createRoot(document.getElementById("root")!);
-
-root.render(
-	<StrictMode>
-		<QueryClientProvider client={queryClient}>
-			<RouterProvider router={router} />
-		</QueryClientProvider>
-	</StrictMode>,
-);
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Root element not found");
+if (!rootElement.innerHTML) {
+	const root = createRoot(rootElement);
+	root.render(
+		<StrictMode>
+			<QueryClientProvider client={queryClient}>
+				<RouterProvider router={router} />
+			</QueryClientProvider>
+		</StrictMode>,
+	);
+}

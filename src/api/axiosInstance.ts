@@ -1,9 +1,9 @@
 import axios from "axios";
 
-// In development, use the same origin as the current page
+// In development, use the proxy URL
 const baseURL =
 	import.meta.env.MODE === "development"
-		? "http://localhost:3001"
+		? "/api"
 		: // biome-ignore lint/complexity/useLiteralKeys: <explanation>
 			import.meta.env["VITE_API_URL"];
 

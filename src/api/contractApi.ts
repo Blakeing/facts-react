@@ -46,8 +46,20 @@ export const contractApi = {
 	},
 
 	createContract: async (contract: CreateContractDTO): Promise<Contract> => {
-		const { data } = await axiosInstance.post<Contract>("/contracts", contract);
-		return data;
+		console.log("API: Creating contract with data:", contract);
+		try {
+			const { data } = await axiosInstance.post<Contract>("/contracts", {
+				...contract,
+				status: "draft", // Set initial status
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			});
+			console.log("API: Contract created successfully:", data);
+			return data;
+		} catch (error) {
+			console.error("API: Error creating contract:", error);
+			throw error;
+		}
 	},
 
 	updateContract: async (

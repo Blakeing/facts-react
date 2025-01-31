@@ -248,3 +248,34 @@
     scrollbar-color: hsl(var(--border)) transparent;
   }
 }
+
+@layer utilities {
+  /* Development utilities for debugging layouts */
+  /* .dev\:outline {
+    @apply outline outline-offset-2 outline-red-500/50;
+  }
+  
+  .dev\:outline-dashed {
+    @apply outline outline-dashed outline-offset-2 outline-blue-500/50;
+  }
+  
+  .dev\:outline-dotted {
+    @apply outline outline-dotted outline-offset-2 outline-green-500/50;
+  }
+  
+  .dev\:bg-debug {
+    @apply bg-red-100/20;
+  }
+  
+  .dev\:bg-debug-alt {
+    @apply bg-blue-100/20;
+  }
+  
+  .dev\:bg-debug-dark {
+    @apply bg-purple-100/20;
+  }
+  
+  .dev\:bg-debug-light {
+    @apply bg-yellow-100/20;
+  } */
+}

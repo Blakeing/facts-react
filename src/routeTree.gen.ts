@@ -11,24 +11,86 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ContractsImport } from './routes/contracts'
-import { Route as LayoutImport } from './routes/_layout'
+import { Route as TrustImport } from './routes/trust'
+import { Route as SearchImport } from './routes/search'
+import { Route as ReportsImport } from './routes/reports'
+import { Route as GlEntriesImport } from './routes/gl-entries'
+import { Route as ExportsImport } from './routes/exports'
+import { Route as DepositsImport } from './routes/deposits'
+import { Route as CommissionsImport } from './routes/commissions'
 import { Route as IndexImport } from './routes/index'
 import { Route as ContractsIndexImport } from './routes/contracts/index'
+import { Route as WorkflowTrackingImport } from './routes/workflow/tracking'
+import { Route as WorkflowScanImport } from './routes/workflow/scan'
+import { Route as SystemUserActivityImport } from './routes/system/user-activity'
+import { Route as SystemTenantsImport } from './routes/system/tenants'
+import { Route as SystemSignalrImport } from './routes/system/signalr'
+import { Route as SystemSharedQueriesImport } from './routes/system/shared-queries'
+import { Route as SystemServicesImport } from './routes/system/services'
+import { Route as SystemReportsImport } from './routes/system/reports'
+import { Route as SystemJobQueueImport } from './routes/system/job-queue'
+import { Route as SystemExportsImport } from './routes/system/exports'
+import { Route as SystemDashboardsImport } from './routes/system/dashboards'
+import { Route as SystemConversionImport } from './routes/system/conversion'
+import { Route as SetupUsersImport } from './routes/setup/users'
+import { Route as SetupTrustImport } from './routes/setup/trust'
+import { Route as SetupSalesTaxImport } from './routes/setup/sales-tax'
+import { Route as SetupPaymentsImport } from './routes/setup/payments'
+import { Route as SetupLocationsImport } from './routes/setup/locations'
+import { Route as SetupItemsImport } from './routes/setup/items'
+import { Route as SetupFormsImport } from './routes/setup/forms'
+import { Route as SetupEmployeesImport } from './routes/setup/employees'
+import { Route as SetupContractsImport } from './routes/setup/contracts'
+import { Route as SetupCommissionsImport } from './routes/setup/commissions'
+import { Route as SetupAccountingImport } from './routes/setup/accounting'
+import { Route as PaymentsUnappliedImport } from './routes/payments/unapplied'
+import { Route as PaymentsBatchesImport } from './routes/payments/batches'
+import { Route as ContractsPreNeedImport } from './routes/contracts/pre-need'
 import { Route as ContractsNewImport } from './routes/contracts/new'
-import { Route as ContractsLayoutImport } from './routes/contracts/layout'
+import { Route as ContractsAtNeedImport } from './routes/contracts/at-need'
 import { Route as ContractsContractIdImport } from './routes/contracts/$contractId'
 
 // Create/Update Routes
 
-const ContractsRoute = ContractsImport.update({
-  id: '/contracts',
-  path: '/contracts',
+const TrustRoute = TrustImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
+const SearchRoute = SearchImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ReportsRoute = ReportsImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GlEntriesRoute = GlEntriesImport.update({
+  id: '/gl-entries',
+  path: '/gl-entries',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ExportsRoute = ExportsImport.update({
+  id: '/exports',
+  path: '/exports',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DepositsRoute = DepositsImport.update({
+  id: '/deposits',
+  path: '/deposits',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CommissionsRoute = CommissionsImport.update({
+  id: '/commissions',
+  path: '/commissions',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,27 +101,183 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const ContractsIndexRoute = ContractsIndexImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ContractsRoute,
+  id: '/contracts/',
+  path: '/contracts/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const WorkflowTrackingRoute = WorkflowTrackingImport.update({
+  id: '/workflow/tracking',
+  path: '/workflow/tracking',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const WorkflowScanRoute = WorkflowScanImport.update({
+  id: '/workflow/scan',
+  path: '/workflow/scan',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemUserActivityRoute = SystemUserActivityImport.update({
+  id: '/system/user-activity',
+  path: '/system/user-activity',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemTenantsRoute = SystemTenantsImport.update({
+  id: '/system/tenants',
+  path: '/system/tenants',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemSignalrRoute = SystemSignalrImport.update({
+  id: '/system/signalr',
+  path: '/system/signalr',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemSharedQueriesRoute = SystemSharedQueriesImport.update({
+  id: '/system/shared-queries',
+  path: '/system/shared-queries',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemServicesRoute = SystemServicesImport.update({
+  id: '/system/services',
+  path: '/system/services',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemReportsRoute = SystemReportsImport.update({
+  id: '/system/reports',
+  path: '/system/reports',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemJobQueueRoute = SystemJobQueueImport.update({
+  id: '/system/job-queue',
+  path: '/system/job-queue',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemExportsRoute = SystemExportsImport.update({
+  id: '/system/exports',
+  path: '/system/exports',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemDashboardsRoute = SystemDashboardsImport.update({
+  id: '/system/dashboards',
+  path: '/system/dashboards',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SystemConversionRoute = SystemConversionImport.update({
+  id: '/system/conversion',
+  path: '/system/conversion',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupUsersRoute = SetupUsersImport.update({
+  id: '/setup/users',
+  path: '/setup/users',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupTrustRoute = SetupTrustImport.update({
+  id: '/setup/trust',
+  path: '/setup/trust',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupSalesTaxRoute = SetupSalesTaxImport.update({
+  id: '/setup/sales-tax',
+  path: '/setup/sales-tax',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupPaymentsRoute = SetupPaymentsImport.update({
+  id: '/setup/payments',
+  path: '/setup/payments',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupLocationsRoute = SetupLocationsImport.update({
+  id: '/setup/locations',
+  path: '/setup/locations',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupItemsRoute = SetupItemsImport.update({
+  id: '/setup/items',
+  path: '/setup/items',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupFormsRoute = SetupFormsImport.update({
+  id: '/setup/forms',
+  path: '/setup/forms',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupEmployeesRoute = SetupEmployeesImport.update({
+  id: '/setup/employees',
+  path: '/setup/employees',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupContractsRoute = SetupContractsImport.update({
+  id: '/setup/contracts',
+  path: '/setup/contracts',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupCommissionsRoute = SetupCommissionsImport.update({
+  id: '/setup/commissions',
+  path: '/setup/commissions',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const SetupAccountingRoute = SetupAccountingImport.update({
+  id: '/setup/accounting',
+  path: '/setup/accounting',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PaymentsUnappliedRoute = PaymentsUnappliedImport.update({
+  id: '/payments/unapplied',
+  path: '/payments/unapplied',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PaymentsBatchesRoute = PaymentsBatchesImport.update({
+  id: '/payments/batches',
+  path: '/payments/batches',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ContractsPreNeedRoute = ContractsPreNeedImport.update({
+  id: '/contracts/pre-need',
+  path: '/contracts/pre-need',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const ContractsNewRoute = ContractsNewImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => ContractsRoute,
+  id: '/contracts/new',
+  path: '/contracts/new',
+  getParentRoute: () => rootRoute,
 } as any)
 
-const ContractsLayoutRoute = ContractsLayoutImport.update({
-  id: '/layout',
-  path: '/layout',
-  getParentRoute: () => ContractsRoute,
+const ContractsAtNeedRoute = ContractsAtNeedImport.update({
+  id: '/contracts/at-need',
+  path: '/contracts/at-need',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const ContractsContractIdRoute = ContractsContractIdImport.update({
-  id: '/$contractId',
-  path: '/$contractId',
-  getParentRoute: () => ContractsRoute,
+  id: '/contracts/$contractId',
+  path: '/contracts/$contractId',
+  getParentRoute: () => rootRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -73,98 +291,391 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/_layout': {
-      id: '/_layout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LayoutImport
+    '/commissions': {
+      id: '/commissions'
+      path: '/commissions'
+      fullPath: '/commissions'
+      preLoaderRoute: typeof CommissionsImport
       parentRoute: typeof rootRoute
     }
-    '/contracts': {
-      id: '/contracts'
-      path: '/contracts'
-      fullPath: '/contracts'
-      preLoaderRoute: typeof ContractsImport
+    '/deposits': {
+      id: '/deposits'
+      path: '/deposits'
+      fullPath: '/deposits'
+      preLoaderRoute: typeof DepositsImport
+      parentRoute: typeof rootRoute
+    }
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsImport
+      parentRoute: typeof rootRoute
+    }
+    '/gl-entries': {
+      id: '/gl-entries'
+      path: '/gl-entries'
+      fullPath: '/gl-entries'
+      preLoaderRoute: typeof GlEntriesImport
+      parentRoute: typeof rootRoute
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsImport
+      parentRoute: typeof rootRoute
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchImport
+      parentRoute: typeof rootRoute
+    }
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustImport
       parentRoute: typeof rootRoute
     }
     '/contracts/$contractId': {
       id: '/contracts/$contractId'
-      path: '/$contractId'
+      path: '/contracts/$contractId'
       fullPath: '/contracts/$contractId'
       preLoaderRoute: typeof ContractsContractIdImport
-      parentRoute: typeof ContractsImport
+      parentRoute: typeof rootRoute
     }
-    '/contracts/layout': {
-      id: '/contracts/layout'
-      path: '/layout'
-      fullPath: '/contracts/layout'
-      preLoaderRoute: typeof ContractsLayoutImport
-      parentRoute: typeof ContractsImport
+    '/contracts/at-need': {
+      id: '/contracts/at-need'
+      path: '/contracts/at-need'
+      fullPath: '/contracts/at-need'
+      preLoaderRoute: typeof ContractsAtNeedImport
+      parentRoute: typeof rootRoute
     }
     '/contracts/new': {
       id: '/contracts/new'
-      path: '/new'
+      path: '/contracts/new'
       fullPath: '/contracts/new'
       preLoaderRoute: typeof ContractsNewImport
-      parentRoute: typeof ContractsImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/pre-need': {
+      id: '/contracts/pre-need'
+      path: '/contracts/pre-need'
+      fullPath: '/contracts/pre-need'
+      preLoaderRoute: typeof ContractsPreNeedImport
+      parentRoute: typeof rootRoute
+    }
+    '/payments/batches': {
+      id: '/payments/batches'
+      path: '/payments/batches'
+      fullPath: '/payments/batches'
+      preLoaderRoute: typeof PaymentsBatchesImport
+      parentRoute: typeof rootRoute
+    }
+    '/payments/unapplied': {
+      id: '/payments/unapplied'
+      path: '/payments/unapplied'
+      fullPath: '/payments/unapplied'
+      preLoaderRoute: typeof PaymentsUnappliedImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/accounting': {
+      id: '/setup/accounting'
+      path: '/setup/accounting'
+      fullPath: '/setup/accounting'
+      preLoaderRoute: typeof SetupAccountingImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/commissions': {
+      id: '/setup/commissions'
+      path: '/setup/commissions'
+      fullPath: '/setup/commissions'
+      preLoaderRoute: typeof SetupCommissionsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/contracts': {
+      id: '/setup/contracts'
+      path: '/setup/contracts'
+      fullPath: '/setup/contracts'
+      preLoaderRoute: typeof SetupContractsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/employees': {
+      id: '/setup/employees'
+      path: '/setup/employees'
+      fullPath: '/setup/employees'
+      preLoaderRoute: typeof SetupEmployeesImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/forms': {
+      id: '/setup/forms'
+      path: '/setup/forms'
+      fullPath: '/setup/forms'
+      preLoaderRoute: typeof SetupFormsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/items': {
+      id: '/setup/items'
+      path: '/setup/items'
+      fullPath: '/setup/items'
+      preLoaderRoute: typeof SetupItemsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/locations': {
+      id: '/setup/locations'
+      path: '/setup/locations'
+      fullPath: '/setup/locations'
+      preLoaderRoute: typeof SetupLocationsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/payments': {
+      id: '/setup/payments'
+      path: '/setup/payments'
+      fullPath: '/setup/payments'
+      preLoaderRoute: typeof SetupPaymentsImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/sales-tax': {
+      id: '/setup/sales-tax'
+      path: '/setup/sales-tax'
+      fullPath: '/setup/sales-tax'
+      preLoaderRoute: typeof SetupSalesTaxImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/trust': {
+      id: '/setup/trust'
+      path: '/setup/trust'
+      fullPath: '/setup/trust'
+      preLoaderRoute: typeof SetupTrustImport
+      parentRoute: typeof rootRoute
+    }
+    '/setup/users': {
+      id: '/setup/users'
+      path: '/setup/users'
+      fullPath: '/setup/users'
+      preLoaderRoute: typeof SetupUsersImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/conversion': {
+      id: '/system/conversion'
+      path: '/system/conversion'
+      fullPath: '/system/conversion'
+      preLoaderRoute: typeof SystemConversionImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/dashboards': {
+      id: '/system/dashboards'
+      path: '/system/dashboards'
+      fullPath: '/system/dashboards'
+      preLoaderRoute: typeof SystemDashboardsImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/exports': {
+      id: '/system/exports'
+      path: '/system/exports'
+      fullPath: '/system/exports'
+      preLoaderRoute: typeof SystemExportsImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/job-queue': {
+      id: '/system/job-queue'
+      path: '/system/job-queue'
+      fullPath: '/system/job-queue'
+      preLoaderRoute: typeof SystemJobQueueImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/reports': {
+      id: '/system/reports'
+      path: '/system/reports'
+      fullPath: '/system/reports'
+      preLoaderRoute: typeof SystemReportsImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/services': {
+      id: '/system/services'
+      path: '/system/services'
+      fullPath: '/system/services'
+      preLoaderRoute: typeof SystemServicesImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/shared-queries': {
+      id: '/system/shared-queries'
+      path: '/system/shared-queries'
+      fullPath: '/system/shared-queries'
+      preLoaderRoute: typeof SystemSharedQueriesImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/signalr': {
+      id: '/system/signalr'
+      path: '/system/signalr'
+      fullPath: '/system/signalr'
+      preLoaderRoute: typeof SystemSignalrImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/tenants': {
+      id: '/system/tenants'
+      path: '/system/tenants'
+      fullPath: '/system/tenants'
+      preLoaderRoute: typeof SystemTenantsImport
+      parentRoute: typeof rootRoute
+    }
+    '/system/user-activity': {
+      id: '/system/user-activity'
+      path: '/system/user-activity'
+      fullPath: '/system/user-activity'
+      preLoaderRoute: typeof SystemUserActivityImport
+      parentRoute: typeof rootRoute
+    }
+    '/workflow/scan': {
+      id: '/workflow/scan'
+      path: '/workflow/scan'
+      fullPath: '/workflow/scan'
+      preLoaderRoute: typeof WorkflowScanImport
+      parentRoute: typeof rootRoute
+    }
+    '/workflow/tracking': {
+      id: '/workflow/tracking'
+      path: '/workflow/tracking'
+      fullPath: '/workflow/tracking'
+      preLoaderRoute: typeof WorkflowTrackingImport
+      parentRoute: typeof rootRoute
     }
     '/contracts/': {
       id: '/contracts/'
-      path: '/'
-      fullPath: '/contracts/'
+      path: '/contracts'
+      fullPath: '/contracts'
       preLoaderRoute: typeof ContractsIndexImport
-      parentRoute: typeof ContractsImport
+      parentRoute: typeof rootRoute
     }
   }
 }
 
 // Create and export the route tree
 
-interface ContractsRouteChildren {
-  ContractsContractIdRoute: typeof ContractsContractIdRoute
-  ContractsLayoutRoute: typeof ContractsLayoutRoute
-  ContractsNewRoute: typeof ContractsNewRoute
-  ContractsIndexRoute: typeof ContractsIndexRoute
-}
-
-const ContractsRouteChildren: ContractsRouteChildren = {
-  ContractsContractIdRoute: ContractsContractIdRoute,
-  ContractsLayoutRoute: ContractsLayoutRoute,
-  ContractsNewRoute: ContractsNewRoute,
-  ContractsIndexRoute: ContractsIndexRoute,
-}
-
-const ContractsRouteWithChildren = ContractsRoute._addFileChildren(
-  ContractsRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '': typeof LayoutRoute
-  '/contracts': typeof ContractsRouteWithChildren
+  '/commissions': typeof CommissionsRoute
+  '/deposits': typeof DepositsRoute
+  '/exports': typeof ExportsRoute
+  '/gl-entries': typeof GlEntriesRoute
+  '/reports': typeof ReportsRoute
+  '/search': typeof SearchRoute
+  '/trust': typeof TrustRoute
   '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/at-need': typeof ContractsAtNeedRoute
   '/contracts/new': typeof ContractsNewRoute
-  '/contracts/': typeof ContractsIndexRoute
+  '/contracts/pre-need': typeof ContractsPreNeedRoute
+  '/payments/batches': typeof PaymentsBatchesRoute
+  '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/setup/accounting': typeof SetupAccountingRoute
+  '/setup/commissions': typeof SetupCommissionsRoute
+  '/setup/contracts': typeof SetupContractsRoute
+  '/setup/employees': typeof SetupEmployeesRoute
+  '/setup/forms': typeof SetupFormsRoute
+  '/setup/items': typeof SetupItemsRoute
+  '/setup/locations': typeof SetupLocationsRoute
+  '/setup/payments': typeof SetupPaymentsRoute
+  '/setup/sales-tax': typeof SetupSalesTaxRoute
+  '/setup/trust': typeof SetupTrustRoute
+  '/setup/users': typeof SetupUsersRoute
+  '/system/conversion': typeof SystemConversionRoute
+  '/system/dashboards': typeof SystemDashboardsRoute
+  '/system/exports': typeof SystemExportsRoute
+  '/system/job-queue': typeof SystemJobQueueRoute
+  '/system/reports': typeof SystemReportsRoute
+  '/system/services': typeof SystemServicesRoute
+  '/system/shared-queries': typeof SystemSharedQueriesRoute
+  '/system/signalr': typeof SystemSignalrRoute
+  '/system/tenants': typeof SystemTenantsRoute
+  '/system/user-activity': typeof SystemUserActivityRoute
+  '/workflow/scan': typeof WorkflowScanRoute
+  '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/contracts': typeof ContractsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '': typeof LayoutRoute
+  '/commissions': typeof CommissionsRoute
+  '/deposits': typeof DepositsRoute
+  '/exports': typeof ExportsRoute
+  '/gl-entries': typeof GlEntriesRoute
+  '/reports': typeof ReportsRoute
+  '/search': typeof SearchRoute
+  '/trust': typeof TrustRoute
   '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/at-need': typeof ContractsAtNeedRoute
   '/contracts/new': typeof ContractsNewRoute
+  '/contracts/pre-need': typeof ContractsPreNeedRoute
+  '/payments/batches': typeof PaymentsBatchesRoute
+  '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/setup/accounting': typeof SetupAccountingRoute
+  '/setup/commissions': typeof SetupCommissionsRoute
+  '/setup/contracts': typeof SetupContractsRoute
+  '/setup/employees': typeof SetupEmployeesRoute
+  '/setup/forms': typeof SetupFormsRoute
+  '/setup/items': typeof SetupItemsRoute
+  '/setup/locations': typeof SetupLocationsRoute
+  '/setup/payments': typeof SetupPaymentsRoute
+  '/setup/sales-tax': typeof SetupSalesTaxRoute
+  '/setup/trust': typeof SetupTrustRoute
+  '/setup/users': typeof SetupUsersRoute
+  '/system/conversion': typeof SystemConversionRoute
+  '/system/dashboards': typeof SystemDashboardsRoute
+  '/system/exports': typeof SystemExportsRoute
+  '/system/job-queue': typeof SystemJobQueueRoute
+  '/system/reports': typeof SystemReportsRoute
+  '/system/services': typeof SystemServicesRoute
+  '/system/shared-queries': typeof SystemSharedQueriesRoute
+  '/system/signalr': typeof SystemSignalrRoute
+  '/system/tenants': typeof SystemTenantsRoute
+  '/system/user-activity': typeof SystemUserActivityRoute
+  '/workflow/scan': typeof WorkflowScanRoute
+  '/workflow/tracking': typeof WorkflowTrackingRoute
   '/contracts': typeof ContractsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/_layout': typeof LayoutRoute
-  '/contracts': typeof ContractsRouteWithChildren
+  '/commissions': typeof CommissionsRoute
+  '/deposits': typeof DepositsRoute
+  '/exports': typeof ExportsRoute
+  '/gl-entries': typeof GlEntriesRoute
+  '/reports': typeof ReportsRoute
+  '/search': typeof SearchRoute
+  '/trust': typeof TrustRoute
   '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/layout': typeof ContractsLayoutRoute
+  '/contracts/at-need': typeof ContractsAtNeedRoute
   '/contracts/new': typeof ContractsNewRoute
+  '/contracts/pre-need': typeof ContractsPreNeedRoute
+  '/payments/batches': typeof PaymentsBatchesRoute
+  '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/setup/accounting': typeof SetupAccountingRoute
+  '/setup/commissions': typeof SetupCommissionsRoute
+  '/setup/contracts': typeof SetupContractsRoute
+  '/setup/employees': typeof SetupEmployeesRoute
+  '/setup/forms': typeof SetupFormsRoute
+  '/setup/items': typeof SetupItemsRoute
+  '/setup/locations': typeof SetupLocationsRoute
+  '/setup/payments': typeof SetupPaymentsRoute
+  '/setup/sales-tax': typeof SetupSalesTaxRoute
+  '/setup/trust': typeof SetupTrustRoute
+  '/setup/users': typeof SetupUsersRoute
+  '/system/conversion': typeof SystemConversionRoute
+  '/system/dashboards': typeof SystemDashboardsRoute
+  '/system/exports': typeof SystemExportsRoute
+  '/system/job-queue': typeof SystemJobQueueRoute
+  '/system/reports': typeof SystemReportsRoute
+  '/system/services': typeof SystemServicesRoute
+  '/system/shared-queries': typeof SystemSharedQueriesRoute
+  '/system/signalr': typeof SystemSignalrRoute
+  '/system/tenants': typeof SystemTenantsRoute
+  '/system/user-activity': typeof SystemUserActivityRoute
+  '/workflow/scan': typeof WorkflowScanRoute
+  '/workflow/tracking': typeof WorkflowTrackingRoute
   '/contracts/': typeof ContractsIndexRoute
 }
 
@@ -172,42 +683,206 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | ''
-    | '/contracts'
+    | '/commissions'
+    | '/deposits'
+    | '/exports'
+    | '/gl-entries'
+    | '/reports'
+    | '/search'
+    | '/trust'
     | '/contracts/$contractId'
-    | '/contracts/layout'
+    | '/contracts/at-need'
     | '/contracts/new'
-    | '/contracts/'
+    | '/contracts/pre-need'
+    | '/payments/batches'
+    | '/payments/unapplied'
+    | '/setup/accounting'
+    | '/setup/commissions'
+    | '/setup/contracts'
+    | '/setup/employees'
+    | '/setup/forms'
+    | '/setup/items'
+    | '/setup/locations'
+    | '/setup/payments'
+    | '/setup/sales-tax'
+    | '/setup/trust'
+    | '/setup/users'
+    | '/system/conversion'
+    | '/system/dashboards'
+    | '/system/exports'
+    | '/system/job-queue'
+    | '/system/reports'
+    | '/system/services'
+    | '/system/shared-queries'
+    | '/system/signalr'
+    | '/system/tenants'
+    | '/system/user-activity'
+    | '/workflow/scan'
+    | '/workflow/tracking'
+    | '/contracts'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | ''
+    | '/commissions'
+    | '/deposits'
+    | '/exports'
+    | '/gl-entries'
+    | '/reports'
+    | '/search'
+    | '/trust'
     | '/contracts/$contractId'
-    | '/contracts/layout'
+    | '/contracts/at-need'
     | '/contracts/new'
+    | '/contracts/pre-need'
+    | '/payments/batches'
+    | '/payments/unapplied'
+    | '/setup/accounting'
+    | '/setup/commissions'
+    | '/setup/contracts'
+    | '/setup/employees'
+    | '/setup/forms'
+    | '/setup/items'
+    | '/setup/locations'
+    | '/setup/payments'
+    | '/setup/sales-tax'
+    | '/setup/trust'
+    | '/setup/users'
+    | '/system/conversion'
+    | '/system/dashboards'
+    | '/system/exports'
+    | '/system/job-queue'
+    | '/system/reports'
+    | '/system/services'
+    | '/system/shared-queries'
+    | '/system/signalr'
+    | '/system/tenants'
+    | '/system/user-activity'
+    | '/workflow/scan'
+    | '/workflow/tracking'
     | '/contracts'
   id:
     | '__root__'
     | '/'
-    | '/_layout'
-    | '/contracts'
+    | '/commissions'
+    | '/deposits'
+    | '/exports'
+    | '/gl-entries'
+    | '/reports'
+    | '/search'
+    | '/trust'
     | '/contracts/$contractId'
-    | '/contracts/layout'
+    | '/contracts/at-need'
     | '/contracts/new'
+    | '/contracts/pre-need'
+    | '/payments/batches'
+    | '/payments/unapplied'
+    | '/setup/accounting'
+    | '/setup/commissions'
+    | '/setup/contracts'
+    | '/setup/employees'
+    | '/setup/forms'
+    | '/setup/items'
+    | '/setup/locations'
+    | '/setup/payments'
+    | '/setup/sales-tax'
+    | '/setup/trust'
+    | '/setup/users'
+    | '/system/conversion'
+    | '/system/dashboards'
+    | '/system/exports'
+    | '/system/job-queue'
+    | '/system/reports'
+    | '/system/services'
+    | '/system/shared-queries'
+    | '/system/signalr'
+    | '/system/tenants'
+    | '/system/user-activity'
+    | '/workflow/scan'
+    | '/workflow/tracking'
     | '/contracts/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LayoutRoute: typeof LayoutRoute
-  ContractsRoute: typeof ContractsRouteWithChildren
+  CommissionsRoute: typeof CommissionsRoute
+  DepositsRoute: typeof DepositsRoute
+  ExportsRoute: typeof ExportsRoute
+  GlEntriesRoute: typeof GlEntriesRoute
+  ReportsRoute: typeof ReportsRoute
+  SearchRoute: typeof SearchRoute
+  TrustRoute: typeof TrustRoute
+  ContractsContractIdRoute: typeof ContractsContractIdRoute
+  ContractsAtNeedRoute: typeof ContractsAtNeedRoute
+  ContractsNewRoute: typeof ContractsNewRoute
+  ContractsPreNeedRoute: typeof ContractsPreNeedRoute
+  PaymentsBatchesRoute: typeof PaymentsBatchesRoute
+  PaymentsUnappliedRoute: typeof PaymentsUnappliedRoute
+  SetupAccountingRoute: typeof SetupAccountingRoute
+  SetupCommissionsRoute: typeof SetupCommissionsRoute
+  SetupContractsRoute: typeof SetupContractsRoute
+  SetupEmployeesRoute: typeof SetupEmployeesRoute
+  SetupFormsRoute: typeof SetupFormsRoute
+  SetupItemsRoute: typeof SetupItemsRoute
+  SetupLocationsRoute: typeof SetupLocationsRoute
+  SetupPaymentsRoute: typeof SetupPaymentsRoute
+  SetupSalesTaxRoute: typeof SetupSalesTaxRoute
+  SetupTrustRoute: typeof SetupTrustRoute
+  SetupUsersRoute: typeof SetupUsersRoute
+  SystemConversionRoute: typeof SystemConversionRoute
+  SystemDashboardsRoute: typeof SystemDashboardsRoute
+  SystemExportsRoute: typeof SystemExportsRoute
+  SystemJobQueueRoute: typeof SystemJobQueueRoute
+  SystemReportsRoute: typeof SystemReportsRoute
+  SystemServicesRoute: typeof SystemServicesRoute
+  SystemSharedQueriesRoute: typeof SystemSharedQueriesRoute
+  SystemSignalrRoute: typeof SystemSignalrRoute
+  SystemTenantsRoute: typeof SystemTenantsRoute
+  SystemUserActivityRoute: typeof SystemUserActivityRoute
+  WorkflowScanRoute: typeof WorkflowScanRoute
+  WorkflowTrackingRoute: typeof WorkflowTrackingRoute
+  ContractsIndexRoute: typeof ContractsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LayoutRoute: LayoutRoute,
-  ContractsRoute: ContractsRouteWithChildren,
+  CommissionsRoute: CommissionsRoute,
+  DepositsRoute: DepositsRoute,
+  ExportsRoute: ExportsRoute,
+  GlEntriesRoute: GlEntriesRoute,
+  ReportsRoute: ReportsRoute,
+  SearchRoute: SearchRoute,
+  TrustRoute: TrustRoute,
+  ContractsContractIdRoute: ContractsContractIdRoute,
+  ContractsAtNeedRoute: ContractsAtNeedRoute,
+  ContractsNewRoute: ContractsNewRoute,
+  ContractsPreNeedRoute: ContractsPreNeedRoute,
+  PaymentsBatchesRoute: PaymentsBatchesRoute,
+  PaymentsUnappliedRoute: PaymentsUnappliedRoute,
+  SetupAccountingRoute: SetupAccountingRoute,
+  SetupCommissionsRoute: SetupCommissionsRoute,
+  SetupContractsRoute: SetupContractsRoute,
+  SetupEmployeesRoute: SetupEmployeesRoute,
+  SetupFormsRoute: SetupFormsRoute,
+  SetupItemsRoute: SetupItemsRoute,
+  SetupLocationsRoute: SetupLocationsRoute,
+  SetupPaymentsRoute: SetupPaymentsRoute,
+  SetupSalesTaxRoute: SetupSalesTaxRoute,
+  SetupTrustRoute: SetupTrustRoute,
+  SetupUsersRoute: SetupUsersRoute,
+  SystemConversionRoute: SystemConversionRoute,
+  SystemDashboardsRoute: SystemDashboardsRoute,
+  SystemExportsRoute: SystemExportsRoute,
+  SystemJobQueueRoute: SystemJobQueueRoute,
+  SystemReportsRoute: SystemReportsRoute,
+  SystemServicesRoute: SystemServicesRoute,
+  SystemSharedQueriesRoute: SystemSharedQueriesRoute,
+  SystemSignalrRoute: SystemSignalrRoute,
+  SystemTenantsRoute: SystemTenantsRoute,
+  SystemUserActivityRoute: SystemUserActivityRoute,
+  WorkflowScanRoute: WorkflowScanRoute,
+  WorkflowTrackingRoute: WorkflowTrackingRoute,
+  ContractsIndexRoute: ContractsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -221,40 +896,158 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_layout",
-        "/contracts"
+        "/commissions",
+        "/deposits",
+        "/exports",
+        "/gl-entries",
+        "/reports",
+        "/search",
+        "/trust",
+        "/contracts/$contractId",
+        "/contracts/at-need",
+        "/contracts/new",
+        "/contracts/pre-need",
+        "/payments/batches",
+        "/payments/unapplied",
+        "/setup/accounting",
+        "/setup/commissions",
+        "/setup/contracts",
+        "/setup/employees",
+        "/setup/forms",
+        "/setup/items",
+        "/setup/locations",
+        "/setup/payments",
+        "/setup/sales-tax",
+        "/setup/trust",
+        "/setup/users",
+        "/system/conversion",
+        "/system/dashboards",
+        "/system/exports",
+        "/system/job-queue",
+        "/system/reports",
+        "/system/services",
+        "/system/shared-queries",
+        "/system/signalr",
+        "/system/tenants",
+        "/system/user-activity",
+        "/workflow/scan",
+        "/workflow/tracking",
+        "/contracts/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/_layout": {
-      "filePath": "_layout.tsx"
+    "/commissions": {
+      "filePath": "commissions.tsx"
     },
-    "/contracts": {
-      "filePath": "contracts.tsx",
-      "children": [
-        "/contracts/$contractId",
-        "/contracts/layout",
-        "/contracts/new",
-        "/contracts/"
-      ]
+    "/deposits": {
+      "filePath": "deposits.tsx"
+    },
+    "/exports": {
+      "filePath": "exports.tsx"
+    },
+    "/gl-entries": {
+      "filePath": "gl-entries.tsx"
+    },
+    "/reports": {
+      "filePath": "reports.tsx"
+    },
+    "/search": {
+      "filePath": "search.tsx"
+    },
+    "/trust": {
+      "filePath": "trust.tsx"
     },
     "/contracts/$contractId": {
-      "filePath": "contracts/$contractId.tsx",
-      "parent": "/contracts"
+      "filePath": "contracts/$contractId.tsx"
     },
-    "/contracts/layout": {
-      "filePath": "contracts/layout.tsx",
-      "parent": "/contracts"
+    "/contracts/at-need": {
+      "filePath": "contracts/at-need.tsx"
     },
     "/contracts/new": {
-      "filePath": "contracts/new.tsx",
-      "parent": "/contracts"
+      "filePath": "contracts/new.tsx"
+    },
+    "/contracts/pre-need": {
+      "filePath": "contracts/pre-need.tsx"
+    },
+    "/payments/batches": {
+      "filePath": "payments/batches.tsx"
+    },
+    "/payments/unapplied": {
+      "filePath": "payments/unapplied.tsx"
+    },
+    "/setup/accounting": {
+      "filePath": "setup/accounting.tsx"
+    },
+    "/setup/commissions": {
+      "filePath": "setup/commissions.tsx"
+    },
+    "/setup/contracts": {
+      "filePath": "setup/contracts.tsx"
+    },
+    "/setup/employees": {
+      "filePath": "setup/employees.tsx"
+    },
+    "/setup/forms": {
+      "filePath": "setup/forms.tsx"
+    },
+    "/setup/items": {
+      "filePath": "setup/items.tsx"
+    },
+    "/setup/locations": {
+      "filePath": "setup/locations.tsx"
+    },
+    "/setup/payments": {
+      "filePath": "setup/payments.tsx"
+    },
+    "/setup/sales-tax": {
+      "filePath": "setup/sales-tax.tsx"
+    },
+    "/setup/trust": {
+      "filePath": "setup/trust.tsx"
+    },
+    "/setup/users": {
+      "filePath": "setup/users.tsx"
+    },
+    "/system/conversion": {
+      "filePath": "system/conversion.tsx"
+    },
+    "/system/dashboards": {
+      "filePath": "system/dashboards.tsx"
+    },
+    "/system/exports": {
+      "filePath": "system/exports.tsx"
+    },
+    "/system/job-queue": {
+      "filePath": "system/job-queue.tsx"
+    },
+    "/system/reports": {
+      "filePath": "system/reports.tsx"
+    },
+    "/system/services": {
+      "filePath": "system/services.tsx"
+    },
+    "/system/shared-queries": {
+      "filePath": "system/shared-queries.tsx"
+    },
+    "/system/signalr": {
+      "filePath": "system/signalr.tsx"
+    },
+    "/system/tenants": {
+      "filePath": "system/tenants.tsx"
+    },
+    "/system/user-activity": {
+      "filePath": "system/user-activity.tsx"
+    },
+    "/workflow/scan": {
+      "filePath": "workflow/scan.tsx"
+    },
+    "/workflow/tracking": {
+      "filePath": "workflow/tracking.tsx"
     },
     "/contracts/": {
-      "filePath": "contracts/index.tsx",
-      "parent": "/contracts"
+      "filePath": "contracts/index.tsx"
     }
   }
 }

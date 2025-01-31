@@ -1,21 +1,23 @@
 import {
-	BookOpen,
-	Bot,
+	Building2,
+	BarChart3,
+	ClipboardList,
 	Command,
-	Frame,
+	FileText,
+	FolderOpen,
+	LayoutDashboard,
 	LifeBuoy,
-	Map,
-	PieChart,
+	Map as MapIcon,
+	Search,
 	Send,
 	Settings2,
-	SquareTerminal,
+	Workflow,
 } from "lucide-react";
 import type * as React from "react";
 
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavMain } from "./NavMain";
+import { NavSecondary } from "./NavSecondary";
+import { NavUser } from "./NavUser";
 import {
 	Sidebar,
 	SidebarContent,
@@ -34,87 +36,190 @@ const data = {
 	},
 	navMain: [
 		{
-			title: "Playground",
-			url: "#",
-			icon: SquareTerminal,
-			isActive: true,
+			title: "Dashboard",
+			url: "/",
+			icon: LayoutDashboard,
+		},
+		{
+			title: "Search",
+			url: "/search",
+			icon: Search,
+		},
+		{
+			title: "Contracts",
+			icon: FileText,
 			items: [
 				{
-					title: "History",
-					url: "#",
+					title: "At-Need",
+					url: "/contracts/at-need",
 				},
 				{
-					title: "Starred",
-					url: "#",
-				},
-				{
-					title: "Settings",
-					url: "#",
+					title: "Pre-Need",
+					url: "/contracts/pre-need",
 				},
 			],
 		},
 		{
-			title: "Models",
-			url: "#",
-			icon: Bot,
+			title: "Payments",
+			icon: Building2,
 			items: [
 				{
-					title: "Genesis",
-					url: "#",
+					title: "Batches",
+					url: "/payments/batches",
 				},
 				{
-					title: "Explorer",
-					url: "#",
-				},
-				{
-					title: "Quantum",
-					url: "#",
+					title: "Unapplied",
+					url: "/payments/unapplied",
 				},
 			],
 		},
 		{
-			title: "Documentation",
-			url: "#",
-			icon: BookOpen,
+			title: "Workflow",
+			icon: Workflow,
 			items: [
 				{
-					title: "Introduction",
-					url: "#",
+					title: "Scan",
+					url: "/workflow/scan",
 				},
 				{
-					title: "Get Started",
-					url: "#",
-				},
-				{
-					title: "Tutorials",
-					url: "#",
-				},
-				{
-					title: "Changelog",
-					url: "#",
+					title: "Tracking",
+					url: "/workflow/tracking",
 				},
 			],
 		},
 		{
-			title: "Settings",
-			url: "#",
+			title: "Deposits",
+			url: "/deposits",
+			icon: Building2,
+		},
+		{
+			title: "Commissions",
+			url: "/commissions",
+			icon: BarChart3,
+		},
+		{
+			title: "GL Entries",
+			url: "/gl-entries",
+			icon: ClipboardList,
+		},
+		{
+			title: "Trust",
+			url: "/trust",
+			icon: Building2,
+		},
+		{
+			title: "Reports",
+			url: "/reports",
+			icon: FileText,
+		},
+		{
+			title: "Exports",
+			url: "/exports",
+			icon: FolderOpen,
+		},
+		{
+			title: "Setup",
 			icon: Settings2,
 			items: [
 				{
-					title: "General",
-					url: "#",
+					title: "Accounting",
+					url: "/setup/accounting",
 				},
 				{
-					title: "Team",
-					url: "#",
+					title: "Commissions",
+					url: "/setup/commissions",
 				},
 				{
-					title: "Billing",
-					url: "#",
+					title: "Contracts",
+					url: "/setup/contracts",
 				},
 				{
-					title: "Limits",
-					url: "#",
+					title: "Employees",
+					url: "/setup/employees",
+				},
+				{
+					title: "Forms",
+					url: "/setup/forms",
+				},
+				{
+					title: "Items",
+					url: "/setup/items",
+				},
+				{
+					title: "Locations",
+					url: "/setup/locations",
+				},
+				{
+					title: "Payments",
+					url: "/setup/payments",
+				},
+				{
+					title: "Sales Tax",
+					url: "/setup/sales-tax",
+				},
+				{
+					title: "Trust",
+					url: "/setup/trust",
+				},
+				{
+					title: "Users",
+					url: "/setup/users",
+				},
+			],
+		},
+		{
+			title: "System",
+			icon: Command,
+			items: [
+				{
+					title: "Conversion",
+					url: "/system/conversion",
+					letter: "C",
+				},
+				{
+					title: "Dashboards",
+					url: "/system/dashboards",
+					letter: "D",
+				},
+				{
+					title: "Job Queue",
+					url: "/system/job-queue",
+					letter: "JQ",
+				},
+				{
+					title: "Reports",
+					url: "/system/reports",
+					letter: "R",
+				},
+				{
+					title: "Exports",
+					url: "/system/exports",
+					letter: "E",
+				},
+				{
+					title: "Shared Queries",
+					url: "/system/shared-queries",
+					letter: "SQ",
+				},
+				{
+					title: "Services",
+					url: "/system/services",
+					letter: "S",
+				},
+				{
+					title: "SignalR",
+					url: "/system/signalr",
+					letter: "S",
+				},
+				{
+					title: "Tenants",
+					url: "/system/tenants",
+					letter: "T",
+				},
+				{
+					title: "User Activity",
+					url: "/system/user-activity",
+					letter: "UA",
 				},
 			],
 		},
@@ -131,23 +236,6 @@ const data = {
 			icon: Send,
 		},
 	],
-	projects: [
-		{
-			name: "Design Engineering",
-			url: "#",
-			icon: Frame,
-		},
-		{
-			name: "Sales & Marketing",
-			url: "#",
-			icon: PieChart,
-		},
-		{
-			name: "Travel",
-			url: "#",
-			icon: Map,
-		},
-	],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -160,7 +248,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
-							<a href="#">
+							<a href="/">
 								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
 									<Command className="size-4" />
 								</div>
@@ -175,7 +263,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={data.navMain} />
-				<NavProjects projects={data.projects} />
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
 			</SidebarContent>
 			<SidebarFooter>

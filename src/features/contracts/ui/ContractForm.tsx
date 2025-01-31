@@ -1,6 +1,46 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import type { CreateContractDTO, UpdateContractDTO } from "@/api/contractApi";
 import { Button } from "@/components/ui/button";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
+
+interface Party {
+	email: string;
+	name: string;
+	role: "viewer" | "signer";
+}
+
+const partySchema = z.object({
+	email: z.string().email("Invalid email address"),
+	name: z.string().min(1, "Name is required"),
+	role: z.enum(["viewer", "signer"]),
+});
+
+const formSchema = z.object({
+	title: z.string().min(1, "Title is required"),
+	description: z.string(),
+	parties: z.array(partySchema),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
 
 interface ContractFormProps {
 	initialData?: Partial<CreateContractDTO>;
@@ -15,94 +55,72 @@ export function ContractForm({
 	isLoading = false,
 	mode = "create",
 }: ContractFormProps) {
-	const [formData, setFormData] = useState<CreateContractDTO>({
-		title: "",
-		description: "",
-		parties: [],
-		...initialData,
-	} as CreateContractDTO);
+	const form = useForm<FormSchema>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			title: initialData?.title || "",
+			description: initialData?.description || "",
+			parties: initialData?.parties || [],
+		},
+	});
 
-	const [newParty, setNewParty] = useState<{
-		email: string;
-		name: string;
-		role: "viewer" | "signer";
-	}>({
+	const [newParty, setNewParty] = useState<Party>({
 		email: "",
 		name: "",
 		role: "viewer",
 	});
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		onSubmit(formData);
-	};
-
 	const addParty = () => {
-		if (newParty.email) {
-			setFormData((prev) => ({
-				...prev,
-				parties: [...(prev.parties || []), newParty],
-			}));
+		if (newParty.email && newParty.name) {
+			const currentParties = form.getValues("parties") || [];
+			form.setValue("parties", [...currentParties, newParty]);
 			setNewParty({ email: "", name: "", role: "viewer" });
 		}
 	};
 
 	const removeParty = (email: string) => {
-		setFormData((prev) => ({
-			...prev,
-			parties: prev.parties?.filter((p) => p.email !== email) || [],
-		}));
+		const currentParties = form.getValues("parties") || [];
+		form.setValue(
+			"parties",
+			currentParties.filter((party: Party) => party.email !== email),
+		);
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-6">
-			<div className="space-y-4">
-				<div>
-					<label
-						htmlFor="title"
-						className="block text-sm font-medium text-foreground"
-					>
-						Title
-					</label>
-					<input
-						type="text"
-						id="title"
-						value={formData.title}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, title: e.target.value }))
-						}
-						className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-						required={mode === "create"}
-					/>
-				</div>
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+				<FormField
+					control={form.control}
+					name="title"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Title</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
-				<div>
-					<label
-						htmlFor="description"
-						className="block text-sm font-medium text-foreground"
-					>
-						Description
-					</label>
-					<textarea
-						id="description"
-						value={formData.description}
-						onChange={(e) =>
-							setFormData((prev) => ({ ...prev, description: e.target.value }))
-						}
-						rows={3}
-						className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-					/>
-				</div>
+				<FormField
+					control={form.control}
+					name="description"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Description</FormLabel>
+							<FormControl>
+								<Textarea {...field} rows={3} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
-				<div>
-					<label
-						htmlFor="parties"
-						className="block text-sm font-medium text-foreground"
-					>
-						Parties
-					</label>
-					<div id="parties" className="mt-2 space-y-2">
-						{formData.parties?.map((party) => (
+				<div className="space-y-4">
+					<FormLabel>Parties</FormLabel>
+					<div className="space-y-2">
+						{form.watch("parties")?.map((party: Party) => (
 							<div
 								key={party.email}
 								className="flex items-center justify-between rounded-md border border-input bg-background p-2"
@@ -129,53 +147,52 @@ export function ContractForm({
 					</div>
 
 					<div className="mt-2 flex gap-2">
-						<input
+						<Input
 							type="text"
 							value={newParty.name}
 							onChange={(e) =>
 								setNewParty((prev) => ({ ...prev, name: e.target.value }))
 							}
 							placeholder="Name"
-							className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						/>
-						<input
+						<Input
 							type="email"
 							value={newParty.email}
 							onChange={(e) =>
 								setNewParty((prev) => ({ ...prev, email: e.target.value }))
 							}
 							placeholder="Email address"
-							className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						/>
-						<select
+						<Select
 							value={newParty.role}
-							onChange={(e) =>
-								setNewParty((prev) => ({
-									...prev,
-									role: e.target.value as "signer" | "viewer",
-								}))
+							onValueChange={(value: "viewer" | "signer") =>
+								setNewParty((prev) => ({ ...prev, role: value }))
 							}
-							className="rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						>
-							<option value="viewer">Viewer</option>
-							<option value="signer">Signer</option>
-						</select>
+							<SelectTrigger className="">
+								<SelectValue placeholder="Select role" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="viewer">Viewer</SelectItem>
+								<SelectItem value="signer">Signer</SelectItem>
+							</SelectContent>
+						</Select>
 						<Button type="button" onClick={addParty}>
 							Add
 						</Button>
 					</div>
 				</div>
-			</div>
 
-			<div className="flex justify-end">
-				<Button type="submit" disabled={isLoading}>
-					{isLoading
-						? "Saving..."
-						: mode === "create"
-							? "Create Contract"
-							: "Update Contract"}
-				</Button>
-			</div>
-		</form>
+				<div className="flex justify-end">
+					<Button type="submit" disabled={isLoading}>
+						{isLoading
+							? "Saving..."
+							: mode === "create"
+								? "Create Contract"
+								: "Update Contract"}
+					</Button>
+				</div>
+			</form>
+		</Form>
 	);
 }

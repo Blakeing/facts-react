@@ -11,9 +11,9 @@
       "id": "1",
       "title": "Sample Contract",
       "description": "This is a sample contract for testing purposes",
-      "status": "draft",
+      "status": "cancelled",
       "createdAt": "2024-02-20T00:00:00.000Z",
-      "updatedAt": "2024-02-20T00:00:00.000Z",
+      "updatedAt": "2025-01-31T00:46:52.838Z",
       "ownerId": "1",
       "parties": [
         {
@@ -107,6 +107,51 @@
         }
       ],
       "id": "NjlA_XQ"
+    },
+    {
+      "title": "4",
+      "description": "4",
+      "parties": [
+        {
+          "email": "blakeingenthron@gmail.com",
+          "name": "4",
+          "role": "viewer"
+        }
+      ],
+      "status": "active",
+      "createdAt": "2025-01-30T22:55:01.709Z",
+      "updatedAt": "2025-01-30T22:55:26.620Z",
+      "id": "cwhLwLF"
+    },
+    {
+      "title": "5",
+      "description": "5",
+      "parties": [
+        {
+          "email": "blakeingenthron@gmail.com",
+          "name": "5",
+          "role": "signer"
+        }
+      ],
+      "status": "draft",
+      "createdAt": "2025-01-31T00:45:25.429Z",
+      "updatedAt": "2025-01-31T00:45:25.429Z",
+      "id": "WVA5Jbb"
+    },
+    {
+      "title": "6",
+      "description": "6",
+      "parties": [
+        {
+          "email": "blakeingenthron@gmail.com",
+          "name": "6",
+          "role": "signer"
+        }
+      ],
+      "status": "draft",
+      "createdAt": "2025-01-31T00:45:42.363Z",
+      "updatedAt": "2025-01-31T00:45:42.363Z",
+      "id": "B9FUFkN"
     }
   ]
 }

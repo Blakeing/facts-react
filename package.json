@@ -12,7 +12,8 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"start": "vite",
-		"server": "json-server --watch db.json --port 3001"
+		"server": "json-server --watch db.json --port 3001",
+		"route:gen": "pnpm exec @tanstack/router-cli generate-routes"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^3.10.0",
@@ -43,7 +44,7 @@
 		"@radix-ui/react-toggle": "^1.1.1",
 		"@radix-ui/react-toggle-group": "^1.1.1",
 		"@radix-ui/react-tooltip": "^1.1.7",
-		"@tailwindcss/vite": "^4.0.0",
+		"@tailwindcss/vite": "^4.0.1",
 		"@tanstack/react-query": "^5.65.1",
 		"@tanstack/react-query-devtools": "^5.65.1",
 		"@tanstack/react-router": "^1.97.25",
@@ -74,7 +75,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@tailwindcss/postcss": "^4.0.0",
-		"@tanstack/router-plugin": "^1.97.25",
+		"@tanstack/router-cli": "^1.98.4",
+		"@tanstack/router-plugin": "^1.98.3",
 		"@types/node": "^22.12.0",
 		"@types/react": "^19.0.8",
 		"@types/react-dom": "^19.0.3",
@@ -82,7 +84,7 @@
 		"concurrently": "^8.2.2",
 		"json-server": "^0.17.4",
 		"postcss": "^8.5.1",
-		"tailwindcss": "^4.0.0",
+		"tailwindcss": "^4.0.1",
 		"typescript": "^5.3.3",
 		"vite": "^6.0.5"
 	},

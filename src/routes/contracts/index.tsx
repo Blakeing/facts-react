@@ -3,7 +3,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ContractCard } from "@/features/contracts/ui/ContractCard";
-import { ContractDataTable } from "@/features/contracts/ui/ContractDataTable";
+import { ContractTable } from "@/features/contracts/ui/ContractTable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { LayoutGrid, List } from "lucide-react";
@@ -111,65 +111,121 @@ function ContractsPage() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<h1 className="text-3xl font-bold">
-					{status
-						? `${status.charAt(0).toUpperCase() + status.slice(1)} Contracts`
-						: "All Contracts"}
-				</h1>
-				<div className="flex items-center gap-4">
-					<ToggleGroup
-						type="single"
-						value={view}
-						onValueChange={(value) => {
-							if (value) setView(value as "grid" | "list");
-						}}
-					>
-						<ToggleGroupItem value="grid" aria-label="Grid view">
-							<LayoutGrid className="h-4 w-4" />
-						</ToggleGroupItem>
-						<ToggleGroupItem value="list" aria-label="List view">
-							<List className="h-4 w-4" />
-						</ToggleGroupItem>
-					</ToggleGroup>
-					<Link to="/contracts/new">
-						<Button>New Contract</Button>
-					</Link>
+		<div className="container py-6 dev:outline">
+			<nav className="mb-8 dev:outline-dashed">
+				<div className="flex items-center justify-between dev:outline-dotted">
+					<div className="flex items-center space-x-4 dev:bg-debug-light">
+						<Link
+							to="/contracts"
+							className="text-lg font-semibold hover:text-primary"
+							activeProps={{ className: "text-primary" }}
+						>
+							All Contracts
+						</Link>
+						<Link
+							to="/contracts/new"
+							className="text-lg font-semibold hover:text-primary"
+							activeProps={{ className: "text-primary" }}
+						>
+							New Contract
+						</Link>
+					</div>
+					<div className="flex items-center space-x-4 dev:bg-debug-dark">
+						<Link
+							to="/contracts"
+							search={{ status: "draft" }}
+							className="text-sm text-muted-foreground hover:text-foreground"
+							activeProps={{ className: "text-foreground" }}
+						>
+							Drafts
+						</Link>
+						<Link
+							to="/contracts"
+							search={{ status: "active" }}
+							className="text-sm text-muted-foreground hover:text-foreground"
+							activeProps={{ className: "text-foreground" }}
+						>
+							Active
+						</Link>
+						<Link
+							to="/contracts"
+							search={{ status: "completed" }}
+							className="text-sm text-muted-foreground hover:text-foreground"
+							activeProps={{ className: "text-foreground" }}
+						>
+							Completed
+						</Link>
+						<Link
+							to="/contracts"
+							search={{ status: "cancelled" }}
+							className="text-sm text-muted-foreground hover:text-foreground"
+							activeProps={{ className: "text-foreground" }}
+						>
+							Cancelled
+						</Link>
+					</div>
 				</div>
-			</div>
-
-			{filteredContracts.length === 0 ? (
-				<div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-					<p className="text-muted-foreground">
-						{status ? `No ${status} contracts found` : "No contracts found"}
-					</p>
-					<Link to="/contracts/new">
-						<Button>Create your first contract</Button>
-					</Link>
-				</div>
-			) : view === "grid" ? (
-				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{filteredContracts.map((contract) => (
-						<ContractCard
-							key={contract.id}
-							contract={contract}
-							onSign={handleSignContract}
-							onCancel={handleCancelContract}
-							disabled={{
-								sign: signMutation.isPending,
-								cancel: cancelMutation.isPending,
+			</nav>
+			<div className="space-y-6">
+				<div className="flex items-center justify-between">
+					<h1 className="text-3xl font-bold">
+						{status
+							? `${status.charAt(0).toUpperCase() + status.slice(1)} Contracts`
+							: "All Contracts"}
+					</h1>
+					<div className="flex items-center gap-4">
+						<ToggleGroup
+							type="single"
+							value={view}
+							onValueChange={(value) => {
+								if (value) setView(value as "grid" | "list");
 							}}
-						/>
-					))}
+						>
+							<ToggleGroupItem value="grid" aria-label="Grid view">
+								<LayoutGrid className="h-4 w-4" />
+							</ToggleGroupItem>
+							<ToggleGroupItem value="list" aria-label="List view">
+								<List className="h-4 w-4" />
+							</ToggleGroupItem>
+						</ToggleGroup>
+						<Link to="/contracts/new">
+							<Button>New Contract</Button>
+						</Link>
+					</div>
 				</div>
-			) : (
-				<ContractDataTable
-					contracts={filteredContracts}
-					onSign={handleSignContract}
-					onCancel={handleCancelContract}
-				/>
-			)}
+
+				{filteredContracts.length === 0 ? (
+					<div className="flex h-[50vh] flex-col items-center justify-center gap-4">
+						<p className="text-muted-foreground">
+							{status ? `No ${status} contracts found` : "No contracts found"}
+						</p>
+						<Link to="/contracts/new">
+							<Button>Create your first contract</Button>
+						</Link>
+					</div>
+				) : view === "grid" ? (
+					<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+						{filteredContracts.map((contract) => (
+							<ContractCard
+								key={contract.id}
+								contract={contract}
+								onSign={handleSignContract}
+								onCancel={handleCancelContract}
+								disabled={{
+									sign: signMutation.isPending,
+									cancel: cancelMutation.isPending,
+								}}
+							/>
+						))}
+					</div>
+				) : (
+					<ContractTable
+						contracts={filteredContracts}
+						onSign={handleSignContract}
+						onCancel={handleCancelContract}
+					/>
+				)}
+			</div>
 		</div>
 	);
 }
