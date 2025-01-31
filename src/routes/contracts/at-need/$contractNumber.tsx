@@ -7,15 +7,15 @@ import type { AtNeedContract } from "@/features/contracts/at-need/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/contracts/at-need/$contractId")({
+export const Route = createFileRoute("/contracts/at-need/$contractNumber")({
 	component: AtNeedContractDetailPage,
 	parseParams: (params) => ({
-		contractId: params.contractId,
+		contractNumber: params.contractNumber,
 	}),
 });
 
 function AtNeedContractDetailPage() {
-	const { contractId } = Route.useParams();
+	const { contractNumber } = Route.useParams();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -24,8 +24,8 @@ function AtNeedContractDetailPage() {
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ["at-need-contract", contractId],
-		queryFn: () => atNeedContractApi.getAtNeedContract(contractId),
+		queryKey: ["at-need-contract", contractNumber],
+		queryFn: () => atNeedContractApi.getAtNeedContractByNumber(contractNumber),
 	});
 
 	const signMutation = useMutation({
@@ -35,7 +35,7 @@ function AtNeedContractDetailPage() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ["at-need-contract", contractId],
+				queryKey: ["at-need-contract", contractNumber],
 			});
 			queryClient.invalidateQueries({ queryKey: ["at-need-contracts"] });
 		},
@@ -51,7 +51,7 @@ function AtNeedContractDetailPage() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ["at-need-contract", contractId],
+				queryKey: ["at-need-contract", contractNumber],
 			});
 			queryClient.invalidateQueries({ queryKey: ["at-need-contracts"] });
 		},
@@ -174,3 +174,5 @@ function AtNeedContractDetailPage() {
 		</div>
 	);
 }
+
+export default AtNeedContractDetailPage;

@@ -1,8 +1,6 @@
 import { atNeedContractApi } from "@/features/contracts/at-need/api/atNeedContractApi";
-import {
-	AtNeedForm,
-	type AtNeedFormValues,
-} from "@/features/contracts/at-need/forms/at-need-form";
+import { ContractDetailLayout } from "@/features/contracts/at-need/layouts/ContractDetailLayout";
+import { GeneralPage } from "@/features/contracts/at-need/pages/GeneralPage";
 import type { AtNeedContract } from "@/features/contracts/at-need/types";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -14,36 +12,35 @@ export const Route = createFileRoute("/contracts/at-need/new")({
 export default function NewAtNeedContractPage() {
 	const navigate = useNavigate();
 	const createMutation = useMutation({
-		mutationFn: (values: AtNeedFormValues) =>
+		mutationFn: (values: AtNeedContract) =>
 			atNeedContractApi.createAtNeedContract(values),
 		onSuccess: (contract: AtNeedContract) => {
 			navigate({ to: `/contracts/at-need/${contract.id}` });
 		},
 	});
 
-	const handleSubmit = async (values: AtNeedFormValues) => {
-		try {
-			await createMutation.mutateAsync(values);
-		} catch (error) {
-			console.error("Failed to create contract:", error);
-		}
-	};
-
 	return (
-		<div className="container mx-auto py-10">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold tracking-tight">
-					New At-Need Contract
-				</h1>
-				<p className="text-muted-foreground">
-					Create a new at-need contract by filling out the form below
-				</p>
+		<div className="flex flex-col h-full">
+			{/* Header */}
+			<div className="border-b bg-background">
+				<div className="container py-4">
+					<div className="flex items-start justify-between">
+						<div>
+							<h1 className="text-2xl font-bold">New At-Need Contract</h1>
+							<p className="mt-2 text-sm text-muted-foreground">
+								Create a new at-need contract by filling out the required
+								information
+							</p>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div className="mx-auto max-w-2xl">
-				<AtNeedForm
-					onSubmit={handleSubmit}
-					isSubmitting={createMutation.isPending}
-				/>
+
+			{/* Content with Layout */}
+			<div className="flex-1">
+				<ContractDetailLayout contractId="new" currentSection="general">
+					<GeneralPage />
+				</ContractDetailLayout>
 			</div>
 		</div>
 	);

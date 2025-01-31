@@ -49,7 +49,9 @@ import { Route as ContractsAtNeedIndexImport } from './routes/contracts/at-need/
 import { Route as ContractsPreNeedNewImport } from './routes/contracts/pre-need/new'
 import { Route as ContractsPreNeedContractIdImport } from './routes/contracts/pre-need/$contractId'
 import { Route as ContractsAtNeedNewImport } from './routes/contracts/at-need/new'
+import { Route as ContractsAtNeedContractNumberImport } from './routes/contracts/at-need/$contractNumber'
 import { Route as ContractsAtNeedContractIdImport } from './routes/contracts/at-need/$contractId'
+import { Route as ContractsAtNeedContractNumberSectionImport } from './routes/contracts/at-need/$contractNumber/$section'
 
 // Create/Update Routes
 
@@ -283,11 +285,25 @@ const ContractsAtNeedNewRoute = ContractsAtNeedNewImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ContractsAtNeedContractNumberRoute =
+  ContractsAtNeedContractNumberImport.update({
+    id: '/contracts/at-need/$contractNumber',
+    path: '/contracts/at-need/$contractNumber',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 const ContractsAtNeedContractIdRoute = ContractsAtNeedContractIdImport.update({
   id: '/contracts/at-need/$contractId',
   path: '/contracts/at-need/$contractId',
   getParentRoute: () => rootRoute,
 } as any)
+
+const ContractsAtNeedContractNumberSectionRoute =
+  ContractsAtNeedContractNumberSectionImport.update({
+    id: '/$section',
+    path: '/$section',
+    getParentRoute: () => ContractsAtNeedContractNumberRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -531,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractsAtNeedContractIdImport
       parentRoute: typeof rootRoute
     }
+    '/contracts/at-need/$contractNumber': {
+      id: '/contracts/at-need/$contractNumber'
+      path: '/contracts/at-need/$contractNumber'
+      fullPath: '/contracts/at-need/$contractNumber'
+      preLoaderRoute: typeof ContractsAtNeedContractNumberImport
+      parentRoute: typeof rootRoute
+    }
     '/contracts/at-need/new': {
       id: '/contracts/at-need/new'
       path: '/contracts/at-need/new'
@@ -566,10 +589,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractsPreNeedIndexImport
       parentRoute: typeof rootRoute
     }
+    '/contracts/at-need/$contractNumber/$section': {
+      id: '/contracts/at-need/$contractNumber/$section'
+      path: '/$section'
+      fullPath: '/contracts/at-need/$contractNumber/$section'
+      preLoaderRoute: typeof ContractsAtNeedContractNumberSectionImport
+      parentRoute: typeof ContractsAtNeedContractNumberImport
+    }
   }
 }
 
 // Create and export the route tree
+
+interface ContractsAtNeedContractNumberRouteChildren {
+  ContractsAtNeedContractNumberSectionRoute: typeof ContractsAtNeedContractNumberSectionRoute
+}
+
+const ContractsAtNeedContractNumberRouteChildren: ContractsAtNeedContractNumberRouteChildren =
+  {
+    ContractsAtNeedContractNumberSectionRoute:
+      ContractsAtNeedContractNumberSectionRoute,
+  }
+
+const ContractsAtNeedContractNumberRouteWithChildren =
+  ContractsAtNeedContractNumberRoute._addFileChildren(
+    ContractsAtNeedContractNumberRouteChildren,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -606,11 +651,13 @@ export interface FileRoutesByFullPath {
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
   '/contracts/at-need': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
+  '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
 }
 
 export interface FileRoutesByTo {
@@ -648,11 +695,13 @@ export interface FileRoutesByTo {
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
   '/contracts/at-need': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
+  '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
 }
 
 export interface FileRoutesById {
@@ -691,11 +740,13 @@ export interface FileRoutesById {
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
   '/contracts/at-need/': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need/': typeof ContractsPreNeedIndexRoute
+  '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
 }
 
 export interface FileRouteTypes {
@@ -735,11 +786,13 @@ export interface FileRouteTypes {
     | '/workflow/scan'
     | '/workflow/tracking'
     | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
     | '/contracts/at-need'
     | '/contracts/pre-need'
+    | '/contracts/at-need/$contractNumber/$section'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -776,11 +829,13 @@ export interface FileRouteTypes {
     | '/workflow/scan'
     | '/workflow/tracking'
     | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
     | '/contracts/at-need'
     | '/contracts/pre-need'
+    | '/contracts/at-need/$contractNumber/$section'
   id:
     | '__root__'
     | '/'
@@ -817,11 +872,13 @@ export interface FileRouteTypes {
     | '/workflow/scan'
     | '/workflow/tracking'
     | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
     | '/contracts/at-need/'
     | '/contracts/pre-need/'
+    | '/contracts/at-need/$contractNumber/$section'
   fileRoutesById: FileRoutesById
 }
 
@@ -860,6 +917,7 @@ export interface RootRouteChildren {
   WorkflowScanRoute: typeof WorkflowScanRoute
   WorkflowTrackingRoute: typeof WorkflowTrackingRoute
   ContractsAtNeedContractIdRoute: typeof ContractsAtNeedContractIdRoute
+  ContractsAtNeedContractNumberRoute: typeof ContractsAtNeedContractNumberRouteWithChildren
   ContractsAtNeedNewRoute: typeof ContractsAtNeedNewRoute
   ContractsPreNeedContractIdRoute: typeof ContractsPreNeedContractIdRoute
   ContractsPreNeedNewRoute: typeof ContractsPreNeedNewRoute
@@ -902,6 +960,8 @@ const rootRouteChildren: RootRouteChildren = {
   WorkflowScanRoute: WorkflowScanRoute,
   WorkflowTrackingRoute: WorkflowTrackingRoute,
   ContractsAtNeedContractIdRoute: ContractsAtNeedContractIdRoute,
+  ContractsAtNeedContractNumberRoute:
+    ContractsAtNeedContractNumberRouteWithChildren,
   ContractsAtNeedNewRoute: ContractsAtNeedNewRoute,
   ContractsPreNeedContractIdRoute: ContractsPreNeedContractIdRoute,
   ContractsPreNeedNewRoute: ContractsPreNeedNewRoute,
@@ -953,6 +1013,7 @@ export const routeTree = rootRoute
         "/workflow/scan",
         "/workflow/tracking",
         "/contracts/at-need/$contractId",
+        "/contracts/at-need/$contractNumber",
         "/contracts/at-need/new",
         "/contracts/pre-need/$contractId",
         "/contracts/pre-need/new",
@@ -1062,6 +1123,12 @@ export const routeTree = rootRoute
     "/contracts/at-need/$contractId": {
       "filePath": "contracts/at-need/$contractId.tsx"
     },
+    "/contracts/at-need/$contractNumber": {
+      "filePath": "contracts/at-need/$contractNumber.tsx",
+      "children": [
+        "/contracts/at-need/$contractNumber/$section"
+      ]
+    },
     "/contracts/at-need/new": {
       "filePath": "contracts/at-need/new.tsx"
     },
@@ -1076,6 +1143,10 @@ export const routeTree = rootRoute
     },
     "/contracts/pre-need/": {
       "filePath": "contracts/pre-need/index.tsx"
+    },
+    "/contracts/at-need/$contractNumber/$section": {
+      "filePath": "contracts/at-need/$contractNumber/$section.tsx",
+      "parent": "/contracts/at-need/$contractNumber"
     }
   }
 }
