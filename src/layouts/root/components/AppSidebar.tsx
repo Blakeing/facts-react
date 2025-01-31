@@ -1,13 +1,12 @@
 import {
-	Building2,
 	BarChart3,
+	Building2,
 	ClipboardList,
 	Command,
 	FileText,
 	FolderOpen,
 	LayoutDashboard,
 	LifeBuoy,
-	Map as MapIcon,
 	Search,
 	Send,
 	Settings2,
@@ -15,9 +14,6 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 
-import { NavMain } from "./NavMain";
-import { NavSecondary } from "./NavSecondary";
-import { NavUser } from "./NavUser";
 import {
 	Sidebar,
 	SidebarContent,
@@ -27,6 +23,9 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavMain } from "./NavMain";
+import { NavSecondary } from "./NavSecondary";
+import { NavUser } from "./NavUser";
 
 const data = {
 	user: {
@@ -261,7 +260,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
-			<SidebarContent>
+			<SidebarContent style={{ scrollbarGutter: "stable" }}>
 				<NavMain items={data.navMain} />
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
 			</SidebarContent>

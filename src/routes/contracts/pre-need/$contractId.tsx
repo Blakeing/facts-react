@@ -1,15 +1,16 @@
-import { contractApi } from "@/api/contractApi";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
+import { preNeedContractApi } from "@/features/contracts/pre-need/api/preNeedContractApi";
+import type { PreNeedContract } from "@/features/contracts/pre-need/types";
 import { formatDate } from "@/utils/formatDate";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/contracts/$contractId")({
-	component: ContractDetailPage,
+export const Route = createFileRoute("/contracts/pre-need/$contractId")({
+	component: PreNeedContractDetailPage,
 });
 
-function ContractDetailPage() {
+function PreNeedContractDetailPage() {
 	const { contractId } = Route.useParams();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -19,32 +20,36 @@ function ContractDetailPage() {
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ["contract", contractId],
-		queryFn: () => contractApi.getContract(contractId),
+		queryKey: ["pre-need-contract", contractId],
+		queryFn: () => preNeedContractApi.getPreNeedContract(contractId),
 	});
 
 	const signMutation = useMutation({
-		mutationFn: () => contractApi.signContract(contractId),
+		mutationFn: () => preNeedContractApi.signPreNeedContract(contractId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["contract", contractId] });
-			queryClient.invalidateQueries({ queryKey: ["contracts"] });
+			queryClient.invalidateQueries({
+				queryKey: ["pre-need-contract", contractId],
+			});
+			queryClient.invalidateQueries({ queryKey: ["pre-need-contracts"] });
 		},
 	});
 
 	const cancelMutation = useMutation({
 		mutationFn: () =>
-			contractApi.cancelContract(contractId, "Cancelled by user"),
+			preNeedContractApi.cancelPreNeedContract(contractId, "Cancelled by user"),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["contract", contractId] });
-			queryClient.invalidateQueries({ queryKey: ["contracts"] });
+			queryClient.invalidateQueries({
+				queryKey: ["pre-need-contract", contractId],
+			});
+			queryClient.invalidateQueries({ queryKey: ["pre-need-contracts"] });
 		},
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: () => contractApi.deleteContract(contractId),
+		mutationFn: () => preNeedContractApi.deletePreNeedContract(contractId),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["contracts"] });
-			navigate({ to: "/contracts" });
+			queryClient.invalidateQueries({ queryKey: ["pre-need-contracts"] });
+			navigate({ to: "/contracts/pre-need" });
 		},
 	});
 
@@ -95,14 +100,14 @@ function ContractDetailPage() {
 		return (
 			<div className="flex h-[50vh] flex-col items-center justify-center gap-4">
 				<p className="text-muted-foreground">Contract not found</p>
-				<Button onClick={() => navigate({ to: "/contracts" })}>
-					Back to Contracts
+				<Button onClick={() => navigate({ to: "/contracts/pre-need" })}>
+					Back to Pre-Need Contracts
 				</Button>
 			</div>
 		);
 	}
 
-	const statusColors = {
+	const statusColors: Record<PreNeedContract["status"], string> = {
 		draft: "bg-gray-100 text-gray-800",
 		active: "bg-green-100 text-green-800",
 		completed: "bg-blue-100 text-blue-800",
@@ -113,7 +118,9 @@ function ContractDetailPage() {
 		<div className="mx-auto max-w-4xl space-y-8">
 			<div className="flex items-start justify-between">
 				<div>
-					<h1 className="text-3xl font-bold">{contract.title}</h1>
+					<h1 className="text-3xl font-bold">
+						Pre-Need Contract #{contract.contractNumber}
+					</h1>
 					<div className="mt-2 flex items-center gap-4">
 						<span
 							className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -157,42 +164,50 @@ function ContractDetailPage() {
 				</div>
 			</div>
 
-			{contract.description && (
-				<div className="rounded-lg border bg-card p-6">
-					<h2 className="text-lg font-semibold">Description</h2>
-					<p className="mt-2 whitespace-pre-wrap text-muted-foreground">
-						{contract.description}
-					</p>
+			<div className="rounded-lg border bg-card p-6">
+				<h2 className="text-lg font-semibold">Customer Information</h2>
+				<div className="mt-4 space-y-4">
+					<div className="flex items-center justify-between rounded-md border bg-background p-4">
+						<div className="space-y-1">
+							<div className="font-medium">{contract.customerName}</div>
+						</div>
+					</div>
 				</div>
-			)}
+			</div>
 
 			<div className="rounded-lg border bg-card p-6">
-				<h2 className="text-lg font-semibold">Parties</h2>
+				<h2 className="text-lg font-semibold">Contract Details</h2>
 				<div className="mt-4 space-y-4">
-					{contract.parties.map((party) => (
-						<div
-							key={`${contract.id}-${party.id}`}
-							className="flex items-center justify-between rounded-md border bg-background p-4"
-						>
-							<div className="space-y-1">
-								<div className="font-medium">{party.name}</div>
-								<div className="text-sm text-muted-foreground">
-									{party.email}
-								</div>
-							</div>
-							<div
-								className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-									party.role === "owner"
-										? "bg-blue-100 text-blue-800"
-										: party.role === "signer"
-											? "bg-yellow-100 text-yellow-800"
-											: "bg-gray-100 text-gray-800"
-								}`}
-							>
-								{party.role}
+					<div className="flex items-center justify-between rounded-md border bg-background p-4">
+						<div className="space-y-1">
+							<div className="font-medium">Total Amount</div>
+							<div className="text-sm text-muted-foreground">
+								{new Intl.NumberFormat("en-US", {
+									style: "currency",
+									currency: "USD",
+								}).format(contract.totalAmount)}
 							</div>
 						</div>
-					))}
+					</div>
+					<div className="flex items-center justify-between rounded-md border bg-background p-4">
+						<div className="space-y-1">
+							<div className="font-medium">Monthly Payment</div>
+							<div className="text-sm text-muted-foreground">
+								{new Intl.NumberFormat("en-US", {
+									style: "currency",
+									currency: "USD",
+								}).format(contract.monthlyPayment)}
+							</div>
+						</div>
+					</div>
+					<div className="flex items-center justify-between rounded-md border bg-background p-4">
+						<div className="space-y-1">
+							<div className="font-medium">Next Payment Date</div>
+							<div className="text-sm text-muted-foreground">
+								{formatDate(contract.nextPaymentDate)}
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

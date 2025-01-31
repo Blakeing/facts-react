@@ -7,7 +7,6 @@ import { queryClient } from "./router";
 
 import "./styles/index.css";
 
-// Wait for the router to be ready before rendering
 await router.load();
 
 const rootElement = document.getElementById("root");

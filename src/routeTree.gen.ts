@@ -19,7 +19,6 @@ import { Route as ExportsImport } from './routes/exports'
 import { Route as DepositsImport } from './routes/deposits'
 import { Route as CommissionsImport } from './routes/commissions'
 import { Route as IndexImport } from './routes/index'
-import { Route as ContractsIndexImport } from './routes/contracts/index'
 import { Route as WorkflowTrackingImport } from './routes/workflow/tracking'
 import { Route as WorkflowScanImport } from './routes/workflow/scan'
 import { Route as SystemUserActivityImport } from './routes/system/user-activity'
@@ -45,10 +44,12 @@ import { Route as SetupCommissionsImport } from './routes/setup/commissions'
 import { Route as SetupAccountingImport } from './routes/setup/accounting'
 import { Route as PaymentsUnappliedImport } from './routes/payments/unapplied'
 import { Route as PaymentsBatchesImport } from './routes/payments/batches'
-import { Route as ContractsPreNeedImport } from './routes/contracts/pre-need'
-import { Route as ContractsNewImport } from './routes/contracts/new'
-import { Route as ContractsAtNeedImport } from './routes/contracts/at-need'
-import { Route as ContractsContractIdImport } from './routes/contracts/$contractId'
+import { Route as ContractsPreNeedIndexImport } from './routes/contracts/pre-need/index'
+import { Route as ContractsAtNeedIndexImport } from './routes/contracts/at-need/index'
+import { Route as ContractsPreNeedNewImport } from './routes/contracts/pre-need/new'
+import { Route as ContractsPreNeedContractIdImport } from './routes/contracts/pre-need/$contractId'
+import { Route as ContractsAtNeedNewImport } from './routes/contracts/at-need/new'
+import { Route as ContractsAtNeedContractIdImport } from './routes/contracts/at-need/$contractId'
 
 // Create/Update Routes
 
@@ -97,12 +98,6 @@ const CommissionsRoute = CommissionsImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const ContractsIndexRoute = ContractsIndexImport.update({
-  id: '/contracts/',
-  path: '/contracts/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -256,27 +251,41 @@ const PaymentsBatchesRoute = PaymentsBatchesImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ContractsPreNeedRoute = ContractsPreNeedImport.update({
-  id: '/contracts/pre-need',
-  path: '/contracts/pre-need',
+const ContractsPreNeedIndexRoute = ContractsPreNeedIndexImport.update({
+  id: '/contracts/pre-need/',
+  path: '/contracts/pre-need/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ContractsNewRoute = ContractsNewImport.update({
-  id: '/contracts/new',
-  path: '/contracts/new',
+const ContractsAtNeedIndexRoute = ContractsAtNeedIndexImport.update({
+  id: '/contracts/at-need/',
+  path: '/contracts/at-need/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ContractsAtNeedRoute = ContractsAtNeedImport.update({
-  id: '/contracts/at-need',
-  path: '/contracts/at-need',
+const ContractsPreNeedNewRoute = ContractsPreNeedNewImport.update({
+  id: '/contracts/pre-need/new',
+  path: '/contracts/pre-need/new',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ContractsContractIdRoute = ContractsContractIdImport.update({
-  id: '/contracts/$contractId',
-  path: '/contracts/$contractId',
+const ContractsPreNeedContractIdRoute = ContractsPreNeedContractIdImport.update(
+  {
+    id: '/contracts/pre-need/$contractId',
+    path: '/contracts/pre-need/$contractId',
+    getParentRoute: () => rootRoute,
+  } as any,
+)
+
+const ContractsAtNeedNewRoute = ContractsAtNeedNewImport.update({
+  id: '/contracts/at-need/new',
+  path: '/contracts/at-need/new',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ContractsAtNeedContractIdRoute = ContractsAtNeedContractIdImport.update({
+  id: '/contracts/at-need/$contractId',
+  path: '/contracts/at-need/$contractId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -338,34 +347,6 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof TrustImport
-      parentRoute: typeof rootRoute
-    }
-    '/contracts/$contractId': {
-      id: '/contracts/$contractId'
-      path: '/contracts/$contractId'
-      fullPath: '/contracts/$contractId'
-      preLoaderRoute: typeof ContractsContractIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/contracts/at-need': {
-      id: '/contracts/at-need'
-      path: '/contracts/at-need'
-      fullPath: '/contracts/at-need'
-      preLoaderRoute: typeof ContractsAtNeedImport
-      parentRoute: typeof rootRoute
-    }
-    '/contracts/new': {
-      id: '/contracts/new'
-      path: '/contracts/new'
-      fullPath: '/contracts/new'
-      preLoaderRoute: typeof ContractsNewImport
-      parentRoute: typeof rootRoute
-    }
-    '/contracts/pre-need': {
-      id: '/contracts/pre-need'
-      path: '/contracts/pre-need'
-      fullPath: '/contracts/pre-need'
-      preLoaderRoute: typeof ContractsPreNeedImport
       parentRoute: typeof rootRoute
     }
     '/payments/batches': {
@@ -543,11 +524,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowTrackingImport
       parentRoute: typeof rootRoute
     }
-    '/contracts/': {
-      id: '/contracts/'
-      path: '/contracts'
-      fullPath: '/contracts'
-      preLoaderRoute: typeof ContractsIndexImport
+    '/contracts/at-need/$contractId': {
+      id: '/contracts/at-need/$contractId'
+      path: '/contracts/at-need/$contractId'
+      fullPath: '/contracts/at-need/$contractId'
+      preLoaderRoute: typeof ContractsAtNeedContractIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/at-need/new': {
+      id: '/contracts/at-need/new'
+      path: '/contracts/at-need/new'
+      fullPath: '/contracts/at-need/new'
+      preLoaderRoute: typeof ContractsAtNeedNewImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/pre-need/$contractId': {
+      id: '/contracts/pre-need/$contractId'
+      path: '/contracts/pre-need/$contractId'
+      fullPath: '/contracts/pre-need/$contractId'
+      preLoaderRoute: typeof ContractsPreNeedContractIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/pre-need/new': {
+      id: '/contracts/pre-need/new'
+      path: '/contracts/pre-need/new'
+      fullPath: '/contracts/pre-need/new'
+      preLoaderRoute: typeof ContractsPreNeedNewImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/at-need/': {
+      id: '/contracts/at-need/'
+      path: '/contracts/at-need'
+      fullPath: '/contracts/at-need'
+      preLoaderRoute: typeof ContractsAtNeedIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/contracts/pre-need/': {
+      id: '/contracts/pre-need/'
+      path: '/contracts/pre-need'
+      fullPath: '/contracts/pre-need'
+      preLoaderRoute: typeof ContractsPreNeedIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -564,10 +580,6 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/search': typeof SearchRoute
   '/trust': typeof TrustRoute
-  '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/at-need': typeof ContractsAtNeedRoute
-  '/contracts/new': typeof ContractsNewRoute
-  '/contracts/pre-need': typeof ContractsPreNeedRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
   '/setup/accounting': typeof SetupAccountingRoute
@@ -593,7 +605,12 @@ export interface FileRoutesByFullPath {
   '/system/user-activity': typeof SystemUserActivityRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
-  '/contracts': typeof ContractsIndexRoute
+  '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
+  '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
+  '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/contracts/at-need': typeof ContractsAtNeedIndexRoute
+  '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -605,10 +622,6 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/search': typeof SearchRoute
   '/trust': typeof TrustRoute
-  '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/at-need': typeof ContractsAtNeedRoute
-  '/contracts/new': typeof ContractsNewRoute
-  '/contracts/pre-need': typeof ContractsPreNeedRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
   '/setup/accounting': typeof SetupAccountingRoute
@@ -634,7 +647,12 @@ export interface FileRoutesByTo {
   '/system/user-activity': typeof SystemUserActivityRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
-  '/contracts': typeof ContractsIndexRoute
+  '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
+  '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
+  '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/contracts/at-need': typeof ContractsAtNeedIndexRoute
+  '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
 }
 
 export interface FileRoutesById {
@@ -647,10 +665,6 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/search': typeof SearchRoute
   '/trust': typeof TrustRoute
-  '/contracts/$contractId': typeof ContractsContractIdRoute
-  '/contracts/at-need': typeof ContractsAtNeedRoute
-  '/contracts/new': typeof ContractsNewRoute
-  '/contracts/pre-need': typeof ContractsPreNeedRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
   '/setup/accounting': typeof SetupAccountingRoute
@@ -676,7 +690,12 @@ export interface FileRoutesById {
   '/system/user-activity': typeof SystemUserActivityRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
-  '/contracts/': typeof ContractsIndexRoute
+  '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
+  '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
+  '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
+  '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/contracts/at-need/': typeof ContractsAtNeedIndexRoute
+  '/contracts/pre-need/': typeof ContractsPreNeedIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -690,10 +709,6 @@ export interface FileRouteTypes {
     | '/reports'
     | '/search'
     | '/trust'
-    | '/contracts/$contractId'
-    | '/contracts/at-need'
-    | '/contracts/new'
-    | '/contracts/pre-need'
     | '/payments/batches'
     | '/payments/unapplied'
     | '/setup/accounting'
@@ -719,7 +734,12 @@ export interface FileRouteTypes {
     | '/system/user-activity'
     | '/workflow/scan'
     | '/workflow/tracking'
-    | '/contracts'
+    | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/new'
+    | '/contracts/pre-need/$contractId'
+    | '/contracts/pre-need/new'
+    | '/contracts/at-need'
+    | '/contracts/pre-need'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -730,10 +750,6 @@ export interface FileRouteTypes {
     | '/reports'
     | '/search'
     | '/trust'
-    | '/contracts/$contractId'
-    | '/contracts/at-need'
-    | '/contracts/new'
-    | '/contracts/pre-need'
     | '/payments/batches'
     | '/payments/unapplied'
     | '/setup/accounting'
@@ -759,7 +775,12 @@ export interface FileRouteTypes {
     | '/system/user-activity'
     | '/workflow/scan'
     | '/workflow/tracking'
-    | '/contracts'
+    | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/new'
+    | '/contracts/pre-need/$contractId'
+    | '/contracts/pre-need/new'
+    | '/contracts/at-need'
+    | '/contracts/pre-need'
   id:
     | '__root__'
     | '/'
@@ -770,10 +791,6 @@ export interface FileRouteTypes {
     | '/reports'
     | '/search'
     | '/trust'
-    | '/contracts/$contractId'
-    | '/contracts/at-need'
-    | '/contracts/new'
-    | '/contracts/pre-need'
     | '/payments/batches'
     | '/payments/unapplied'
     | '/setup/accounting'
@@ -799,7 +816,12 @@ export interface FileRouteTypes {
     | '/system/user-activity'
     | '/workflow/scan'
     | '/workflow/tracking'
-    | '/contracts/'
+    | '/contracts/at-need/$contractId'
+    | '/contracts/at-need/new'
+    | '/contracts/pre-need/$contractId'
+    | '/contracts/pre-need/new'
+    | '/contracts/at-need/'
+    | '/contracts/pre-need/'
   fileRoutesById: FileRoutesById
 }
 
@@ -812,10 +834,6 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRoute
   SearchRoute: typeof SearchRoute
   TrustRoute: typeof TrustRoute
-  ContractsContractIdRoute: typeof ContractsContractIdRoute
-  ContractsAtNeedRoute: typeof ContractsAtNeedRoute
-  ContractsNewRoute: typeof ContractsNewRoute
-  ContractsPreNeedRoute: typeof ContractsPreNeedRoute
   PaymentsBatchesRoute: typeof PaymentsBatchesRoute
   PaymentsUnappliedRoute: typeof PaymentsUnappliedRoute
   SetupAccountingRoute: typeof SetupAccountingRoute
@@ -841,7 +859,12 @@ export interface RootRouteChildren {
   SystemUserActivityRoute: typeof SystemUserActivityRoute
   WorkflowScanRoute: typeof WorkflowScanRoute
   WorkflowTrackingRoute: typeof WorkflowTrackingRoute
-  ContractsIndexRoute: typeof ContractsIndexRoute
+  ContractsAtNeedContractIdRoute: typeof ContractsAtNeedContractIdRoute
+  ContractsAtNeedNewRoute: typeof ContractsAtNeedNewRoute
+  ContractsPreNeedContractIdRoute: typeof ContractsPreNeedContractIdRoute
+  ContractsPreNeedNewRoute: typeof ContractsPreNeedNewRoute
+  ContractsAtNeedIndexRoute: typeof ContractsAtNeedIndexRoute
+  ContractsPreNeedIndexRoute: typeof ContractsPreNeedIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -853,10 +876,6 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRoute,
   SearchRoute: SearchRoute,
   TrustRoute: TrustRoute,
-  ContractsContractIdRoute: ContractsContractIdRoute,
-  ContractsAtNeedRoute: ContractsAtNeedRoute,
-  ContractsNewRoute: ContractsNewRoute,
-  ContractsPreNeedRoute: ContractsPreNeedRoute,
   PaymentsBatchesRoute: PaymentsBatchesRoute,
   PaymentsUnappliedRoute: PaymentsUnappliedRoute,
   SetupAccountingRoute: SetupAccountingRoute,
@@ -882,7 +901,12 @@ const rootRouteChildren: RootRouteChildren = {
   SystemUserActivityRoute: SystemUserActivityRoute,
   WorkflowScanRoute: WorkflowScanRoute,
   WorkflowTrackingRoute: WorkflowTrackingRoute,
-  ContractsIndexRoute: ContractsIndexRoute,
+  ContractsAtNeedContractIdRoute: ContractsAtNeedContractIdRoute,
+  ContractsAtNeedNewRoute: ContractsAtNeedNewRoute,
+  ContractsPreNeedContractIdRoute: ContractsPreNeedContractIdRoute,
+  ContractsPreNeedNewRoute: ContractsPreNeedNewRoute,
+  ContractsAtNeedIndexRoute: ContractsAtNeedIndexRoute,
+  ContractsPreNeedIndexRoute: ContractsPreNeedIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -903,10 +927,6 @@ export const routeTree = rootRoute
         "/reports",
         "/search",
         "/trust",
-        "/contracts/$contractId",
-        "/contracts/at-need",
-        "/contracts/new",
-        "/contracts/pre-need",
         "/payments/batches",
         "/payments/unapplied",
         "/setup/accounting",
@@ -932,7 +952,12 @@ export const routeTree = rootRoute
         "/system/user-activity",
         "/workflow/scan",
         "/workflow/tracking",
-        "/contracts/"
+        "/contracts/at-need/$contractId",
+        "/contracts/at-need/new",
+        "/contracts/pre-need/$contractId",
+        "/contracts/pre-need/new",
+        "/contracts/at-need/",
+        "/contracts/pre-need/"
       ]
     },
     "/": {
@@ -958,18 +983,6 @@ export const routeTree = rootRoute
     },
     "/trust": {
       "filePath": "trust.tsx"
-    },
-    "/contracts/$contractId": {
-      "filePath": "contracts/$contractId.tsx"
-    },
-    "/contracts/at-need": {
-      "filePath": "contracts/at-need.tsx"
-    },
-    "/contracts/new": {
-      "filePath": "contracts/new.tsx"
-    },
-    "/contracts/pre-need": {
-      "filePath": "contracts/pre-need.tsx"
     },
     "/payments/batches": {
       "filePath": "payments/batches.tsx"
@@ -1046,8 +1059,23 @@ export const routeTree = rootRoute
     "/workflow/tracking": {
       "filePath": "workflow/tracking.tsx"
     },
-    "/contracts/": {
-      "filePath": "contracts/index.tsx"
+    "/contracts/at-need/$contractId": {
+      "filePath": "contracts/at-need/$contractId.tsx"
+    },
+    "/contracts/at-need/new": {
+      "filePath": "contracts/at-need/new.tsx"
+    },
+    "/contracts/pre-need/$contractId": {
+      "filePath": "contracts/pre-need/$contractId.tsx"
+    },
+    "/contracts/pre-need/new": {
+      "filePath": "contracts/pre-need/new.tsx"
+    },
+    "/contracts/at-need/": {
+      "filePath": "contracts/at-need/index.tsx"
+    },
+    "/contracts/pre-need/": {
+      "filePath": "contracts/pre-need/index.tsx"
     }
   }
 }

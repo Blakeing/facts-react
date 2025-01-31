@@ -1,8 +1,7 @@
+import { Link, useMatches } from "@tanstack/react-router";
 import { SidebarIcon } from "lucide-react";
-import { useMatches, Link } from "@tanstack/react-router";
 import React from "react";
 
-import { SearchForm } from "./SearchForm";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -14,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import { SearchForm } from "./SearchForm";
 
 const getBreadcrumbs = (matches: ReturnType<typeof useMatches>) => {
 	const paths: { pathname: string; text: string }[] = [];

@@ -1,10 +1,10 @@
-import { AppSidebar } from "@/layouts/root/components/AppSidebar";
-import { SiteHeader } from "@/layouts/root/components/SiteHeader";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/layouts/root/components/AppSidebar";
+import { SiteHeader } from "@/layouts/root/components/SiteHeader";
 import type { QueryClient } from "@tanstack/react-query";
-import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 export interface RouterContext {
