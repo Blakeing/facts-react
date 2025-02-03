@@ -1,10 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import { Button } from "@/components/ui/button";
+import { useTestSheet } from "@/components/sheets/TestSheet";
+import { useToast } from "@/hooks/use-toast";
 export const Route = createFileRoute("/")({
 	component: DashboardPage,
 });
 
 function DashboardPage() {
+	const { onOpen, setData } = useTestSheet();
+	const { toast } = useToast();
+
+	const handleOpenSheet = () => {
+		setData({
+			message: "Opened from Dashboard!",
+			count: 0,
+		});
+		onOpen();
+	};
+
 	return (
 		<div className="container py-6">
 			<div className="flex items-center justify-between space-y-2">
@@ -12,7 +25,17 @@ function DashboardPage() {
 			</div>
 			<div className="mt-6">
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-					{/* Add your dashboard cards/widgets here */}
+					<Button onClick={handleOpenSheet}>Open Test Sheet</Button>
+					<Button
+						onClick={() => {
+							toast({
+								title: "Scheduled: Catch up",
+								description: "Friday, February 10, 2023 at 5:57 PM",
+							});
+						}}
+					>
+						Show Toast
+					</Button>
 				</div>
 			</div>
 		</div>
