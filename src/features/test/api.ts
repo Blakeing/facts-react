@@ -4,6 +4,10 @@ import type { ContractState } from "./types";
 
 const API_URL = "http://localhost:3001/contracts";
 
+// Define input types
+type CreateContractInput = Omit<FuneralContract, "id">;
+type UpdateContractInput = FuneralContract;
+
 // Fetch a contract by ID
 export const fetchContract = async (
   contractId: string
@@ -17,11 +21,11 @@ export const fetchContract = async (
 
 // Save (create or update) a contract
 export const saveContract = async (
-  contract: FuneralContract
+  contract: CreateContractInput | UpdateContractInput
 ): Promise<FuneralContract> => {
   console.log("Saving contract:", contract);
 
-  if (contract.id) {
+  if ("id" in contract) {
     console.log("Updating existing contract");
     const response = await fetch(`${API_URL}/${contract.id}`, {
       method: "PUT",
@@ -39,7 +43,7 @@ export const saveContract = async (
   }
 
   console.log("Creating new contract");
-  const newContract = {
+  const newContract: FuneralContract = {
     ...contract,
     id: uuidv4(),
   };
@@ -59,18 +63,17 @@ export const saveContract = async (
   return response.json();
 };
 
-// Update only the contract state
+// Update contract state
 export const updateContractState = async (
   contractId: string,
-  contractState: ContractState
+  newState: ContractState
 ): Promise<FuneralContract> => {
-  console.log("Updating contract state:", { contractId, contractState });
-  const response = await fetch(`${API_URL}/${contractId}`, {
-    method: "PATCH",
+  const response = await fetch(`${API_URL}/${contractId}/state`, {
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ contractState }),
+    body: JSON.stringify({ state: newState }),
   });
 
   if (!response.ok) {

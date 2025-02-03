@@ -1,103 +1,44 @@
 {
   "contracts": [
     {
-      "id": "ae124223-98b9-4809-a226-5ef1441b3e70",
+      "id": "8696e17d-7d8b-42c3-bd5a-04b10a94a1fc",
       "formData": {
+        "id": "ae18c94b-0041-43c2-b7df-b0bb95c35d64",
         "general": {
-          "clientName": "Test"
-        },
-        "people": {
-          "familyMembers": "Camille"
-        },
-        "payment": {
-          "paymentMethod": "credit"
+          "clientName": "Billy"
         }
       },
-      "contractState": "executed",
-      "sectionsCompleted": {
-        "general": true,
-        "people": true,
-        "payment": true
-      }
-    },
-    {
-      "formData": {},
       "contractState": "draft",
       "sectionsCompleted": {
-        "general": false,
+        "general": true,
         "people": false,
         "payment": false
-      },
-      "id": "dc336d2a-d6c6-46ce-9e77-fc62115ae161"
-    },
-    {
-      "id": "e14f1876-b48c-4ebf-8f8e-409c0ddeb212",
-      "formData": {
-        "general": {
-          "clientName": "Yami"
-        },
-        "people": {
-          "familyMembers": "Doug"
-        },
-        "payment": {
-          "paymentMethod": "credit"
-        }
-      },
-      "contractState": "executed",
-      "sectionsCompleted": {
-        "general": true,
-        "people": true,
-        "payment": true
       }
     },
     {
-      "id": "368dcc38-dde5-4494-a0b1-e48ac3030b29",
+      "id": "12a00fc5-7e72-44b4-96c9-4d03627d729b",
       "formData": {
-        "general": {
-          "clientName": "Tom"
-        },
-        "people": {
-          "familyMembers": "Timmy"
-        },
-        "payment": {
-          "paymentMethod": "credit"
-        }
-      },
-      "contractState": "draft",
-      "sectionsCompleted": {
-        "general": true,
-        "people": true,
-        "payment": true
-      }
-    },
-    {
-      "id": "a0a6b385-9fef-40c6-bd27-6960c85fac33",
-      "formData": {
+        "id": "168b541d-7280-45c8-9fed-138cd6300394",
         "general": {
           "clientName": "Blake"
-        },
-        "people": {
-          "familyMembers": "Billy"
-        },
-        "payment": {
-          "paymentMethod": "credit"
         }
       },
       "contractState": "draft",
       "sectionsCompleted": {
         "general": true,
-        "people": true,
-        "payment": true
+        "people": false,
+        "payment": false
       }
     },
     {
-      "id": "412b1e20-ae29-429a-ba7c-7f91b0bad89c",
+      "id": "aebce5c3-b7dc-4bde-93ca-d62aa6d7f080",
       "formData": {
+        "id": "33d8f5f9-779f-4bf9-b8bb-e6abfbc9e18a",
+        "people": {
+          "familyMembers": "Jimmy"
+        },
         "general": {
           "clientName": "Daniel"
-        },
-        "people": {
-          "familyMembers": "Cameron"
         },
         "payment": {
           "paymentMethod": "cash"
@@ -111,14 +52,22 @@
       }
     },
     {
-      "formData": {},
+      "id": "033d8088-0f40-4c61-964c-5c7fb1eccc17",
+      "formData": {
+        "id": "40c64bf3-2b4c-4177-b896-c5937ad82672",
+        "general": {
+          "clientName": "John"
+        },
+        "people": {
+          "familyMembers": "Camille"
+        }
+      },
       "contractState": "draft",
       "sectionsCompleted": {
-        "general": false,
-        "people": false,
+        "general": true,
+        "people": true,
         "payment": false
-      },
-      "id": "bf1460ae-3e91-4e05-a9c8-b34978fc07f4"
+      }
     }
   ]
 }

@@ -10,7 +10,10 @@ import { useQuery } from "@tanstack/react-query";
 import type { FuneralContract } from "./types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useFuneralContractStore } from "./useFuneralContractStore";
+
+interface ContractsTableProps {
+  onEditContract: (contract: FuneralContract) => void;
+}
 
 const fetchContracts = async (): Promise<FuneralContract[]> => {
   const response = await fetch("http://localhost:3001/contracts");
@@ -20,28 +23,15 @@ const fetchContracts = async (): Promise<FuneralContract[]> => {
   return response.json();
 };
 
-const ContractsTable = () => {
+const ContractsTable = ({ onEditContract }: ContractsTableProps) => {
   const {
-    data: contracts,
+    data: contracts = [],
     isLoading,
     error,
   } = useQuery({
     queryKey: ["contracts"],
     queryFn: fetchContracts,
   });
-
-  const { setFormData, setContractId, setContractState, setSectionsCompleted } =
-    useFuneralContractStore();
-
-  const handleEditContract = (contract: FuneralContract) => {
-    // Load the contract data into the form
-    setFormData("general", contract.formData.general);
-    setFormData("people", contract.formData.people);
-    setFormData("payment", contract.formData.payment);
-    setContractId(contract.id || "");
-    setContractState(contract.contractState);
-    setSectionsCompleted(contract.sectionsCompleted);
-  };
 
   if (isLoading) return <div>Loading contracts...</div>;
   if (error) return <div>Error loading contracts</div>;
@@ -51,7 +41,7 @@ const ContractsTable = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
+            <TableHead>Contract ID</TableHead>
             <TableHead>Client Name</TableHead>
             <TableHead>Family Members</TableHead>
             <TableHead>Payment Method</TableHead>
@@ -61,10 +51,12 @@ const ContractsTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {contracts?.map((contract) => (
+          {contracts.map((contract) => (
             <TableRow key={contract.id}>
-              <TableCell className="font-mono text-sm">
-                {contract.id?.slice(0, 8)}...
+              <TableCell>
+                {typeof contract.id === "string"
+                  ? contract.id.slice(0, 8)
+                  : String(contract.id)}
               </TableCell>
               <TableCell>
                 {contract.formData.general?.clientName || "-"}
@@ -91,15 +83,17 @@ const ContractsTable = () => {
                 </Badge>
               </TableCell>
               <TableCell>
-                {Object.values(contract.sectionsCompleted || {}).filter(Boolean)
-                  .length || 0}
+                {
+                  Object.values(contract.sectionsCompleted).filter(Boolean)
+                    .length
+                }
                 /3
               </TableCell>
               <TableCell>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleEditContract(contract)}
+                  onClick={() => onEditContract(contract)}
                   disabled={contract.contractState !== "draft"}
                 >
                   Edit
@@ -107,6 +101,13 @@ const ContractsTable = () => {
               </TableCell>
             </TableRow>
           ))}
+          {contracts.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No contracts found
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
