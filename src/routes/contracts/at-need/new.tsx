@@ -38,8 +38,8 @@ export default function NewAtNeedContractPage() {
 
 			{/* Content with Layout */}
 			<div className="flex-1">
-				<ContractDetailLayout contractId="new" currentSection="general">
-					<GeneralPage />
+				<ContractDetailLayout contractNumber="new" currentSection="general">
+					<GeneralPage mutation={createMutation} />
 				</ContractDetailLayout>
 			</div>
 		</div>

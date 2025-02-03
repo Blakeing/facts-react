@@ -1,16 +1,21 @@
-import { atNeedContractApi } from "../api/atNeedContractApi";
-import { GeneralForm } from "../components/GeneralForm";
-import type { AtNeedContract, GeneralFormValues } from "../types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+	type UseMutationResult,
+	useMutation,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { atNeedContractApi } from "../api/atNeedContractApi";
+import { GeneralForm } from "../components/GeneralForm";
+import type { AtNeedContract, GeneralFormValues } from "../types";
 
 interface GeneralPageProps {
 	contract?: AtNeedContract;
+	mutation?: UseMutationResult<AtNeedContract, Error, AtNeedContract>;
 }
 
-export function GeneralPage({ contract }: GeneralPageProps) {
+export function GeneralPage({ contract, mutation }: GeneralPageProps) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -100,8 +105,8 @@ export function GeneralPage({ contract }: GeneralPageProps) {
 			console.log("Form submitted with values:", values);
 			if (contract) {
 				await updateMutation.mutateAsync(values);
-			} else {
-				await createMutation.mutateAsync(values);
+			} else if (mutation) {
+				await mutation.mutateAsync(values as AtNeedContract);
 			}
 		} catch (error) {
 			console.error("Form submission error:", error);
