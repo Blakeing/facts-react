@@ -50,6 +50,7 @@
 		"@tanstack/react-router": "^1.97.25",
 		"@tanstack/react-table": "^8.20.6",
 		"@tanstack/router-devtools": "^1.97.25",
+		"@xstate/react": "^5.0.2",
 		"axios": "^1.7.9",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -71,6 +72,7 @@
 		"tailwind-merge": "^2.6.0",
 		"tailwindcss-animate": "^1.0.7",
 		"vaul": "^1.1.2",
+		"xstate": "^5.19.2",
 		"zod": "^3.24.1",
 		"zustand": "^5.0.3"
 	},

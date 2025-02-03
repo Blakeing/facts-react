@@ -15,12 +15,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useGeneralForm } from "../hooks/useGeneralForm";
+import type { GeneralFormValues } from "../types";
 
 const formSchema = z.object({
 	serviceDate: z.string().min(1, "Service date is required"),
@@ -32,15 +34,11 @@ const formSchema = z.object({
 	campaign: z.string(),
 });
 
-export type GeneralFormValues = z.infer<typeof formSchema>;
-
 interface GeneralFormProps {
 	defaultValues: Partial<GeneralFormValues>;
 	onSubmit: (values: GeneralFormValues) => Promise<void>;
 	onReset?: () => void;
 	onFieldChange?: () => void;
-	isSubmitting?: boolean;
-	hasUnsavedChanges?: boolean;
 	mode?: "create" | "edit";
 }
 
@@ -49,8 +47,6 @@ export function GeneralForm({
 	onSubmit,
 	onReset,
 	onFieldChange,
-	isSubmitting,
-	hasUnsavedChanges,
 	mode = "create",
 }: GeneralFormProps) {
 	const form = useForm<GeneralFormValues>({
@@ -58,26 +54,58 @@ export function GeneralForm({
 		defaultValues,
 	});
 
+	const {
+		isDirty,
+		isSubmitting,
+		handleSubmit: handleStateMachineSubmit,
+		handleReset: handleStateMachineReset,
+		setInitialData,
+	} = useGeneralForm(defaultValues);
+
 	// Reset form when defaultValues change
 	useEffect(() => {
 		form.reset(defaultValues);
-	}, [form, defaultValues]);
+		setInitialData({
+			...defaultValues,
+			serviceDate: defaultValues.serviceDate || "",
+			contractSignDate: defaultValues.contractSignDate || "",
+			prePrintedContractNumber: defaultValues.prePrintedContractNumber || "",
+			funeralDirector: defaultValues.funeralDirector || "",
+			atNeedType: defaultValues.atNeedType || "",
+			contractType: defaultValues.contractType || "",
+			campaign: defaultValues.campaign || "",
+		} as GeneralFormValues);
+	}, [defaultValues, form, setInitialData]);
 
 	// Notify parent of field changes
 	useEffect(() => {
-		const subscription = form.watch(() => {
+		if (isDirty) {
 			onFieldChange?.();
+		}
+	}, [isDirty, onFieldChange]);
+
+	const handleFormSubmit = async (data: GeneralFormValues) => {
+		await handleStateMachineSubmit(async () => {
+			await onSubmit(data);
 		});
-		return () => subscription.unsubscribe();
-	}, [form, onFieldChange]);
+	};
+
+	const handleFormReset = () => {
+		form.reset();
+		handleStateMachineReset();
+		onReset?.();
+	};
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+			<form
+				onSubmit={form.handleSubmit(handleFormSubmit)}
+				className="space-y-6"
+			>
 				<div className="rounded-md border p-4 space-y-6">
 					<div className="flex items-center justify-between">
 						<h2 className="text-lg font-semibold">General</h2>
-						{mode === "edit" && hasUnsavedChanges && (
+						{mode === "edit" && isDirty && (
 							<p className="text-sm text-muted-foreground">
 								You have unsaved changes
 							</p>
@@ -230,8 +258,8 @@ export function GeneralForm({
 							<Button
 								type="button"
 								variant="outline"
-								onClick={onReset}
-								disabled={isSubmitting || !hasUnsavedChanges}
+								onClick={handleFormReset}
+								disabled={isSubmitting || !isDirty}
 							>
 								Reset Changes
 							</Button>
