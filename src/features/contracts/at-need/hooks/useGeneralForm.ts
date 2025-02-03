@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { useMachine } from "@xstate/react";
+import { useCallback } from "react";
 import { generalFormMachine } from "../machines/generalFormMachine";
 import type { GeneralFormValues } from "../types";
 

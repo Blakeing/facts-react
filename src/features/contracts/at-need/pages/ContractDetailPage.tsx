@@ -1,6 +1,6 @@
+import { useParams } from "@tanstack/react-router";
 import { ContractDetailSidebar } from "../components/ContractDetailSidebar";
 import { GeneralForm } from "../components/GeneralForm";
-import { useParams } from "@tanstack/react-router";
 
 export function ContractDetailPage() {
 	const { contractId, section = "general" } = useParams({
