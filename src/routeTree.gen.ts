@@ -19,8 +19,10 @@ import { Route as ExportsImport } from './routes/exports'
 import { Route as DepositsImport } from './routes/deposits'
 import { Route as CommissionsImport } from './routes/commissions'
 import { Route as IndexImport } from './routes/index'
+import { Route as TestIndexImport } from './routes/test/index'
 import { Route as WorkflowTrackingImport } from './routes/workflow/tracking'
 import { Route as WorkflowScanImport } from './routes/workflow/scan'
+import { Route as TestContractIdImport } from './routes/test/$contractId'
 import { Route as SystemUserActivityImport } from './routes/system/user-activity'
 import { Route as SystemTenantsImport } from './routes/system/tenants'
 import { Route as SystemSignalrImport } from './routes/system/signalr'
@@ -103,6 +105,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const TestIndexRoute = TestIndexImport.update({
+  id: '/test/',
+  path: '/test/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const WorkflowTrackingRoute = WorkflowTrackingImport.update({
   id: '/workflow/tracking',
   path: '/workflow/tracking',
@@ -112,6 +120,12 @@ const WorkflowTrackingRoute = WorkflowTrackingImport.update({
 const WorkflowScanRoute = WorkflowScanImport.update({
   id: '/workflow/scan',
   path: '/workflow/scan',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TestContractIdRoute = TestContractIdImport.update({
+  id: '/test/$contractId',
+  path: '/test/$contractId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -526,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SystemUserActivityImport
       parentRoute: typeof rootRoute
     }
+    '/test/$contractId': {
+      id: '/test/$contractId'
+      path: '/test/$contractId'
+      fullPath: '/test/$contractId'
+      preLoaderRoute: typeof TestContractIdImport
+      parentRoute: typeof rootRoute
+    }
     '/workflow/scan': {
       id: '/workflow/scan'
       path: '/workflow/scan'
@@ -538,6 +559,13 @@ declare module '@tanstack/react-router' {
       path: '/workflow/tracking'
       fullPath: '/workflow/tracking'
       preLoaderRoute: typeof WorkflowTrackingImport
+      parentRoute: typeof rootRoute
+    }
+    '/test/': {
+      id: '/test/'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestIndexImport
       parentRoute: typeof rootRoute
     }
     '/contracts/at-need/$contractId': {
@@ -648,8 +676,10 @@ export interface FileRoutesByFullPath {
   '/system/signalr': typeof SystemSignalrRoute
   '/system/tenants': typeof SystemTenantsRoute
   '/system/user-activity': typeof SystemUserActivityRoute
+  '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/test': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
@@ -692,8 +722,10 @@ export interface FileRoutesByTo {
   '/system/signalr': typeof SystemSignalrRoute
   '/system/tenants': typeof SystemTenantsRoute
   '/system/user-activity': typeof SystemUserActivityRoute
+  '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/test': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
@@ -737,8 +769,10 @@ export interface FileRoutesById {
   '/system/signalr': typeof SystemSignalrRoute
   '/system/tenants': typeof SystemTenantsRoute
   '/system/user-activity': typeof SystemUserActivityRoute
+  '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/test/': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
@@ -783,8 +817,10 @@ export interface FileRouteTypes {
     | '/system/signalr'
     | '/system/tenants'
     | '/system/user-activity'
+    | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/test'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
@@ -826,8 +862,10 @@ export interface FileRouteTypes {
     | '/system/signalr'
     | '/system/tenants'
     | '/system/user-activity'
+    | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/test'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
@@ -869,8 +907,10 @@ export interface FileRouteTypes {
     | '/system/signalr'
     | '/system/tenants'
     | '/system/user-activity'
+    | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/test/'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
@@ -914,8 +954,10 @@ export interface RootRouteChildren {
   SystemSignalrRoute: typeof SystemSignalrRoute
   SystemTenantsRoute: typeof SystemTenantsRoute
   SystemUserActivityRoute: typeof SystemUserActivityRoute
+  TestContractIdRoute: typeof TestContractIdRoute
   WorkflowScanRoute: typeof WorkflowScanRoute
   WorkflowTrackingRoute: typeof WorkflowTrackingRoute
+  TestIndexRoute: typeof TestIndexRoute
   ContractsAtNeedContractIdRoute: typeof ContractsAtNeedContractIdRoute
   ContractsAtNeedContractNumberRoute: typeof ContractsAtNeedContractNumberRouteWithChildren
   ContractsAtNeedNewRoute: typeof ContractsAtNeedNewRoute
@@ -957,8 +999,10 @@ const rootRouteChildren: RootRouteChildren = {
   SystemSignalrRoute: SystemSignalrRoute,
   SystemTenantsRoute: SystemTenantsRoute,
   SystemUserActivityRoute: SystemUserActivityRoute,
+  TestContractIdRoute: TestContractIdRoute,
   WorkflowScanRoute: WorkflowScanRoute,
   WorkflowTrackingRoute: WorkflowTrackingRoute,
+  TestIndexRoute: TestIndexRoute,
   ContractsAtNeedContractIdRoute: ContractsAtNeedContractIdRoute,
   ContractsAtNeedContractNumberRoute:
     ContractsAtNeedContractNumberRouteWithChildren,
@@ -1010,8 +1054,10 @@ export const routeTree = rootRoute
         "/system/signalr",
         "/system/tenants",
         "/system/user-activity",
+        "/test/$contractId",
         "/workflow/scan",
         "/workflow/tracking",
+        "/test/",
         "/contracts/at-need/$contractId",
         "/contracts/at-need/$contractNumber",
         "/contracts/at-need/new",
@@ -1114,11 +1160,17 @@ export const routeTree = rootRoute
     "/system/user-activity": {
       "filePath": "system/user-activity.tsx"
     },
+    "/test/$contractId": {
+      "filePath": "test/$contractId.tsx"
+    },
     "/workflow/scan": {
       "filePath": "workflow/scan.tsx"
     },
     "/workflow/tracking": {
       "filePath": "workflow/tracking.tsx"
+    },
+    "/test/": {
+      "filePath": "test/index.tsx"
     },
     "/contracts/at-need/$contractId": {
       "filePath": "contracts/at-need/$contractId.tsx"

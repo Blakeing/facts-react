@@ -1,73 +1,71 @@
 {
   "contracts": [
     {
-      "id": "8696e17d-7d8b-42c3-bd5a-04b10a94a1fc",
-      "formData": {
-        "id": "ae18c94b-0041-43c2-b7df-b0bb95c35d64",
-        "general": {
-          "clientName": "Billy"
-        }
-      },
       "contractState": "draft",
-      "sectionsCompleted": {
-        "general": true,
-        "people": false,
-        "payment": false
-      }
-    },
-    {
-      "id": "12a00fc5-7e72-44b4-96c9-4d03627d729b",
       "formData": {
-        "id": "168b541d-7280-45c8-9fed-138cd6300394",
         "general": {
           "clientName": "Blake"
-        }
-      },
-      "contractState": "draft",
-      "sectionsCompleted": {
-        "general": true,
-        "people": false,
-        "payment": false
-      }
-    },
-    {
-      "id": "aebce5c3-b7dc-4bde-93ca-d62aa6d7f080",
-      "formData": {
-        "id": "33d8f5f9-779f-4bf9-b8bb-e6abfbc9e18a",
-        "people": {
-          "familyMembers": "Jimmy"
         },
-        "general": {
-          "clientName": "Daniel"
+        "people": {
+          "familyMembers": [
+            {
+              "id": "ad6201cb-c124-4538-a2e7-14aa6922a3ae",
+              "name": "Test"
+            }
+          ]
         },
         "payment": {
-          "paymentMethod": "cash"
+          "paymentMethod": "cash",
+          "amount": 10
         }
       },
+      "sectionsCompleted": {
+        "general": false,
+        "people": false,
+        "payment": false
+      },
+      "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d"
+    },
+    {
       "contractState": "executed",
+      "formData": {
+        "general": {
+          "clientName": "Test 5"
+        },
+        "people": {
+          "familyMembers": [
+            {
+              "id": "b11924d9-de08-42d4-a888-855a633c845d",
+              "name": "test"
+            },
+            {
+              "id": "32a660c0-9349-4e05-9e0d-f63c268e1cc8",
+              "name": "test 2"
+            }
+          ]
+        },
+        "payment": {
+          "paymentMethod": "cash",
+          "amount": 10
+        }
+      },
+      "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d"
+    },
+    {
+      "contractState": "draft",
+      "formData": {
+        "general": {
+          "clientName": "Test 3"
+        },
+        "people": null,
+        "payment": null
+      },
       "sectionsCompleted": {
         "general": true,
         "people": true,
         "payment": true
-      }
-    },
-    {
-      "id": "033d8088-0f40-4c61-964c-5c7fb1eccc17",
-      "formData": {
-        "id": "40c64bf3-2b4c-4177-b896-c5937ad82672",
-        "general": {
-          "clientName": "John"
-        },
-        "people": {
-          "familyMembers": "Camille"
-        }
       },
-      "contractState": "draft",
-      "sectionsCompleted": {
-        "general": true,
-        "people": true,
-        "payment": false
-      }
+      "id": "1f32306d-0756-4d81-b3c0-46aca5823f19"
     }
   ]
 }
