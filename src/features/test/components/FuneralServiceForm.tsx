@@ -11,6 +11,7 @@ import ReviewSection from "./sections/ReviewSection";
 import { useContractMutations } from "../hooks/useContractMutations";
 import type { Contract } from "../types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 export interface FuneralServiceFormProps {
   onComplete?: () => void;
@@ -297,9 +298,28 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
               </Button>
             </>
           )}
-          <div className="text-sm text-muted-foreground">
-            Status: {state.context.contractState || "DRAFT"}
-          </div>
+          <Badge
+            variant={
+              state.context.contractState === "finalized"
+                ? "default"
+                : state.context.contractState === "void"
+                  ? "destructive"
+                  : state.context.contractState === "executed"
+                    ? "secondary"
+                    : "outline"
+            }
+            className={
+              state.context.contractState === "finalized"
+                ? "bg-green-500 hover:bg-green-600"
+                : state.context.contractState === "void"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : state.context.contractState === "executed"
+                    ? "bg-blue-500 hover:bg-blue-600"
+                    : ""
+            }
+          >
+            {(state.context.contractState || "DRAFT").toUpperCase()}
+          </Badge>
         </div>
       </div>
     );

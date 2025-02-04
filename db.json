@@ -27,7 +27,7 @@
       "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d"
     },
     {
-      "contractState": "executed",
+      "contractState": "void",
       "formData": {
         "general": {
           "clientName": "Test 5"
@@ -35,11 +35,11 @@
         "people": {
           "familyMembers": [
             {
-              "id": "b11924d9-de08-42d4-a888-855a633c845d",
+              "id": "93f22cc1-759c-4c96-aa68-16e2a34ee76e",
               "name": "test"
             },
             {
-              "id": "32a660c0-9349-4e05-9e0d-f63c268e1cc8",
+              "id": "1a6a91b8-56a2-4f56-8b92-0b5f0d20c182",
               "name": "test 2"
             }
           ]
@@ -49,23 +49,30 @@
           "amount": 10
         }
       },
+      "generalRef": {
+        "xstate$$type": 1,
+        "id": "x:38"
+      },
+      "peopleRef": {
+        "xstate$$type": 1,
+        "id": "x:39"
+      },
+      "paymentRef": {
+        "xstate$$type": 1,
+        "id": "x:40"
+      },
       "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d"
     },
     {
-      "contractState": "draft",
+      "id": "1f32306d-0756-4d81-b3c0-46aca5823f19",
+      "contractState": "executed",
       "formData": {
         "general": {
-          "clientName": "Test 3"
+          "clientName": "Test 11"
         },
         "people": null,
         "payment": null
-      },
-      "sectionsCompleted": {
-        "general": true,
-        "people": true,
-        "payment": true
-      },
-      "id": "1f32306d-0756-4d81-b3c0-46aca5823f19"
+      }
     }
   ]
 }

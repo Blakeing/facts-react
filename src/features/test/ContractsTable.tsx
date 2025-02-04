@@ -9,42 +9,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { memo } from "react";
-import { useQuery } from "@tanstack/react-query";
-
-interface Contract {
-  id: string;
-  contractState: "draft" | "executed" | "finalized" | "void" | "review";
-  formData: {
-    general: { clientName: string } | null;
-    people: { familyMembers: Array<{ id: string; name: string }> } | null;
-    payment: { paymentMethod: "cash" | "credit"; amount: number } | null;
-  };
-}
+import { useContracts } from "./hooks/useContracts";
+import { ContractsTableSkeleton } from "./components/ContractsTableSkeleton";
 
 interface ContractsTableProps {
   onEditContract: (id: string) => void;
 }
 
-const fetchContracts = async (): Promise<Contract[]> => {
-  const response = await fetch("http://localhost:3001/contracts");
-  if (!response.ok) {
-    throw new Error("Failed to fetch contracts");
-  }
-  return response.json();
-};
-
 const ContractsTable = memo(({ onEditContract }: ContractsTableProps) => {
-  const {
-    data: contracts = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["contracts"],
-    queryFn: fetchContracts,
-  });
+  const { data: contracts = [], isLoading, error } = useContracts();
 
-  if (isLoading) return <div>Loading contracts...</div>;
-  if (error) return <div>Error loading contracts</div>;
+  if (isLoading) return <ContractsTableSkeleton />;
+  if (error) {
+    return (
+      <div className="rounded-md border p-6 text-center text-muted-foreground">
+        Error loading contracts. Please try again later.
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-md border">
