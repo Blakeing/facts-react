@@ -56,31 +56,61 @@ export const useContractMutations = () => {
       return { previousContracts };
     },
     onSuccess: (_, variables) => {
-      const action =
-        variables.contractState === "executed"
-          ? "executed"
-          : variables.contractState === "void"
-            ? "voided"
-            : variables.contractState === "finalized"
-              ? "finalized"
-              : "updated";
+      // Only use state-specific messages when the state is explicitly changing
+      const isStateChange =
+        variables.contractState !== undefined &&
+        variables.contractState !== "draft";
 
+      if (isStateChange) {
+        const messages = {
+          executed: {
+            title: "Contract Executed",
+            description: "The contract has been executed successfully.",
+          },
+          void: {
+            title: "Contract Voided",
+            description: "The contract has been voided.",
+          },
+          finalized: {
+            title: "Contract Finalized",
+            description: "The contract has been finalized successfully.",
+          },
+          review: {
+            title: "Contract Updated",
+            description:
+              "The contract has been updated and is ready for review.",
+          },
+        };
+
+        const message =
+          messages[variables.contractState as keyof typeof messages];
+        if (message) {
+          toast({
+            title: message.title,
+            description: message.description,
+            variant:
+              variables.contractState === "void" ? "destructive" : "default",
+          });
+          return;
+        }
+      }
+
+      // Default message for regular saves
       toast({
-        title: `Contract ${action}`,
-        description: `Your contract has been ${action} successfully.`,
-        variant: action === "voided" ? "destructive" : "default",
+        title: "Changes Saved",
+        description: "Your changes have been saved successfully.",
+        variant: "default",
       });
     },
     onError: (error, _newContract, context) => {
-      // Log the error
       console.error("Error updating contract:", error);
-      // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousContracts) {
         queryClient.setQueryData(["contracts"], context.previousContracts);
       }
       toast({
-        title: "Error",
-        description: "Failed to update contract. Please try again.",
+        title: "Error Saving Contract",
+        description:
+          "There was a problem saving your changes. Please try again.",
         variant: "destructive",
       });
     },

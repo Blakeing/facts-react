@@ -1,15 +1,16 @@
 {
   "contracts": [
     {
+      "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d",
       "contractState": "draft",
       "formData": {
         "general": {
-          "clientName": "Blake"
+          "clientName": "Bob"
         },
         "people": {
           "familyMembers": [
             {
-              "id": "ad6201cb-c124-4538-a2e7-14aa6922a3ae",
+              "id": "d6457aec-15c1-4d50-a881-19a79fe97265",
               "name": "Test"
             }
           ]
@@ -18,13 +19,7 @@
           "paymentMethod": "cash",
           "amount": 10
         }
-      },
-      "sectionsCompleted": {
-        "general": false,
-        "people": false,
-        "payment": false
-      },
-      "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d"
+      }
     },
     {
       "contractState": "void",
@@ -68,10 +63,55 @@
       "contractState": "executed",
       "formData": {
         "general": {
-          "clientName": "Test 11"
+          "clientName": "Test 16"
+        },
+        "people": {
+          "familyMembers": [
+            {
+              "id": "e3bf3461-e90c-46fe-af95-53e7f2e5746b",
+              "name": "Bobby"
+            },
+            {
+              "id": "6b19314a-5f1d-4ab5-b4dc-24854255f763",
+              "name": "Jimmy"
+            },
+            {
+              "id": "3c15f6dc-3289-4078-b007-1c945409bd21",
+              "name": "Scott"
+            },
+            {
+              "id": "e849c20e-0fca-425d-ac9a-b5b4555761cb",
+              "name": "Holly"
+            }
+          ]
+        },
+        "payment": {
+          "paymentMethod": "credit",
+          "amount": 69.21
+        }
+      }
+    },
+    {
+      "id": "3sCeddi",
+      "contractState": "finalized",
+      "formData": {
+        "general": {
+          "clientName": "Test"
         },
         "people": null,
         "payment": null
+      },
+      "generalRef": {
+        "xstate$$type": 1,
+        "id": "x:103"
+      },
+      "peopleRef": {
+        "xstate$$type": 1,
+        "id": "x:104"
+      },
+      "paymentRef": {
+        "xstate$$type": 1,
+        "id": "x:105"
       }
     }
   ]

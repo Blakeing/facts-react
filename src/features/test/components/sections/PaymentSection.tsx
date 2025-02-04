@@ -1,114 +1,140 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
 import type createPaymentMachine from "../../machines/paymentMachine";
-import type {
-  PaymentData,
-  PaymentContext,
-} from "../../machines/paymentMachine";
+import type { PaymentContext } from "../../machines/paymentMachine";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect } from "react";
+
+const paymentFormSchema = z.object({
+  paymentMethod: z.enum(["cash", "credit"], {
+    required_error: "Please select a payment method.",
+  }),
+  amount: z
+    .number({
+      required_error: "Amount is required",
+      invalid_type_error: "Amount must be a number",
+    })
+    .min(0.01, "Amount must be greater than 0"),
+});
+
+type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
 type PaymentActor = ActorRefFrom<ReturnType<typeof createPaymentMachine>>;
-type PaymentState = { context: PaymentContext };
 
 interface PaymentSectionProps {
   actor: PaymentActor | null;
-  onNext?: () => void;
-  onBack?: () => void;
 }
 
-const paymentMethodSelector = (state: PaymentState) =>
-  state.context.data?.paymentMethod ?? "cash";
-const amountSelector = (state: PaymentState) =>
-  state.context.data?.amount ?? "";
+const paymentSelector = (state: { context: PaymentContext }) => ({
+  paymentMethod: state.context.data?.paymentMethod ?? "cash",
+  amount: state.context.data?.amount ?? 0,
+});
 
-const PaymentSection = memo(
-  ({ actor, onNext, onBack }: PaymentSectionProps) => {
-    if (!actor) return null;
+const PaymentSection = memo(({ actor }: PaymentSectionProps) => {
+  if (!actor) return null;
 
-    const send = actor.send;
-    const methodSelector = useMemo(() => paymentMethodSelector, []);
-    const paymentMethod = useSelector(actor, methodSelector);
+  const send = actor.send;
+  const { paymentMethod, amount } = useSelector(actor, paymentSelector);
 
-    const amountSel = useMemo(() => amountSelector, []);
-    const amount = useSelector(actor, amountSel);
+  const form = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      paymentMethod: "cash",
+      amount: 0,
+    },
+  });
 
-    const handleMethodChange = useCallback(
-      (value: string) => {
-        send({
-          type: "SAVE",
-          data: {
-            paymentMethod: value as PaymentData["paymentMethod"],
-            amount: amount || 0,
-          },
-        });
-      },
-      [amount, send]
-    );
+  useEffect(() => {
+    form.reset({ paymentMethod, amount });
+  }, [paymentMethod, amount, form]);
 
-    const handleAmountChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newAmount = Number.parseFloat(e.target.value);
-        if (Number.isNaN(newAmount)) return;
+  const onSubmit = useCallback(
+    (values: PaymentFormValues) => {
+      send({
+        type: "SAVE",
+        data: values,
+      });
+    },
+    [send]
+  );
 
-        send({
-          type: "SAVE",
-          data: {
-            paymentMethod,
-            amount: newAmount,
-          },
-        });
-      },
-      [paymentMethod, send]
-    );
-
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid w-full items-center gap-6">
-            <div className="flex flex-col gap-2">
-              <Label>Payment Method</Label>
-              <RadioGroup
-                value={paymentMethod}
-                onValueChange={handleMethodChange}
-                className="flex gap-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cash" id="cash" />
-                  <Label htmlFor="cash">Cash</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="credit" id="credit" />
-                  <Label htmlFor="credit">Credit Card</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="amount">Amount</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2">
-                  $
-                </span>
-                <Input
-                  id="amount"
-                  type="number"
-                  value={amount}
-                  onChange={handleAmountChange}
-                  className="pl-7"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-);
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <Form {...form}>
+          <form onChange={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="paymentMethod"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Payment Method</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="cash" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Cash</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="credit" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Credit Card
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="amount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(Number.parseFloat(e.target.value))
+                      }
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+});
 
 PaymentSection.displayName = "PaymentSection";
 

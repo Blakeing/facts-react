@@ -5,23 +5,38 @@ import type { GeneralEvent } from "../../machines/generalMachine";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { memo, useCallback, useEffect, useMemo } from "react";
 
-import { memo, useCallback, useMemo } from "react";
+const generalFormSchema = z.object({
+  clientName: z.string().min(2, "Client name must be at least 2 characters"),
+});
+
+type GeneralFormValues = z.infer<typeof generalFormSchema>;
 
 type GeneralActor = ActorRefFrom<ReturnType<typeof createGeneralMachine>>;
 
 interface GeneralSectionProps {
   actor: GeneralActor | null;
-  onNext?: () => void;
 }
 
 const clientNameSelector = (state: {
-  context: { data: { clientName: string } | null; isComplete: boolean };
+  context: { data: { clientName: string } | null };
 }) => ({
   clientName: state.context.data?.clientName ?? "",
 });
 
-const GeneralSection = memo(({ actor, onNext }: GeneralSectionProps) => {
+const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
   console.log("[GeneralSection] Rendering with actor:", actor);
 
   if (!actor) return null;
@@ -30,15 +45,24 @@ const GeneralSection = memo(({ actor, onNext }: GeneralSectionProps) => {
   const selector = useMemo(() => clientNameSelector, []);
   const { clientName } = useSelector(actor, selector);
 
-  console.log("[GeneralSection] Current clientName:", clientName);
+  const form = useForm<GeneralFormValues>({
+    resolver: zodResolver(generalFormSchema),
+    defaultValues: {
+      clientName: "",
+    },
+  });
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log("[GeneralSection] Input changed:", e.target.value);
+  // Update form when data changes
+  useEffect(() => {
+    form.reset({ clientName });
+  }, [clientName, form]);
+
+  const onSubmit = useCallback(
+    (values: GeneralFormValues) => {
       send({
         type: "SAVE",
         data: {
-          clientName: e.target.value,
+          clientName: values.clientName,
         },
       } satisfies GeneralEvent);
     },
@@ -48,17 +72,26 @@ const GeneralSection = memo(({ actor, onNext }: GeneralSectionProps) => {
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid w-full items-center gap-4">
-          <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="clientName">Client Name</Label>
-            <Input
-              id="clientName"
-              value={clientName}
-              onChange={handleChange}
-              required
+        <Form {...form}>
+          <form
+            onChange={form.handleSubmit(onSubmit)}
+            className="grid w-full items-center gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="clientName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Client Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} required />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

@@ -3,117 +3,147 @@ import type { ActorRefFrom } from "xstate";
 import type createPeopleMachine from "../../machines/peopleMachine";
 import type { PeopleContext } from "../../machines/peopleMachine";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
-import { memo, useCallback, useMemo } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { memo, useCallback, useEffect, useMemo } from "react";
+
+const peopleFormSchema = z.object({
+  familyMembers: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().min(2, "Name must be at least 2 characters"),
+      })
+    )
+    .min(1, "At least one family member is required"),
+});
+
+type PeopleFormValues = z.infer<typeof peopleFormSchema>;
 
 type PeopleActor = ActorRefFrom<ReturnType<typeof createPeopleMachine>>;
-type PeopleState = { context: PeopleContext };
 
 interface PeopleSectionProps {
   actor: PeopleActor | null;
-  onNext?: () => void;
-  onBack?: () => void;
 }
 
-const familyMembersSelector = (state: PeopleState) => ({
+const familyMembersSelector = (state: { context: PeopleContext }) => ({
   familyMembers: state.context.data?.familyMembers ?? [],
-  isComplete: state.context.isComplete,
 });
 
-const PeopleSection = memo(({ actor, onNext, onBack }: PeopleSectionProps) => {
+const PeopleSection = memo(({ actor }: PeopleSectionProps) => {
   if (!actor) return null;
 
   const send = actor.send;
   const selector = useMemo(() => familyMembersSelector, []);
-  const { familyMembers, isComplete } = useSelector(actor, selector);
+  const { familyMembers } = useSelector(actor, selector);
 
-  const handleChange = useCallback(
-    (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newFamilyMembers = familyMembers.map((member) =>
-        member.id === id ? { ...member, name: e.target.value } : member
-      );
+  const form = useForm<PeopleFormValues>({
+    resolver: zodResolver(peopleFormSchema),
+    defaultValues: {
+      familyMembers: [],
+    },
+  });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "familyMembers",
+  });
+
+  // Update form when data changes
+  useEffect(() => {
+    form.reset({ familyMembers });
+  }, [familyMembers, form]);
+
+  const onSubmit = useCallback(
+    (values: PeopleFormValues) => {
       send({
         type: "SAVE",
         data: {
-          familyMembers: newFamilyMembers,
+          familyMembers: values.familyMembers,
         },
       });
     },
-    [familyMembers, send]
+    [send]
   );
 
   const addFamilyMember = useCallback(() => {
-    const newFamilyMembers = [
-      ...familyMembers,
-      { id: crypto.randomUUID(), name: "" },
-    ];
-    send({
-      type: "SAVE",
-      data: {
-        familyMembers: newFamilyMembers,
-      },
-    });
-  }, [familyMembers, send]);
+    append({ id: crypto.randomUUID(), name: "" });
+  }, [append]);
 
   const removeFamilyMember = useCallback(
-    (id: string) => {
-      const newFamilyMembers = familyMembers.filter(
-        (member) => member.id !== id
-      );
-      send({
-        type: "SAVE",
-        data: {
-          familyMembers: newFamilyMembers,
-        },
-      });
+    (index: number) => {
+      remove(index);
+      // Trigger form submission after removal
+      const values = form.getValues();
+      onSubmit(values);
     },
-    [familyMembers, send]
+    [remove, form, onSubmit]
   );
-
-  const handleSave = useCallback(() => {
-    if (isComplete && onNext) {
-      onNext();
-    }
-  }, [isComplete, onNext]);
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid w-full items-center gap-4">
-          {familyMembers.map((member) => (
-            <div key={member.id} className="flex items-center gap-2">
-              <div className="flex-1">
-                <Label htmlFor={`member-${member.id}`}>Family Member</Label>
-                <Input
-                  id={`member-${member.id}`}
-                  value={member.name}
-                  onChange={handleChange(member.id)}
-                  required
-                />
-              </div>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => removeFamilyMember(member.id)}
-                className="self-end"
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={addFamilyMember}
-            className="w-8 h-8"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+        <Form {...form}>
+          <form className="grid w-full items-center gap-4">
+            {fields.map((field, index) => (
+              <FormField
+                key={field.id}
+                control={form.control}
+                name={`familyMembers.${index}.name`}
+                render={({ field: nameField }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <FormLabel>Family Member</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...nameField}
+                            required
+                            onBlur={(e) => {
+                              nameField.onBlur();
+                              form.handleSubmit(onSubmit)();
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeFamilyMember(index)}
+                        className="self-end"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={addFamilyMember}
+              className="w-8 h-8"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
