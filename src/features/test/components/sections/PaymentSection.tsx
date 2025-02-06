@@ -1,7 +1,7 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
-import type createPaymentMachine from "../../machines/paymentMachine";
-import type { PaymentContext } from "../../machines/paymentMachine";
+import type createContractMachine from "../../machines/contractMachine";
+import type { PaymentData } from "../../machines/paymentMachine";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -32,22 +32,24 @@ const paymentFormSchema = z.object({
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
-type PaymentActor = ActorRefFrom<ReturnType<typeof createPaymentMachine>>;
+type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 interface PaymentSectionProps {
-  actor: PaymentActor | null;
+  actor: ContractActor;
 }
 
-const paymentSelector = (state: { context: PaymentContext }) => ({
-  paymentMethod: state.context.data?.paymentMethod ?? "cash",
-  amount: state.context.data?.amount ?? 0,
+const paymentDataSelector = (state: {
+  context: { formData: { payment: PaymentData | null } };
+}) => ({
+  paymentMethod: state.context.formData.payment?.paymentMethod ?? "cash",
+  amount: state.context.formData.payment?.amount ?? 0,
 });
 
 const PaymentSection = memo(({ actor }: PaymentSectionProps) => {
   if (!actor) return null;
 
   const send = actor.send;
-  const { paymentMethod, amount } = useSelector(actor, paymentSelector);
+  const { paymentMethod, amount } = useSelector(actor, paymentDataSelector);
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
@@ -64,7 +66,7 @@ const PaymentSection = memo(({ actor }: PaymentSectionProps) => {
   const onSubmit = useCallback(
     (values: PaymentFormValues) => {
       send({
-        type: "SAVE",
+        type: "UPDATE_PAYMENT",
         data: values,
       });
     },

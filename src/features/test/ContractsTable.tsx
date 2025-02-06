@@ -77,7 +77,7 @@ const ContractsTable = memo(({ onEditContract }: ContractsTableProps) => {
                         : contract.contractState === "void"
                           ? "bg-red-500 hover:bg-red-600"
                           : contract.contractState === "executed"
-                            ? "bg-blue-500 hover:bg-blue-600"
+                            ? "bg-blue-500 hover:bg-blue-600 text-white"
                             : ""
                     }
                   >

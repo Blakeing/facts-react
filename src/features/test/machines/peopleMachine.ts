@@ -5,17 +5,13 @@ export interface PeopleData {
     id: string;
     name: string;
   }>;
-  // Add other people-related fields
 }
 
 export interface PeopleContext {
   data: PeopleData | null;
 }
 
-type PeopleEvent =
-  | { type: "SAVE"; data: PeopleData }
-  | { type: "RESET" }
-  | { type: "LOAD"; data: PeopleData };
+export type PeopleEvent = { type: "SAVE"; data: PeopleData };
 
 const createPeopleMachine = (initialContext?: Partial<PeopleContext>) => {
   const machine = setup({
@@ -24,15 +20,9 @@ const createPeopleMachine = (initialContext?: Partial<PeopleContext>) => {
       events: {} as PeopleEvent,
     },
     actions: {
-      saveData: assign(({ event }) => {
-        if (event.type !== "SAVE" && event.type !== "LOAD") return {};
-        return {
-          data: event.data,
-        };
-      }),
-      reset: assign({
-        data: null,
-      }),
+      saveData: assign(({ event }) => ({
+        data: event.data,
+      })),
     },
   });
 
@@ -48,12 +38,6 @@ const createPeopleMachine = (initialContext?: Partial<PeopleContext>) => {
         on: {
           SAVE: {
             actions: "saveData",
-          },
-          LOAD: {
-            actions: "saveData",
-          },
-          RESET: {
-            actions: "reset",
           },
         },
       },

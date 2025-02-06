@@ -1,5 +1,8 @@
 // Form data types
-type GeneralData = { clientName: string } | null;
+type GeneralData = {
+  clientName: string;
+  email: string;
+} | null;
 type FamilyMember = { id: string; name: string };
 type PaymentData = { paymentMethod: "cash" | "credit"; amount: number } | null;
 

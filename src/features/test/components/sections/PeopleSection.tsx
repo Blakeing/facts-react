@@ -1,7 +1,7 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
-import type createPeopleMachine from "../../machines/peopleMachine";
-import type { PeopleContext } from "../../machines/peopleMachine";
+import type createContractMachine from "../../machines/contractMachine";
+import type { PeopleData } from "../../machines/peopleMachine";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,21 +32,23 @@ const peopleFormSchema = z.object({
 
 type PeopleFormValues = z.infer<typeof peopleFormSchema>;
 
-type PeopleActor = ActorRefFrom<ReturnType<typeof createPeopleMachine>>;
+type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 interface PeopleSectionProps {
-  actor: PeopleActor | null;
+  actor: ContractActor;
 }
 
-const familyMembersSelector = (state: { context: PeopleContext }) => ({
-  familyMembers: state.context.data?.familyMembers ?? [],
+const peopleDataSelector = (state: {
+  context: { formData: { people: PeopleData | null } };
+}) => ({
+  familyMembers: state.context.formData.people?.familyMembers ?? [],
 });
 
 const PeopleSection = memo(({ actor }: PeopleSectionProps) => {
   if (!actor) return null;
 
   const send = actor.send;
-  const selector = useMemo(() => familyMembersSelector, []);
+  const selector = useMemo(() => peopleDataSelector, []);
   const { familyMembers } = useSelector(actor, selector);
 
   const form = useForm<PeopleFormValues>({
@@ -69,10 +71,8 @@ const PeopleSection = memo(({ actor }: PeopleSectionProps) => {
   const onSubmit = useCallback(
     (values: PeopleFormValues) => {
       send({
-        type: "SAVE",
-        data: {
-          familyMembers: values.familyMembers,
-        },
+        type: "UPDATE_PEOPLE",
+        data: values,
       });
     },
     [send]

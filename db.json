@@ -2,27 +2,29 @@
   "contracts": [
     {
       "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d",
-      "contractState": "draft",
+      "contractState": "void",
       "formData": {
         "general": {
-          "clientName": "Bob"
+          "clientName": "Blakesdf",
+          "email": "m@google.com"
         },
         "people": {
           "familyMembers": [
             {
-              "id": "d6457aec-15c1-4d50-a881-19a79fe97265",
+              "id": "3069612b-f4c6-4693-a83e-121844d5b999",
               "name": "Test"
             }
           ]
         },
         "payment": {
-          "paymentMethod": "cash",
+          "paymentMethod": "credit",
           "amount": 10
         }
       }
     },
     {
-      "contractState": "void",
+      "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d",
+      "contractState": "finalized",
       "formData": {
         "general": {
           "clientName": "Test 5"
@@ -43,27 +45,15 @@
           "paymentMethod": "cash",
           "amount": 10
         }
-      },
-      "generalRef": {
-        "xstate$$type": 1,
-        "id": "x:38"
-      },
-      "peopleRef": {
-        "xstate$$type": 1,
-        "id": "x:39"
-      },
-      "paymentRef": {
-        "xstate$$type": 1,
-        "id": "x:40"
-      },
-      "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d"
+      }
     },
     {
       "id": "1f32306d-0756-4d81-b3c0-46aca5823f19",
-      "contractState": "executed",
+      "contractState": "draft",
       "formData": {
         "general": {
-          "clientName": "Test 16"
+          "clientName": "Test 17",
+          "email": "m@google.com"
         },
         "people": {
           "familyMembers": [

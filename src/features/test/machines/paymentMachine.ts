@@ -3,17 +3,13 @@ import { setup, assign } from "xstate";
 export interface PaymentData {
   paymentMethod: "cash" | "credit";
   amount: number;
-  // Add other payment-related fields
 }
 
 export interface PaymentContext {
   data: PaymentData | null;
 }
 
-type PaymentEvent =
-  | { type: "SAVE"; data: PaymentData }
-  | { type: "RESET" }
-  | { type: "LOAD"; data: PaymentData };
+export type PaymentEvent = { type: "SAVE"; data: PaymentData };
 
 const createPaymentMachine = (initialContext?: Partial<PaymentContext>) => {
   const machine = setup({
@@ -22,15 +18,9 @@ const createPaymentMachine = (initialContext?: Partial<PaymentContext>) => {
       events: {} as PaymentEvent,
     },
     actions: {
-      saveData: assign(({ event }) => {
-        if (event.type !== "SAVE" && event.type !== "LOAD") return {};
-        return {
-          data: event.data,
-        };
-      }),
-      reset: assign({
-        data: null,
-      }),
+      saveData: assign(({ event }) => ({
+        data: event.data,
+      })),
     },
   });
 
@@ -46,12 +36,6 @@ const createPaymentMachine = (initialContext?: Partial<PaymentContext>) => {
         on: {
           SAVE: {
             actions: "saveData",
-          },
-          LOAD: {
-            actions: "saveData",
-          },
-          RESET: {
-            actions: "reset",
           },
         },
       },

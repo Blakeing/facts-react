@@ -2,17 +2,14 @@ import { setup, assign } from "xstate";
 
 export interface GeneralData {
   clientName: string;
-  // Add other general form fields
+  email: string;
 }
 
 export interface GeneralContext {
   data: GeneralData | null;
 }
 
-export type GeneralEvent =
-  | { type: "SAVE"; data: GeneralData }
-  | { type: "RESET" }
-  | { type: "LOAD"; data: GeneralData };
+export type GeneralEvent = { type: "UPDATE_GENERAL"; data: GeneralData };
 
 const createGeneralMachine = (initialContext?: Partial<GeneralContext>) => {
   const machine = setup({
@@ -21,16 +18,9 @@ const createGeneralMachine = (initialContext?: Partial<GeneralContext>) => {
       events: {} as GeneralEvent,
     },
     actions: {
-      saveData: assign(({ event }) => {
-        if (event.type !== "SAVE" && event.type !== "LOAD") return {};
-        console.log("[GeneralMachine] Saving data:", event.data);
-        return {
-          data: event.data,
-        };
-      }),
-      reset: assign({
-        data: null,
-      }),
+      saveData: assign(({ event }) => ({
+        data: event.data,
+      })),
     },
   });
 
@@ -44,14 +34,8 @@ const createGeneralMachine = (initialContext?: Partial<GeneralContext>) => {
     states: {
       idle: {
         on: {
-          SAVE: {
+          UPDATE_GENERAL: {
             actions: "saveData",
-          },
-          LOAD: {
-            actions: "saveData",
-          },
-          RESET: {
-            actions: "reset",
           },
         },
       },

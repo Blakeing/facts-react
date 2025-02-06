@@ -18,7 +18,6 @@ export const useContractMutations = () => {
       return response;
     },
     onSuccess: () => {
-      // Invalidate and refetch contracts query
       queryClient.invalidateQueries({ queryKey: ["contracts"] });
       toast({
         title: "Contract created",
@@ -36,15 +35,27 @@ export const useContractMutations = () => {
       return response;
     },
     onMutate: async (newContract) => {
-      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["contracts", newContract.id],
+      });
       await queryClient.cancelQueries({ queryKey: ["contracts"] });
 
       // Snapshot the previous value
+      const previousContract = queryClient.getQueryData<Contract>([
+        "contracts",
+        newContract.id,
+      ]);
       const previousContracts = queryClient.getQueryData<Contract[]>([
         "contracts",
       ]);
 
-      // Optimistically update to the new value
+      // Optimistically update both the individual contract and the list
+      if (previousContract) {
+        queryClient.setQueryData<Contract>(
+          ["contracts", newContract.id],
+          newContract
+        );
+      }
       if (previousContracts) {
         queryClient.setQueryData<Contract[]>(["contracts"], (old) =>
           old?.map((contract) =>
@@ -53,13 +64,11 @@ export const useContractMutations = () => {
         );
       }
 
-      return { previousContracts };
+      return { previousContract, previousContracts };
     },
     onSuccess: (_, variables) => {
       // Only use state-specific messages when the state is explicitly changing
-      const isStateChange =
-        variables.contractState !== undefined &&
-        variables.contractState !== "draft";
+      const isStateChange = variables.contractState !== "draft";
 
       if (isStateChange) {
         const messages = {
@@ -95,18 +104,24 @@ export const useContractMutations = () => {
         }
       }
 
-      // Default message for regular saves
       toast({
         title: "Changes Saved",
         description: "Your changes have been saved successfully.",
         variant: "default",
       });
     },
-    onError: (error, _newContract, context) => {
-      console.error("Error updating contract:", error);
+    onError: (error, newContract, context) => {
+      // Revert optimistic updates on error
+      if (context?.previousContract) {
+        queryClient.setQueryData(
+          ["contracts", newContract.id],
+          context.previousContract
+        );
+      }
       if (context?.previousContracts) {
         queryClient.setQueryData(["contracts"], context.previousContracts);
       }
+
       toast({
         title: "Error Saving Contract",
         description:
@@ -114,8 +129,11 @@ export const useContractMutations = () => {
         variant: "destructive",
       });
     },
-    onSettled: () => {
+    onSettled: (data) => {
       // Always refetch after error or success to ensure data is in sync
+      if (data?.id) {
+        queryClient.invalidateQueries({ queryKey: ["contracts", data.id] });
+      }
       queryClient.invalidateQueries({ queryKey: ["contracts"] });
     },
   });

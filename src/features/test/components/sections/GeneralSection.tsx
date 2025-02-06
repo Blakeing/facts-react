@@ -1,12 +1,12 @@
 import { useSelector } from "@xstate/react";
 import type { ActorRefFrom } from "xstate";
-import type createGeneralMachine from "../../machines/generalMachine";
-import type { GeneralEvent } from "../../machines/generalMachine";
+import type createContractMachine from "../../machines/contractMachine";
+import type { GeneralData } from "../../machines/generalMachine";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import * as z from "zod";
 import {
   Form,
@@ -16,55 +16,48 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { memo, useCallback, useEffect, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const generalFormSchema = z.object({
   clientName: z.string().min(2, "Client name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
 });
 
 type GeneralFormValues = z.infer<typeof generalFormSchema>;
 
-type GeneralActor = ActorRefFrom<ReturnType<typeof createGeneralMachine>>;
+type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 interface GeneralSectionProps {
-  actor: GeneralActor | null;
+  actor: ContractActor;
 }
 
-const clientNameSelector = (state: {
-  context: { data: { clientName: string } | null };
-}) => ({
-  clientName: state.context.data?.clientName ?? "",
-});
+const generalDataSelector = (state: {
+  context: { formData: { general: GeneralData | null } };
+}) => state.context.formData.general || { clientName: "", email: "" };
 
 const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
-  console.log("[GeneralSection] Rendering with actor:", actor);
-
-  if (!actor) return null;
-
   const send = actor.send;
-  const selector = useMemo(() => clientNameSelector, []);
-  const { clientName } = useSelector(actor, selector);
+  const selector = useMemo(() => generalDataSelector, []);
+  const formData = useSelector(actor, selector);
 
   const form = useForm<GeneralFormValues>({
     resolver: zodResolver(generalFormSchema),
-    defaultValues: {
-      clientName: "",
-    },
+    values: formData,
   });
-
-  // Update form when data changes
-  useEffect(() => {
-    form.reset({ clientName });
-  }, [clientName, form]);
 
   const onSubmit = useCallback(
     (values: GeneralFormValues) => {
       send({
-        type: "SAVE",
-        data: {
-          clientName: values.clientName,
-        },
-      } satisfies GeneralEvent);
+        type: "UPDATE_GENERAL",
+        data: values,
+      });
     },
     [send]
   );
@@ -74,7 +67,7 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
       <CardContent className="pt-6">
         <Form {...form}>
           <form
-            onChange={form.handleSubmit(onSubmit)}
+            onBlur={form.handleSubmit(onSubmit)}
             className="grid w-full items-center gap-4"
           >
             <FormField
@@ -84,11 +77,53 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
                 <FormItem>
                   <FormLabel>Client Name</FormLabel>
                   <FormControl>
-                    <Input {...field} required />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <pre className="mt-2 text-xs text-muted-foreground">
+                    XState value: {formData.clientName}
+                  </pre>
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => {
+                const placeholder = "Select a verified email";
+                return (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || placeholder}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue>
+                            {field.value || placeholder}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="m@example.com">
+                          m@example.com
+                        </SelectItem>
+                        <SelectItem value="m@google.com">
+                          m@google.com
+                        </SelectItem>
+                        <SelectItem value="m@support.com">
+                          m@support.com
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    <pre className="mt-2 text-xs text-muted-foreground">
+                      XState value: {formData.email}
+                    </pre>
+                  </FormItem>
+                );
+              }}
             />
           </form>
         </Form>
