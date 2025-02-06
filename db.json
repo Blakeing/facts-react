@@ -24,10 +24,11 @@
     },
     {
       "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d",
-      "contractState": "finalized",
+      "contractState": "executed",
       "formData": {
         "general": {
-          "clientName": "Test 5"
+          "clientName": "Test 2",
+          "email": "m@google.com"
         },
         "people": {
           "familyMembers": [
@@ -52,7 +53,7 @@
       "contractState": "draft",
       "formData": {
         "general": {
-          "clientName": "Test 17",
+          "clientName": "Test 21",
           "email": "m@google.com"
         },
         "people": {
@@ -68,10 +69,6 @@
             {
               "id": "3c15f6dc-3289-4078-b007-1c945409bd21",
               "name": "Scott"
-            },
-            {
-              "id": "e849c20e-0fca-425d-ac9a-b5b4555761cb",
-              "name": "Holly"
             }
           ]
         },
@@ -83,7 +80,7 @@
     },
     {
       "id": "3sCeddi",
-      "contractState": "finalized",
+      "contractState": "draft",
       "formData": {
         "general": {
           "clientName": "Test"
