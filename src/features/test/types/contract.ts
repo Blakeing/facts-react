@@ -1,6 +1,6 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { GeneralData } from "../machines/generalMachine";
-import type { PeopleData } from "../machines/peopleMachine";
+import type { BuyerData } from "../machines/buyerMachine";
 import type { PaymentData } from "../machines/paymentMachine";
 import type { ContractApiError } from "./errors";
 
@@ -8,7 +8,7 @@ export type ContractState = "draft" | "executed" | "finalized" | "void";
 
 export interface FormData {
 	general: GeneralData | null;
-	people: PeopleData | null;
+	buyer: BuyerData | null;
 	payment: PaymentData | null;
 }
 
@@ -22,7 +22,7 @@ export interface ContractContext {
 	id: string | null;
 	contractState: ContractState;
 	formData: FormData;
-	error?: ContractApiError;
+	error: ContractApiError | null;
 }
 
 export interface LoadContractData {
@@ -34,7 +34,7 @@ export interface LoadContractData {
 export type ContractEvent =
 	| { type: "LOAD_CONTRACT"; data: LoadContractData }
 	| { type: "GO_TO_GENERAL" }
-	| { type: "GO_TO_PEOPLE" }
+	| { type: "GO_TO_BUYER" }
 	| { type: "GO_TO_PAYMENT" }
 	| { type: "GO_TO_REVIEW" }
 	| { type: "EXECUTE" }
@@ -42,7 +42,7 @@ export type ContractEvent =
 	| { type: "VOID" }
 	| { type: "SAVE_CONTRACT" }
 	| { type: "UPDATE_GENERAL"; data: GeneralData }
-	| { type: "UPDATE_PEOPLE"; data: PeopleData }
+	| { type: "UPDATE_BUYER"; data: BuyerData }
 	| { type: "UPDATE_PAYMENT"; data: PaymentData };
 
 export interface ContractServices {

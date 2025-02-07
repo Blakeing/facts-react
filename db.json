@@ -1,104 +1,20 @@
 {
   "contracts": [
     {
-      "id": "66c46b98-e9da-41b8-a3ac-edd9caba7a7d",
-      "contractState": "void",
-      "formData": {
-        "general": {
-          "clientName": "Blakesdf",
-          "email": "m@google.com"
-        },
-        "people": {
-          "familyMembers": [
-            {
-              "id": "3069612b-f4c6-4693-a83e-121844d5b999",
-              "name": "Test"
-            }
-          ]
-        },
-        "payment": {
-          "paymentMethod": "credit",
-          "amount": 10
-        }
-      }
-    },
-    {
-      "id": "c4a1edc6-6083-4f6e-974e-ef77e318ef3d",
+      "id": 1,
       "contractState": "executed",
       "formData": {
         "general": {
-          "clientName": "Test 2",
-          "email": "m@google.com"
+          "serviceDate": "2025-02-07T00:11:02.573Z",
+          "contractSignDate": "2025-02-07T00:11:02.573Z",
+          "funeralDirector": "director1",
+          "atNeedType": "type3",
+          "contractType": "type3",
+          "campaign": "campaign2",
+          "prePrintedContractNumber": "343"
         },
-        "people": {
-          "familyMembers": [
-            {
-              "id": "93f22cc1-759c-4c96-aa68-16e2a34ee76e",
-              "name": "test"
-            },
-            {
-              "id": "1a6a91b8-56a2-4f56-8b92-0b5f0d20c182",
-              "name": "test 2"
-            }
-          ]
-        },
-        "payment": {
-          "paymentMethod": "cash",
-          "amount": 10
-        }
-      }
-    },
-    {
-      "id": "1f32306d-0756-4d81-b3c0-46aca5823f19",
-      "contractState": "draft",
-      "formData": {
-        "general": {
-          "clientName": "Test 21",
-          "email": "m@google.com"
-        },
-        "people": {
-          "familyMembers": [
-            {
-              "id": "e3bf3461-e90c-46fe-af95-53e7f2e5746b",
-              "name": "Bobby"
-            },
-            {
-              "id": "6b19314a-5f1d-4ab5-b4dc-24854255f763",
-              "name": "Jimmy"
-            },
-            {
-              "id": "3c15f6dc-3289-4078-b007-1c945409bd21",
-              "name": "Scott"
-            }
-          ]
-        },
-        "payment": {
-          "paymentMethod": "credit",
-          "amount": 69.21
-        }
-      }
-    },
-    {
-      "id": "3sCeddi",
-      "contractState": "draft",
-      "formData": {
-        "general": {
-          "clientName": "Test"
-        },
-        "people": null,
+        "buyer": null,
         "payment": null
-      },
-      "generalRef": {
-        "xstate$$type": 1,
-        "id": "x:103"
-      },
-      "peopleRef": {
-        "xstate$$type": 1,
-        "id": "x:104"
-      },
-      "paymentRef": {
-        "xstate$$type": 1,
-        "id": "x:105"
       }
     }
   ]

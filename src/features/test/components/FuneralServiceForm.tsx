@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import GeneralSection from "./sections/GeneralSection";
-import PeopleSection from "./sections/PeopleSection";
 import PaymentSection from "./sections/PaymentSection";
 import ReviewSection from "./sections/ReviewSection";
 import { useContractMutations } from "../hooks/useContractMutations";
@@ -22,6 +21,8 @@ import { Loader2 } from "lucide-react";
 import { useContracts } from "../hooks/useContracts";
 import type { ActorRef, SnapshotFrom } from "xstate";
 import { produce } from "immer";
+import BuyerSection from "./sections/BuyerSection";
+import { useToast } from "@/hooks/use-toast";
 
 export interface FuneralServiceFormProps {
 	onComplete?: () => void;
@@ -43,20 +44,21 @@ const STATE_STYLES = {
 
 const SECTION_MAP = {
 	general: "GO_TO_GENERAL",
-	people: "GO_TO_PEOPLE",
+	buyer: "GO_TO_BUYER",
 	payment: "GO_TO_PAYMENT",
 	review: "GO_TO_REVIEW",
 } as const;
 
-type ReviewSectionType = "people" | "payment" | "general";
+type ReviewSectionType = "buyer" | "payment" | "general";
 type ContractStateValue =
 	| "draft"
 	| "executed"
 	| "finalized"
 	| "void"
-	| "people"
+	| "buyer"
 	| "payment"
-	| "review";
+	| "review"
+	| "general";
 
 // Memoized Badge component
 const ContractStateBadge = memo(
@@ -128,17 +130,18 @@ const FormSection = memo(
 		status?: ContractStateValue;
 	}) => {
 		switch (currentState) {
+			case "general":
 			case "draft":
 				return <GeneralSection actor={actor} />;
-			case "people":
-				return <PeopleSection actor={actor} />;
+			case "buyer":
+				return <BuyerSection actor={actor} />;
 			case "payment":
 				return <PaymentSection actor={actor} />;
 			case "review":
 				return (
 					<ReviewSection
 						generalData={formData.general}
-						peopleData={formData.people}
+						buyerData={formData.buyer}
 						paymentData={formData.payment}
 						onEdit={onEdit || (() => {})}
 					/>
@@ -147,7 +150,7 @@ const FormSection = memo(
 				return (
 					<ReviewSection
 						generalData={formData.general}
-						peopleData={formData.people}
+						buyerData={formData.buyer}
 						paymentData={formData.payment}
 						readOnly
 					/>
@@ -157,10 +160,12 @@ const FormSection = memo(
 				return (
 					<ReviewSection
 						generalData={formData.general}
-						peopleData={formData.people}
+						buyerData={formData.buyer}
 						paymentData={formData.payment}
 						readOnly
-						status={status || currentState}
+						{...(currentState === "finalized" || currentState === "void"
+							? { status: currentState }
+							: {})}
 					/>
 				);
 			default:
@@ -182,6 +187,7 @@ type ContractSend = (event: ContractEvent) => void;
 const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts } = useContracts();
+	const { toast } = useToast();
 
 	// Use ref for stable machine config
 	const mutationsRef = useRef({ createMutation, updateMutation });
@@ -270,7 +276,16 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 	// Use Immer for state updates in handlers
 	const handleSave = useCallback(() => {
 		const { formData, id, contractState } = state.context;
-		if (!formData.general || !formData.people || !formData.payment) return;
+
+		// Allow saving if at least one section is filled out
+		if (!formData.general && !formData.buyer && !formData.payment) {
+			toast({
+				title: "Cannot Save Empty Form",
+				description: "Please fill out at least one section before saving.",
+				variant: "destructive",
+			});
+			return;
+		}
 
 		const nextId = id || crypto.randomUUID();
 		const contractData = produce(
@@ -282,13 +297,56 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 			(draft) => draft,
 		);
 
-		if (id) {
-			updateMutation.mutate(contractData);
-		} else {
-			const { id: _, ...newContractData } = contractData;
-			createMutation.mutate(newContractData);
+		try {
+			if (id) {
+				updateMutation.mutate(contractData, {
+					onSuccess: () => {
+						toast({
+							title: "Changes Saved",
+							description: "Your changes have been saved successfully.",
+						});
+					},
+					onError: (error) => {
+						toast({
+							title: "Error Saving Changes",
+							description:
+								error instanceof Error
+									? error.message
+									: "An error occurred while saving",
+							variant: "destructive",
+						});
+					},
+				});
+			} else {
+				const { id: _, ...newContractData } = contractData;
+				createMutation.mutate(newContractData, {
+					onSuccess: () => {
+						toast({
+							title: "Contract Created",
+							description: "Your contract has been created successfully.",
+						});
+					},
+					onError: (error) => {
+						toast({
+							title: "Error Creating Contract",
+							description:
+								error instanceof Error
+									? error.message
+									: "An error occurred while creating the contract",
+							variant: "destructive",
+						});
+					},
+				});
+			}
+		} catch (error) {
+			console.error("Error in handleSave:", error);
+			toast({
+				title: "Error",
+				description: "An unexpected error occurred. Please try again.",
+				variant: "destructive",
+			});
 		}
-	}, [state.context, createMutation, updateMutation]);
+	}, [state.context, createMutation, updateMutation, toast]);
 
 	const getEffectiveContractState = useCallback(() => {
 		if (updateMutation.isPending && updateMutation.variables?.contractState) {
@@ -417,7 +475,7 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 			</CardHeader>
 			<CardContent>
 				<div className="space-y-4">
-					<div className="border-b">
+					<div>
 						<Tabs
 							value={tabValue}
 							onValueChange={(value: string) => {
@@ -426,7 +484,7 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 						>
 							<TabsList>
 								<TabsTrigger value="general">General</TabsTrigger>
-								<TabsTrigger value="people">People</TabsTrigger>
+								<TabsTrigger value="buyer">Buyer</TabsTrigger>
 								<TabsTrigger value="payment">Payment</TabsTrigger>
 								<TabsTrigger value="review">Review</TabsTrigger>
 							</TabsList>

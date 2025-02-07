@@ -1,19 +1,16 @@
 // Form data types
-type GeneralData = {
-  clientName: string;
-  email: string;
-} | null;
-type FamilyMember = { id: string; name: string };
+import type { GeneralData } from "./machines/generalMachine";
+import type { BuyerData } from "./machines/buyerMachine";
 type PaymentData = { paymentMethod: "cash" | "credit"; amount: number } | null;
 
 export type ContractState = "draft" | "executed" | "finalized" | "void";
 
 export interface Contract {
-  id: string;
-  contractState: ContractState;
-  formData: {
-    general: GeneralData;
-    people: { familyMembers: FamilyMember[] } | null;
-    payment: PaymentData;
-  };
+	id: string;
+	contractState: ContractState;
+	formData: {
+		general: GeneralData | null;
+		buyer: BuyerData | null;
+		payment: PaymentData;
+	};
 }

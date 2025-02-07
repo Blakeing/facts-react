@@ -79,12 +79,12 @@ const createContractMachine = (services: ContractServices) => {
 					};
 				},
 			}),
-			updatePeopleData: assign({
+			updateBuyerData: assign({
 				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_PEOPLE") return context.formData;
+					if (event.type !== "UPDATE_BUYER") return context.formData;
 					return {
 						...context.formData,
-						people: event.data,
+						buyer: event.data,
 					};
 				},
 			}),
@@ -109,190 +109,94 @@ const createContractMachine = (services: ContractServices) => {
 					if (isContractApiError(event.error)) {
 						return event.error;
 					}
-					return undefined;
+					return null;
 				},
 			}),
 		},
 	}).createMachine({
 		id: "contract",
-		initial: "draft",
-		context: () => ({
+		initial: "general",
+		context: {
 			id: null,
 			contractState: "draft",
 			formData: {
 				general: null,
-				people: null,
+				buyer: null,
 				payment: null,
 			},
-		}),
+			error: null,
+		},
+		on: {
+			LOAD_CONTRACT: {
+				actions: "loadContract",
+				target: ".general",
+			},
+			UPDATE_GENERAL: {
+				actions: "updateGeneralData",
+			},
+		},
 		states: {
-			draft: {
+			general: {
 				on: {
-					LOAD_CONTRACT: {
-						actions: ["loadContract"],
-					},
-					UPDATE_GENERAL: {
-						actions: ["updateGeneralData"],
-					},
-					GO_TO_PEOPLE: "people",
+					GO_TO_BUYER: "buyer",
 					GO_TO_PAYMENT: "payment",
 					GO_TO_REVIEW: "review",
-					SAVE_CONTRACT: {
-						target: "saving",
+					UPDATE_GENERAL: {
+						actions: "updateGeneralData",
 					},
 				},
 			},
-			people: {
+			buyer: {
 				on: {
-					LOAD_CONTRACT: {
-						actions: ["loadContract"],
-					},
-					UPDATE_PEOPLE: {
-						actions: ["updatePeopleData"],
-					},
-					GO_TO_GENERAL: "draft",
+					GO_TO_GENERAL: "general",
 					GO_TO_PAYMENT: "payment",
 					GO_TO_REVIEW: "review",
-					SAVE_CONTRACT: {
-						target: "saving",
+					UPDATE_BUYER: {
+						actions: assign({
+							formData: ({ context, event }) => ({
+								...context.formData,
+								buyer: event.data,
+							}),
+						}),
 					},
 				},
 			},
 			payment: {
 				on: {
-					LOAD_CONTRACT: {
-						actions: ["loadContract"],
-					},
-					UPDATE_PAYMENT: {
-						actions: ["updatePaymentData"],
-					},
-					GO_TO_GENERAL: "draft",
-					GO_TO_PEOPLE: "people",
+					GO_TO_GENERAL: "general",
+					GO_TO_BUYER: "buyer",
 					GO_TO_REVIEW: "review",
-					SAVE_CONTRACT: {
-						target: "saving",
-					},
-				},
-			},
-			saving: {
-				invoke: {
-					src: "saveContract",
-					input: ({ context }) => ({
-						context,
-					}),
-					onDone: {
-						target: "review",
+					UPDATE_PAYMENT: {
 						actions: assign({
-							id: ({ event }) => event.output.id,
-						}),
-					},
-					onError: {
-						target: "error",
-						actions: {
-							type: "handleError",
-							params: ({ event }) => ({
-								error: event.error,
+							formData: ({ context, event }) => ({
+								...context.formData,
+								payment: event.data,
 							}),
-						},
+						}),
 					},
 				},
 			},
 			review: {
 				on: {
-					LOAD_CONTRACT: {
-						actions: ["loadContract"],
-					},
-					GO_TO_GENERAL: "draft",
-					GO_TO_PEOPLE: "people",
+					GO_TO_GENERAL: "general",
+					GO_TO_BUYER: "buyer",
 					GO_TO_PAYMENT: "payment",
 					EXECUTE: {
-						target: "executing",
-						actions: ["updateContractState"],
-					},
-				},
-			},
-			executing: {
-				invoke: {
-					src: "updateContract",
-					input: ({ context }) => ({
-						context,
-					}),
-					onDone: "executed",
-					onError: {
-						target: "error",
-						actions: {
-							type: "handleError",
-							params: ({ event }) => ({
-								error: event.error,
-							}),
-						},
-					},
-				},
-			},
-			executed: {
-				on: {
-					LOAD_CONTRACT: {
-						actions: ["loadContract"],
+						actions: assign({
+							contractState: () => CONTRACT_STATE_MAP.EXECUTE,
+						}),
 					},
 					FINALIZE: {
-						target: "finalizing",
-						actions: ["updateContractState"],
+						actions: assign({
+							contractState: () => CONTRACT_STATE_MAP.FINALIZE,
+						}),
 					},
 					VOID: {
-						target: "voiding",
-						actions: ["updateContractState"],
+						actions: assign({
+							contractState: () => CONTRACT_STATE_MAP.VOID,
+						}),
 					},
 				},
-			},
-			finalizing: {
-				invoke: {
-					src: "updateContract",
-					input: ({ context }) => ({
-						context,
-					}),
-					onDone: "finalized",
-					onError: {
-						target: "error",
-						actions: {
-							type: "handleError",
-							params: ({ event }) => ({
-								error: event.error,
-							}),
-						},
-					},
-				},
-			},
-			voiding: {
-				invoke: {
-					src: "updateContract",
-					input: ({ context }) => ({
-						context,
-					}),
-					onDone: "void",
-					onError: {
-						target: "error",
-						actions: {
-							type: "handleError",
-							params: ({ event }) => ({
-								error: event.error,
-							}),
-						},
-					},
-				},
-			},
-			error: {
-				on: {
-					GO_TO_GENERAL: "draft",
-					GO_TO_PEOPLE: "people",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_REVIEW: "review",
-				},
-			},
-			finalized: {
-				type: "final",
-			},
-			void: {
-				type: "final",
 			},
 		},
 	});

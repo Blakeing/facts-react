@@ -1,8 +1,13 @@
 import { setup, assign } from "xstate";
 
 export interface GeneralData {
-	clientName: string;
-	email: string;
+	serviceDate: Date;
+	contractSignDate: Date;
+	prePrintedContractNumber?: string;
+	funeralDirector: string;
+	atNeedType: string;
+	contractType: string;
+	campaign: string;
 }
 
 export interface GeneralContext {
@@ -18,9 +23,12 @@ const createGeneralMachine = (initialContext?: Partial<GeneralContext>) => {
 			events: {} as GeneralEvent,
 		},
 		actions: {
-			saveData: assign(({ event }) => ({
-				data: event.data,
-			})),
+			saveData: assign(({ event }) => {
+				if (event.type !== "UPDATE_GENERAL") return {};
+				return {
+					data: event.data,
+				};
+			}),
 		},
 	});
 
