@@ -83,7 +83,10 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 
 	const form = useForm<GeneralFormValues>({
 		resolver: zodResolver(generalFormSchema),
-		values: formData,
+		values: {
+			...formData,
+			prePrintedContractNumber: formData.prePrintedContractNumber || "",
+		},
 		mode: "onTouched",
 	});
 

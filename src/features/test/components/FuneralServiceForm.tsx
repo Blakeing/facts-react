@@ -121,7 +121,6 @@ const FormSection = memo(
 		actor,
 		formData,
 		onEdit,
-		status,
 	}: {
 		currentState: ContractStateValue;
 		actor: ContractActor;

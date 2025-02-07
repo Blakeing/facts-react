@@ -139,6 +139,7 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 	const form = useForm<BuyerFormValues>({
 		resolver: zodResolver(buyerFormSchema),
 		defaultValues: formData,
+		mode: "onTouched",
 	});
 
 	const handleFieldChange = useCallback(
@@ -217,7 +218,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>Company Name</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange(
+															"name.companyName",
+															e.target.value,
+														)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -260,7 +269,12 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem className="col-span-2">
 											<FormLabel>First</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange("name.first", e.target.value)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -273,7 +287,12 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>Middle</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange("name.middle", e.target.value)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -286,7 +305,12 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem className="col-span-2">
 											<FormLabel>Last</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange("name.last", e.target.value)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -301,7 +325,12 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>Nickname</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange("name.nickname", e.target.value)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -314,7 +343,12 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>Maiden</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange("name.maiden", e.target.value)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -360,7 +394,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 									<FormItem>
 										<FormLabel>Address</FormLabel>
 										<FormControl>
-											<Input {...field} />
+											<Input
+												{...field}
+												onChange={(e) =>
+													handleFieldChange(
+														"physicalAddress.street",
+														e.target.value,
+													)
+												}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -374,7 +416,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem className="col-span-2">
 											<FormLabel>City</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange(
+															"physicalAddress.city",
+															e.target.value,
+														)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -414,7 +464,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>Postal Code</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange(
+															"physicalAddress.postalCode",
+															e.target.value,
+														)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -490,7 +548,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 										<FormItem>
 											<FormLabel>State ID Number</FormLabel>
 											<FormControl>
-												<Input {...field} />
+												<Input
+													{...field}
+													onChange={(e) =>
+														handleFieldChange(
+															"identification.stateIdNumber",
+															e.target.value,
+														)
+													}
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -778,7 +844,15 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 											<FormItem>
 												<FormLabel>Number</FormLabel>
 												<FormControl>
-													<Input {...field} />
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange(
+																`phones.${index}.number`,
+																e.target.value,
+															)
+														}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -864,7 +938,16 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 											<FormItem>
 												<FormLabel>Email Address</FormLabel>
 												<FormControl>
-													<Input {...field} type="email" />
+													<Input
+														{...field}
+														type="email"
+														onChange={(e) =>
+															handleFieldChange(
+																`emails.${index}.address`,
+																e.target.value,
+															)
+														}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
