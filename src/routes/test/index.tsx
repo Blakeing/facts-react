@@ -1,6 +1,6 @@
+import { Button } from "@/components/ui/button";
 import ContractsTable from "@/features/test/components/contracts-table";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { useCallback } from "react";
 
 export const Route = createFileRoute("/test/")({

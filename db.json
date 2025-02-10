@@ -2,7 +2,7 @@
   "contracts": [
     {
       "id": 1,
-      "contractState": "executed",
+      "contractState": "void",
       "formData": {
         "general": {
           "serviceDate": "2025-02-07T00:11:02.573Z",
@@ -11,7 +11,7 @@
           "atNeedType": "type3",
           "contractType": "type3",
           "campaign": "campaign2",
-          "prePrintedContractNumber": "343"
+          "prePrintedContractNumber": "342"
         },
         "buyer": {
           "name": {

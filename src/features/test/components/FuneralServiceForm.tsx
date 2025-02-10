@@ -1,28 +1,28 @@
-import { useMachine } from "@xstate/react";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import createContractMachine from "../machines/contractMachine";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "@tanstack/react-router";
+import { useMachine } from "@xstate/react";
+import { produce } from "immer";
+import { Loader2 } from "lucide-react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
+import type { ActorRef, SnapshotFrom } from "xstate";
+import { useContractMutations } from "../hooks/useContractMutations";
+import { useContracts } from "../hooks/useContracts";
+import createContractMachine from "../machines/contractMachine";
+import type {
+	Contract,
+	ContractContext,
+	ContractEvent,
+	ContractState,
+	FormData,
+} from "../types/contract";
+import BuyerSection from "./sections/BuyerSection";
 import GeneralSection from "./sections/GeneralSection";
 import PaymentSection from "./sections/PaymentSection";
 import ReviewSection from "./sections/ReviewSection";
-import { useContractMutations } from "../hooks/useContractMutations";
-import type {
-	Contract,
-	ContractState,
-	FormData,
-	ContractContext,
-	ContractEvent,
-} from "../types/contract";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
-import { useContracts } from "../hooks/useContracts";
-import type { ActorRef, SnapshotFrom } from "xstate";
-import { produce } from "immer";
-import BuyerSection from "./sections/BuyerSection";
-import { useToast } from "@/hooks/use-toast";
 
 export interface FuneralServiceFormProps {
 	onComplete?: () => void;
@@ -186,7 +186,6 @@ type ContractSend = (event: ContractEvent) => void;
 const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts } = useContracts();
-	const { toast } = useToast();
 
 	// Use ref for stable machine config
 	const mutationsRef = useRef({ createMutation, updateMutation });
@@ -278,10 +277,8 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 
 		// Allow saving if at least one section is filled out
 		if (!formData.general && !formData.buyer && !formData.payment) {
-			toast({
-				title: "Cannot Save Empty Form",
+			toast("Cannot Save Empty Form", {
 				description: "Please fill out at least one section before saving.",
-				variant: "destructive",
 			});
 			return;
 		}
@@ -300,19 +297,16 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 			if (id) {
 				updateMutation.mutate(contractData, {
 					onSuccess: () => {
-						toast({
-							title: "Changes Saved",
+						toast("Changes Saved", {
 							description: "Your changes have been saved successfully.",
 						});
 					},
 					onError: (error) => {
-						toast({
-							title: "Error Saving Changes",
+						toast("Error Saving Changes", {
 							description:
 								error instanceof Error
 									? error.message
 									: "An error occurred while saving",
-							variant: "destructive",
 						});
 					},
 				});
@@ -320,32 +314,27 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 				const { id: _, ...newContractData } = contractData;
 				createMutation.mutate(newContractData, {
 					onSuccess: () => {
-						toast({
-							title: "Contract Created",
+						toast("Contract Created", {
 							description: "Your contract has been created successfully.",
 						});
 					},
 					onError: (error) => {
-						toast({
-							title: "Error Creating Contract",
+						toast("Error Creating Contract", {
 							description:
 								error instanceof Error
 									? error.message
 									: "An error occurred while creating the contract",
-							variant: "destructive",
 						});
 					},
 				});
 			}
 		} catch (error) {
 			console.error("Error in handleSave:", error);
-			toast({
-				title: "Error",
+			toast("Error", {
 				description: "An unexpected error occurred. Please try again.",
-				variant: "destructive",
 			});
 		}
-	}, [state.context, createMutation, updateMutation, toast]);
+	}, [state.context, createMutation, updateMutation]);
 
 	const getEffectiveContractState = useCallback(() => {
 		if (updateMutation.isPending && updateMutation.variables?.contractState) {

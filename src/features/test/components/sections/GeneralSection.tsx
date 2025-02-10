@@ -1,21 +1,6 @@
-import { useSelector } from "@xstate/react";
-import type { ActorRefFrom } from "xstate";
-import type createContractMachine from "../../machines/contractMachine";
-import type { GeneralData } from "../../machines/generalMachine";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import * as z from "zod";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent } from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -24,7 +9,12 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { memo, useCallback, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -33,6 +23,16 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSelector } from "@xstate/react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { memo, useCallback, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import type { ActorRefFrom } from "xstate";
+import * as z from "zod";
+import type createContractMachine from "../../machines/contractMachine";
+import type { GeneralData } from "../../machines/generalMachine";
 
 const generalFormSchema = z.object({
 	serviceDate: z.date({

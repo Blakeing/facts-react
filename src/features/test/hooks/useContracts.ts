@@ -8,13 +8,13 @@ const API_URL = "http://localhost:3001";
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useContracts = () => {
-  return useQuery({
-    queryKey: ["contracts"],
-    queryFn: async () => {
-      // Simulate network delay (800ms)
-      await delay(800);
-      const { data } = await axios.get<Contract[]>(`${API_URL}/contracts`);
-      return data;
-    },
-  });
+	return useQuery({
+		queryKey: ["contracts"],
+		queryFn: async () => {
+			// Simulate network delay (800ms)
+			await delay(800);
+			const { data } = await axios.get<Contract[]>(`${API_URL}/contracts`);
+			return data;
+		},
+	});
 };

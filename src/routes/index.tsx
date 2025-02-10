@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
 import FuneralServiceForm from "@/features/test/components/FuneralServiceForm";
 import ContractsTable from "@/features/test/components/contracts-table";
+import { createFileRoute } from "@tanstack/react-router";
 
 import { useCallback } from "react";
 

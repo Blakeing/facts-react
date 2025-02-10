@@ -1,4 +1,4 @@
-import { setup, assign, fromPromise } from "xstate";
+import { assign, fromPromise, setup } from "xstate";
 import type {
 	Contract,
 	ContractContext,

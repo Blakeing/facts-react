@@ -1,14 +1,14 @@
 import {
 	type ColumnDef,
-	flexRender,
-	getCoreRowModel,
-	useReactTable,
-	getPaginationRowModel,
-	getSortedRowModel,
-	getFilteredRowModel,
+	type ColumnFiltersState,
 	type SortingState,
 	type VisibilityState,
-	type ColumnFiltersState,
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable,
 } from "@tanstack/react-table";
 
 import {
@@ -20,10 +20,10 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
-import { DataTablePagination } from "./components/pagination";
-import { DataTableViewOptions } from "./components/column-toggle";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { DataTableViewOptions } from "./components/column-toggle";
+import { DataTablePagination } from "./components/pagination";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

@@ -1,12 +1,4 @@
-import { useSelector } from "@xstate/react";
-import type { ActorRefFrom } from "xstate";
-import type createContractMachine from "../../machines/contractMachine";
-import type { PaymentData } from "../../machines/paymentMachine";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
 	Form,
 	FormControl,
@@ -15,8 +7,16 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSelector } from "@xstate/react";
 import { memo, useCallback, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import type { ActorRefFrom } from "xstate";
+import * as z from "zod";
+import type createContractMachine from "../../machines/contractMachine";
+import type { PaymentData } from "../../machines/paymentMachine";
 
 const paymentFormSchema = z.object({
 	paymentMethod: z.enum(["cash", "credit"], {

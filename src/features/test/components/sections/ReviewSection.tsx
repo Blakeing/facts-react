@@ -1,12 +1,12 @@
-import type { GeneralData } from "../../machines/generalMachine";
-import type { BuyerData } from "../../machines/buyerMachine";
-import type { PaymentData } from "../../machines/paymentMachine";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { memo, useCallback } from "react";
 import { format } from "date-fns";
+import { memo, useCallback } from "react";
+import type { BuyerData } from "../../machines/buyerMachine";
+import type { GeneralData } from "../../machines/generalMachine";
+import type { PaymentData } from "../../machines/paymentMachine";
 
 export interface ReviewSectionProps {
 	generalData: GeneralData | null;

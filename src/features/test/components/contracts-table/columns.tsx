@@ -1,10 +1,10 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import type { Contract } from "../../types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "@/lib/utils";
-import { DataTableColumnHeader } from "./components/column-header";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatDate } from "@/lib/utils";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { Contract } from "../../types";
+import { DataTableColumnHeader } from "./components/column-header";
 
 export const columns = (
 	onEditContract: (id: string) => void,

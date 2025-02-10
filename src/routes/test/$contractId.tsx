@@ -1,8 +1,8 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { Spinner } from "@/components/ui/Spinner";
+import { api } from "@/features/test/api";
 import FuneralServiceForm from "@/features/test/components/FuneralServiceForm";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/features/test/api";
-import { Spinner } from "@/components/ui/Spinner";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/test/$contractId")({
 	component: ContractFormComponent,

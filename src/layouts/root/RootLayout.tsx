@@ -15,7 +15,7 @@ export default function Page() {
 					<AppSidebar />
 					<SidebarInset>
 						<div className="min-h-screen bg-background dev:outline">
-							<main className="container py-6 dev:bg-debug">
+							<main className="@container py-6 dev:bg-debug">
 								<Outlet />
 							</main>
 						</div>

@@ -6,7 +6,7 @@ import { router } from "./router";
 import { queryClient } from "./router";
 
 import "./styles/index.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { SheetProvider } from "./provider/SheetProvider";
 
 await router.load();

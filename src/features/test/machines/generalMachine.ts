@@ -1,4 +1,4 @@
-import { setup, assign } from "xstate";
+import { assign, setup } from "xstate";
 
 export interface GeneralData {
 	serviceDate: Date;

@@ -1,10 +1,3 @@
-import type { Table } from "@tanstack/react-table";
-import {
-	ChevronLeft,
-	ChevronRight,
-	ChevronsLeft,
-	ChevronsRight,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Select,
@@ -13,6 +6,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import type { Table } from "@tanstack/react-table";
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+} from "lucide-react";
 
 interface DataTablePaginationProps<TData> {
 	table: Table<TData>;
