@@ -1,5 +1,4 @@
 import { OTPInput, OTPInputContext } from "input-otp";
-import { MinusIcon } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -42,7 +41,9 @@ function InputOTPSlot({
 	index: number;
 }) {
 	const inputOTPContext = React.useContext(OTPInputContext);
-	const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
+	const slot = inputOTPContext.slots[index];
+	if (!slot) return null;
+	const { char, hasFakeCaret, isActive } = slot;
 
 	return (
 		<div
@@ -64,11 +65,16 @@ function InputOTPSlot({
 	);
 }
 
-function InputOTPSeparator({ ...props }: React.ComponentProps<"div">) {
+function InputOTPSeparator({
+	className,
+	...props
+}: React.ComponentProps<"hr">) {
 	return (
-		<div data-slot="input-otp-separator" role="separator" {...props}>
-			<MinusIcon />
-		</div>
+		<hr
+			data-slot="input-otp-separator"
+			className={cn("h-4 w-0.5 border-0 bg-muted", className)}
+			{...props}
+		/>
 	);
 }
 

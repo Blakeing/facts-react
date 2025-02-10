@@ -1,187 +1,187 @@
 {
-  "contracts": [
-    {
-      "id": 1,
-      "contractState": "void",
-      "formData": {
-        "general": {
-          "serviceDate": "2025-02-07T00:11:02.573Z",
-          "contractSignDate": "2025-02-07T00:11:02.573Z",
-          "funeralDirector": "director1",
-          "atNeedType": "type3",
-          "contractType": "type3",
-          "campaign": "campaign2",
-          "prePrintedContractNumber": "342"
-        },
-        "buyer": {
-          "name": {
-            "first": "Yoko Shields",
-            "last": "Dora Wooten",
-            "prefix": "Dr",
-            "middle": "Benedict Gross",
-            "companyName": "Steele and Sawyer Trading",
-            "nickname": "Dylan Brady",
-            "maiden": "Jason Lowery",
-            "gender": "other"
-          },
-          "physicalAddress": {
-            "street": "Odio fuga Rerum ame",
-            "city": "Soluta unde sunt vol",
-            "state": "NY",
-            "postalCode": "Voluptates odio ex m",
-            "country": "Canada"
-          },
-          "mailingAddressSameAsPhysical": true,
-          "identification": {
-            "stateIdNumber": "725",
-            "issuer": "NY"
-          },
-          "dates": {
-            "isDeceased": false
-          },
-          "role": "primary",
-          "ethnicity": "hispanic",
-          "race": "native",
-          "isVeteran": false,
-          "phones": [
-            {
-              "number": "+1 (242) 675-8556",
-              "type": "Mobile",
-              "isPreferred": true
-            }
-          ],
-          "emails": [
-            {
-              "address": "zekozarej@mailinator.com",
-              "isPreferred": true
-            }
-          ],
-          "optOutOfFutureMarketing": false
-        },
-        "payment": null
-      }
-    },
-    {
-      "id": 2,
-      "contractState": "draft",
-      "formData": {
-        "general": {
-          "serviceDate": "2025-02-07T01:12:42.607Z",
-          "contractSignDate": "2025-02-07T01:12:42.607Z",
-          "funeralDirector": "director1",
-          "atNeedType": "type2",
-          "contractType": "type2",
-          "campaign": "campaign1",
-          "prePrintedContractNumber": "518"
-        },
-        "buyer": {
-          "name": {
-            "first": "Brendan Brown",
-            "last": "Kitra Walker",
-            "prefix": "Mr",
-            "middle": "Casey Key",
-            "companyName": "Ware Mcdaniel LLC",
-            "nickname": "Anthony Cunningham",
-            "maiden": "Hannah Wood",
-            "gender": "male"
-          },
-          "physicalAddress": {
-            "street": "Et reprehenderit ess",
-            "city": "Excepturi qui ea vol",
-            "state": "TX",
-            "postalCode": "Quis voluptates iust",
-            "country": "Canada"
-          },
-          "mailingAddressSameAsPhysical": true,
-          "identification": {
-            "stateIdNumber": "742",
-            "issuer": "CA"
-          },
-          "dates": {
-            "isDeceased": false
-          },
-          "role": "primary",
-          "ethnicity": "non-hispanic",
-          "race": "native",
-          "isVeteran": false,
-          "phones": [
-            {
-              "number": "+1 (831) 952-5747",
-              "type": "Work",
-              "isPreferred": true
-            }
-          ],
-          "emails": [
-            {
-              "address": "jynig@mailinator.com",
-              "isPreferred": true
-            }
-          ],
-          "optOutOfFutureMarketing": false
-        },
-        "payment": null
-      }
-    },
-    {
-      "id": 3,
-      "contractState": "draft",
-      "formData": {
-        "general": {
-          "serviceDate": "2025-02-07T01:06:37.882Z",
-          "contractSignDate": "2025-02-07T01:06:37.882Z",
-          "funeralDirector": "director3",
-          "atNeedType": "type3",
-          "contractType": "type3",
-          "campaign": "campaign2",
-          "prePrintedContractNumber": "2"
-        },
-        "buyer": {
-          "name": {
-            "first": "Quon Hart",
-            "last": "Shad Pope",
-            "prefix": "Mr",
-            "middle": "McKenzie Gutierrez",
-            "companyName": "Crane Hull Associates",
-            "nickname": "Addison Thomas",
-            "maiden": "Oscar Roberson",
-            "gender": "female"
-          },
-          "physicalAddress": {
-            "street": "Ad in ut animi quia",
-            "city": "Vitae ut sapiente do",
-            "state": "CA",
-            "postalCode": "Voluptas iure volupt",
-            "country": "Canada"
-          },
-          "mailingAddressSameAsPhysical": true,
-          "identification": {
-            "stateIdNumber": "357",
-            "issuer": "CA"
-          },
-          "dates": {
-            "isDeceased": false
-          },
-          "role": "primary",
-          "ethnicity": "hispanic",
-          "race": "black",
-          "isVeteran": false,
-          "phones": [
-            {
-              "number": "+1 (676) 438-1095",
-              "type": "Home",
-              "isPreferred": true
-            }
-          ],
-          "emails": [
-            {
-              "address": "siqubavogo@mailinator.com",
-              "isPreferred": true
-            }
-          ],
-          "optOutOfFutureMarketing": false
-        },
-        "payment": null
-      }
-    }
-  ]
+	"contracts": [
+		{
+			"id": 1,
+			"contractState": "void",
+			"formData": {
+				"general": {
+					"serviceDate": "2025-02-07T00:11:02.573Z",
+					"contractSignDate": "2025-02-07T00:11:02.573Z",
+					"funeralDirector": "director1",
+					"atNeedType": "type3",
+					"contractType": "type3",
+					"campaign": "campaign2",
+					"prePrintedContractNumber": "342"
+				},
+				"buyer": {
+					"name": {
+						"first": "Yoko Shields",
+						"last": "Dora Wooten",
+						"prefix": "Dr",
+						"middle": "Benedict Gross",
+						"companyName": "Steele and Sawyer Trading",
+						"nickname": "Dylan Brady",
+						"maiden": "Jason Lowery",
+						"gender": "other"
+					},
+					"physicalAddress": {
+						"street": "Odio fuga Rerum ame",
+						"city": "Soluta unde sunt vol",
+						"state": "NY",
+						"postalCode": "Voluptates odio ex m",
+						"country": "Canada"
+					},
+					"mailingAddressSameAsPhysical": true,
+					"identification": {
+						"stateIdNumber": "725",
+						"issuer": "NY"
+					},
+					"dates": {
+						"isDeceased": false
+					},
+					"role": "primary",
+					"ethnicity": "hispanic",
+					"race": "native",
+					"isVeteran": false,
+					"phones": [
+						{
+							"number": "+1 (242) 675-8556",
+							"type": "Mobile",
+							"isPreferred": true
+						}
+					],
+					"emails": [
+						{
+							"address": "zekozarej@mailinator.com",
+							"isPreferred": true
+						}
+					],
+					"optOutOfFutureMarketing": false
+				},
+				"payment": null
+			}
+		},
+		{
+			"id": 2,
+			"contractState": "draft",
+			"formData": {
+				"general": {
+					"serviceDate": "2025-02-07T01:12:42.607Z",
+					"contractSignDate": "2025-02-07T01:12:42.607Z",
+					"funeralDirector": "director1",
+					"atNeedType": "type2",
+					"contractType": "type2",
+					"campaign": "campaign1",
+					"prePrintedContractNumber": "518"
+				},
+				"buyer": {
+					"name": {
+						"first": "Brendan Brown",
+						"last": "Kitra Walker",
+						"prefix": "Mr",
+						"middle": "Casey Key",
+						"companyName": "Ware Mcdaniel LLC",
+						"nickname": "Anthony Cunningham",
+						"maiden": "Hannah Wood",
+						"gender": "male"
+					},
+					"physicalAddress": {
+						"street": "Et reprehenderit ess",
+						"city": "Excepturi qui ea vol",
+						"state": "TX",
+						"postalCode": "Quis voluptates iust",
+						"country": "Canada"
+					},
+					"mailingAddressSameAsPhysical": true,
+					"identification": {
+						"stateIdNumber": "742",
+						"issuer": "CA"
+					},
+					"dates": {
+						"isDeceased": false
+					},
+					"role": "primary",
+					"ethnicity": "non-hispanic",
+					"race": "native",
+					"isVeteran": false,
+					"phones": [
+						{
+							"number": "+1 (831) 952-5747",
+							"type": "Work",
+							"isPreferred": true
+						}
+					],
+					"emails": [
+						{
+							"address": "jynig@mailinator.com",
+							"isPreferred": true
+						}
+					],
+					"optOutOfFutureMarketing": false
+				},
+				"payment": null
+			}
+		},
+		{
+			"id": 3,
+			"contractState": "draft",
+			"formData": {
+				"general": {
+					"serviceDate": "2025-02-07T01:06:37.882Z",
+					"contractSignDate": "2025-02-07T01:06:37.882Z",
+					"funeralDirector": "director3",
+					"atNeedType": "type3",
+					"contractType": "type3",
+					"campaign": "campaign2",
+					"prePrintedContractNumber": "2"
+				},
+				"buyer": {
+					"name": {
+						"first": "Quon Hart",
+						"last": "Shad Pope",
+						"prefix": "Mr",
+						"middle": "McKenzie Gutierrez",
+						"companyName": "Crane Hull Associates",
+						"nickname": "Addison Thomas",
+						"maiden": "Oscar Roberson",
+						"gender": "female"
+					},
+					"physicalAddress": {
+						"street": "Ad in ut animi quia",
+						"city": "Vitae ut sapiente do",
+						"state": "CA",
+						"postalCode": "Voluptas iure volupt",
+						"country": "Canada"
+					},
+					"mailingAddressSameAsPhysical": true,
+					"identification": {
+						"stateIdNumber": "357",
+						"issuer": "CA"
+					},
+					"dates": {
+						"isDeceased": false
+					},
+					"role": "primary",
+					"ethnicity": "hispanic",
+					"race": "black",
+					"isVeteran": false,
+					"phones": [
+						{
+							"number": "+1 (676) 438-1095",
+							"type": "Home",
+							"isPreferred": true
+						}
+					],
+					"emails": [
+						{
+							"address": "siqubavogo@mailinator.com",
+							"isPreferred": true
+						}
+					],
+					"optOutOfFutureMarketing": false
+				},
+				"payment": null
+			}
+		}
+	]
 }

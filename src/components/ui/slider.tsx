@@ -5,12 +5,18 @@ import { cn } from "@/lib/utils";
 
 function Slider({
 	className,
-	defaultValue,
-	value,
+	defaultValue = [0],
+	value = [0],
 	min = 0,
 	max = 100,
 	...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: Omit<
+	React.ComponentProps<typeof SliderPrimitive.Root>,
+	"defaultValue" | "value"
+> & {
+	defaultValue?: number[];
+	value?: number[];
+}) {
 	const _values = React.useMemo(
 		() =>
 			Array.isArray(value)
@@ -50,7 +56,7 @@ function Slider({
 			{Array.from({ length: _values.length }, (_, index) => (
 				<SliderPrimitive.Thumb
 					data-slot="slider-thumb"
-					key={index}
+					key={_values[index]}
 					className="border-primary bg-background ring-ring/20 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 				/>
 			))}

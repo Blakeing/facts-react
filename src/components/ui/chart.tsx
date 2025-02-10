@@ -77,11 +77,10 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 	}
 
 	return (
-		<style
-			dangerouslySetInnerHTML={{
-				__html: Object.entries(THEMES)
-					.map(
-						([theme, prefix]) => `
+		<style>
+			{Object.entries(THEMES)
+				.map(
+					([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
 	.map(([key, itemConfig]) => {
@@ -93,10 +92,9 @@ ${colorConfig
 	.join("\n")}
 }
 `,
-					)
-					.join("\n"),
-			}}
-		/>
+				)
+				.join("\n")}
+		</style>
 	);
 };
 
@@ -139,6 +137,7 @@ const ChartTooltipContent = React.forwardRef<
 			}
 
 			const [item] = payload;
+			if (!item) return null;
 			const key = `${labelKey || item.dataKey || item.name || "value"}`;
 			const itemConfig = getPayloadConfigFromPayload(config, item, key);
 			const value =

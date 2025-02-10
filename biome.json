@@ -5,7 +5,15 @@
 		"clientKind": "git",
 		"useIgnoreFile": false
 	},
-	"files": { "ignoreUnknown": false, "ignore": [] },
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			"tsconfig.node.json",
+			"tsconfig.json",
+			"tsconfig.*.json",
+			"routeTree.gen.ts"
+		]
+	},
 	"formatter": { "enabled": true, "indentStyle": "tab" },
 	"organizeImports": { "enabled": true },
 	"linter": {
