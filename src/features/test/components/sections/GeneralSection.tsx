@@ -27,12 +27,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { memo, useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
 import type { GeneralData } from "../../machines/generalMachine";
+
+const formatPlaceholder = (value: string): string => {
+	// Split by numbers or special characters
+	const parts = value.split(/(?=[0-9])|(?<=[0-9])/);
+	// Capitalize first letter of each word and join with space
+	return parts
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join(" ")
+		.trim();
+};
 
 const generalFormSchema = z.object({
 	serviceDate: z.date({
@@ -76,10 +86,9 @@ const generalDataSelector = (state: {
 		campaign: "",
 	};
 
-const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
+const GeneralSection = ({ actor }: GeneralSectionProps) => {
 	const send = actor.send;
-	const selector = useMemo(() => generalDataSelector, []);
-	const formData = useSelector(actor, selector);
+	const formData = useSelector(actor, generalDataSelector);
 
 	const form = useForm<GeneralFormValues>({
 		resolver: zodResolver(generalFormSchema),
@@ -240,7 +249,9 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 											<SelectTrigger>
 												<SelectValue
 													placeholder={
-														field.value || "Select a funeral director"
+														field.value
+															? formatPlaceholder(field.value)
+															: "Select a funeral director"
 													}
 												/>
 											</SelectTrigger>
@@ -271,7 +282,11 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 										<FormControl>
 											<SelectTrigger>
 												<SelectValue
-													placeholder={field.value || "Select at-need type"}
+													placeholder={
+														field.value
+															? formatPlaceholder(field.value)
+															: "Select at-need type"
+													}
 												/>
 											</SelectTrigger>
 										</FormControl>
@@ -301,7 +316,11 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 										<FormControl>
 											<SelectTrigger>
 												<SelectValue
-													placeholder={field.value || "Select contract type"}
+													placeholder={
+														field.value
+															? formatPlaceholder(field.value)
+															: "Select contract type"
+													}
 												/>
 											</SelectTrigger>
 										</FormControl>
@@ -331,7 +350,11 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 										<FormControl>
 											<SelectTrigger>
 												<SelectValue
-													placeholder={field.value || "Select campaign"}
+													placeholder={
+														field.value
+															? formatPlaceholder(field.value)
+															: "Select campaign"
+													}
 												/>
 											</SelectTrigger>
 										</FormControl>
@@ -350,7 +373,7 @@ const GeneralSection = memo(({ actor }: GeneralSectionProps) => {
 			</CardContent>
 		</Card>
 	);
-});
+};
 
 GeneralSection.displayName = "GeneralSection";
 

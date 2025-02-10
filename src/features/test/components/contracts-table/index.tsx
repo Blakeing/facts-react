@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { useContracts } from "../../hooks/useContracts";
 import { ContractsTableSkeleton } from "../ContractsTableSkeleton";
 import { columns } from "./columns";
@@ -8,7 +7,7 @@ interface ContractsTableProps {
 	onEditContract: (id: string) => void;
 }
 
-const ContractsTable = memo(({ onEditContract }: ContractsTableProps) => {
+const ContractsTable = ({ onEditContract }: ContractsTableProps) => {
 	const { data: contracts = [], isLoading, error } = useContracts();
 
 	if (isLoading) return <ContractsTableSkeleton />;
@@ -21,7 +20,7 @@ const ContractsTable = memo(({ onEditContract }: ContractsTableProps) => {
 	}
 
 	return <DataTable columns={columns(onEditContract)} data={contracts} />;
-});
+};
 
 ContractsTable.displayName = "ContractsTable";
 

@@ -7,8 +7,18 @@ import { defineConfig } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+
+
 export default defineConfig({
-	plugins: [TanStackRouterVite(), react(), tailwindcss()],
+	plugins: [
+		TanStackRouterVite(),
+		react({
+			babel: {
+				plugins: [["babel-plugin-react-compiler"]],
+			},
+		}),
+		tailwindcss(),
+	],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),

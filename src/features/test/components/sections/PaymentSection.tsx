@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { memo, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
@@ -45,7 +45,7 @@ const paymentDataSelector = (state: {
 	amount: state.context.formData.payment?.amount ?? 0,
 });
 
-const PaymentSection = memo(({ actor }: PaymentSectionProps) => {
+const PaymentSection = ({ actor }: PaymentSectionProps) => {
 	if (!actor) return null;
 
 	const send = actor.send;
@@ -151,8 +151,6 @@ const PaymentSection = memo(({ actor }: PaymentSectionProps) => {
 			</CardContent>
 		</Card>
 	);
-});
-
-PaymentSection.displayName = "PaymentSection";
+};
 
 export default PaymentSection;

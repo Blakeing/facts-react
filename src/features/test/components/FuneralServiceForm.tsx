@@ -6,7 +6,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
 import { produce } from "immer";
 import { Loader2 } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import type { ActorRef, SnapshotFrom } from "xstate";
 import { useContractMutations } from "../hooks/useContractMutations";
@@ -61,119 +61,111 @@ type ContractStateValue =
 	| "general";
 
 // Memoized Badge component
-const ContractStateBadge = memo(
-	({
-		state,
-		isPending,
-	}: {
-		state: ContractState | "draft";
-		isPending: boolean;
-	}) => {
-		const styles = STATE_STYLES[state];
-		return (
-			<Badge variant={styles.variant} className={styles.className}>
-				<div className="flex items-center gap-2">
-					{isPending && <Loader2 className="h-3 w-3 animate-spin" />}
-					{state.toUpperCase()}
-				</div>
-			</Badge>
-		);
-	},
-);
+const ContractStateBadge = ({
+	state,
+	isPending,
+}: {
+	state: ContractState | "draft";
+	isPending: boolean;
+}) => {
+	const styles = STATE_STYLES[state];
+	return (
+		<Badge variant={styles.variant} className={styles.className}>
+			<div className="flex items-center gap-2">
+				{isPending && <Loader2 className="h-3 w-3 animate-spin" />}
+				{state.toUpperCase()}
+			</div>
+		</Badge>
+	);
+};
 
 ContractStateBadge.displayName = "ContractStateBadge";
 
 // Memoized Action Buttons component
-const ActionButtons = memo(
-	({
-		state,
-		onExecute,
-		onVoid,
-		onFinalize,
-	}: {
-		state: ContractState | "draft";
-		onExecute: () => void;
-		onVoid: () => void;
-		onFinalize: () => void;
-	}) => {
-		switch (state) {
-			case "draft":
-				return <Button onClick={onExecute}>Execute Contract</Button>;
-			case "executed":
-				return (
-					<>
-						<Button onClick={onVoid}>Void Contract</Button>
-						<Button onClick={onFinalize}>Finalize Contract</Button>
-					</>
-				);
-			default:
-				return null;
-		}
-	},
-);
+const ActionButtons = ({
+	state,
+	onExecute,
+	onVoid,
+	onFinalize,
+}: {
+	state: ContractState | "draft";
+	onExecute: () => void;
+	onVoid: () => void;
+	onFinalize: () => void;
+}) => {
+	switch (state) {
+		case "draft":
+			return <Button onClick={onExecute}>Execute Contract</Button>;
+		case "executed":
+			return (
+				<>
+					<Button onClick={onVoid}>Void Contract</Button>
+					<Button onClick={onFinalize}>Finalize Contract</Button>
+				</>
+			);
+		default:
+			return null;
+	}
+};
 
 ActionButtons.displayName = "ActionButtons";
 
-// Memoized Form Section component
-const FormSection = memo(
-	({
-		currentState,
-		actor,
-		formData,
-		onEdit,
-	}: {
-		currentState: ContractStateValue;
-		actor: ContractActor;
-		formData: FormData;
-		onEdit?: (section: ReviewSectionType) => void;
-		status?: ContractStateValue;
-	}) => {
-		switch (currentState) {
-			case "general":
-			case "draft":
-				return <GeneralSection actor={actor} />;
-			case "buyer":
-				return <BuyerSection actor={actor} />;
-			case "payment":
-				return <PaymentSection actor={actor} />;
-			case "review":
-				return (
-					<ReviewSection
-						generalData={formData.general}
-						buyerData={formData.buyer}
-						paymentData={formData.payment}
-						onEdit={onEdit || (() => {})}
-					/>
-				);
-			case "executed":
-				return (
-					<ReviewSection
-						generalData={formData.general}
-						buyerData={formData.buyer}
-						paymentData={formData.payment}
-						readOnly
-					/>
-				);
-			case "finalized":
-			case "void":
-				return (
-					<ReviewSection
-						generalData={formData.general}
-						buyerData={formData.buyer}
-						paymentData={formData.payment}
-						readOnly
-						{...(currentState === "finalized" || currentState === "void"
-							? { status: currentState }
-							: {})}
-					/>
-				);
-			default:
-				return null;
-		}
-	},
-);
-
-FormSection.displayName = "FormSection";
+// Form Section component
+const FormSection = ({
+	currentState,
+	actor,
+	formData,
+	onEdit,
+}: {
+	currentState: ContractStateValue;
+	actor: ContractActor;
+	formData: FormData;
+	onEdit?: (section: ReviewSectionType) => void;
+	status?: ContractStateValue;
+}) => {
+	switch (currentState) {
+		case "general":
+		case "draft":
+			return <GeneralSection actor={actor} />;
+		case "buyer":
+			return <BuyerSection actor={actor} />;
+		case "payment":
+			return <PaymentSection actor={actor} />;
+		case "review":
+			return (
+				<ReviewSection
+					generalData={formData.general}
+					buyerData={formData.buyer}
+					paymentData={formData.payment}
+					onEdit={onEdit || (() => {})}
+				/>
+			);
+		case "executed":
+			return (
+				<ReviewSection
+					generalData={formData.general}
+					buyerData={formData.buyer}
+					paymentData={formData.payment}
+					readOnly
+				/>
+			);
+		case "finalized":
+		case "void":
+			return (
+				<ReviewSection
+					generalData={formData.general}
+					buyerData={formData.buyer}
+					paymentData={formData.payment}
+					readOnly
+					{...(currentState === "finalized" || currentState === "void"
+						? { status: currentState }
+						: {})}
+				/>
+			);
+		default:
+			return null;
+	}
+};
 
 type ContractMachine = ReturnType<typeof createContractMachine>;
 type ContractSnapshot = SnapshotFrom<ContractMachine> & {
@@ -183,7 +175,7 @@ type ContractSnapshot = SnapshotFrom<ContractMachine> & {
 type ContractActor = ActorRef<ContractSnapshot, ContractEvent>;
 type ContractSend = (event: ContractEvent) => void;
 
-const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
+const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts } = useContracts();
 
@@ -489,7 +481,7 @@ const FuneralServiceForm = memo(({ initialData }: FuneralServiceFormProps) => {
 			</CardContent>
 		</Card>
 	);
-});
+};
 
 FuneralServiceForm.displayName = "FuneralServiceForm";
 

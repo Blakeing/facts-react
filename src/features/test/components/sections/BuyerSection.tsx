@@ -131,10 +131,9 @@ const buyerDataSelector = (state: {
 		optOutOfFutureMarketing: false,
 	};
 
-const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
+const BuyerSection = ({ actor }: BuyerSectionProps) => {
 	const send = actor.send;
-	const selector = useMemo(() => buyerDataSelector, []);
-	const formData = useSelector(actor, selector);
+	const formData = useSelector(actor, buyerDataSelector);
 
 	const form = useForm<BuyerFormValues>({
 		resolver: zodResolver(buyerFormSchema),
@@ -1022,7 +1021,7 @@ const BuyerSection = memo(({ actor }: BuyerSectionProps) => {
 			</CardContent>
 		</Card>
 	);
-});
+};
 
 BuyerSection.displayName = "BuyerSection";
 
