@@ -1,19 +1,24 @@
-import { Outlet } from "@tanstack/react-router";
-
-import { AppSidebar } from "./components/AppSidebar";
-import { SiteHeader } from "./components/SiteHeader";
-
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/layouts/root/components/AppSidebar";
+import { SiteHeader } from "@/layouts/root/components/SiteHeader";
+import { Outlet } from "@tanstack/react-router";
+import { GeistSans } from "geist/font/sans";
 
-export default function RootLayout() {
+export default function Page() {
 	return (
-		<div className="[--header-height:theme(spacing.14)]">
+		<div
+			className={`${GeistSans.className} [--header-height:calc(--spacing(14))]`}
+		>
 			<SidebarProvider className="flex flex-col">
 				<SiteHeader />
 				<div className="flex flex-1">
 					<AppSidebar />
 					<SidebarInset>
-						<Outlet />
+						<div className="min-h-screen bg-background dev:outline">
+							<main className="container py-6 dev:bg-debug">
+								<Outlet />
+							</main>
+						</div>
 					</SidebarInset>
 				</div>
 			</SidebarProvider>

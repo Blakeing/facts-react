@@ -2,8 +2,6 @@ import { Link, useMatches } from "@tanstack/react-router";
 import { SidebarIcon } from "lucide-react";
 import React from "react";
 
-import { SearchForm } from "./SearchForm";
-
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -15,33 +13,39 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import { SearchForm } from "./SearchForm";
+
+const getBreadcrumbs = (matches: ReturnType<typeof useMatches>) => {
+	const paths: { pathname: string; text: string }[] = [];
+	let currentPath = "";
+
+	const filteredMatches = matches.filter((match) => match.pathname !== "/");
+
+	for (const match of filteredMatches) {
+		const segments = match.pathname.split("/").filter(Boolean);
+		for (const segment of segments) {
+			currentPath += `/${segment}`;
+			if (!paths.some((p) => p.pathname === currentPath)) {
+				paths.push({
+					pathname: currentPath,
+					text:
+						segment.charAt(0).toUpperCase() +
+						segment.slice(1).replace(/-/g, " "),
+				});
+			}
+		}
+	}
+
+	return paths;
+};
 
 export function SiteHeader() {
 	const { toggleSidebar } = useSidebar();
 	const matches = useMatches();
-
-	// Create breadcrumbs from route matches
-	const breadcrumbs = matches
-		.filter((match) => match.routeId !== "/" && match.routeId !== "__root__")
-		.map((match) => {
-			// Handle post ID display
-			if (match.routeId === "/posts/$postId") {
-				return {
-					label: `Post ${match.params.postId}`,
-					to: match.pathname,
-				};
-			}
-			// Handle other routes
-			return {
-				label: match.routeId.split("/").pop()?.replace(/[.$]/g, "") || "",
-				to: match.pathname,
-			};
-		});
-
-	const showHome = matches.length > 1; // Only show Home in breadcrumbs if we're not on the home page
+	const breadcrumbs = getBreadcrumbs(matches);
 
 	return (
-		<header className="bg-background sticky top-0 z-50 flex w-full items-center border-b">
+		<header className="fle sticky top-0 z-50 w-full items-center border-b bg-background">
 			<div className="flex h-(--header-height) w-full items-center gap-2 px-4">
 				<Button
 					className="h-8 w-8"
@@ -52,30 +56,24 @@ export function SiteHeader() {
 					<SidebarIcon />
 				</Button>
 				<Separator orientation="vertical" className="mr-2 h-4" />
-
-				{/* Breadcrumbs */}
-				<Breadcrumb>
+				<Breadcrumb className="hidden sm:block">
 					<BreadcrumbList>
-						{showHome && (
-							<BreadcrumbItem>
-								<BreadcrumbLink asChild>
-									<Link to="/">Home</Link>
-								</BreadcrumbLink>
-							</BreadcrumbItem>
-						)}
+						<BreadcrumbItem>
+							<BreadcrumbLink asChild>
+								<Link to="/">Home</Link>
+							</BreadcrumbLink>
+						</BreadcrumbItem>
 						{breadcrumbs.map((crumb, index) => (
-							<React.Fragment key={crumb.to}>
-								{showHome && <BreadcrumbSeparator />}
+							<React.Fragment key={crumb.pathname}>
+								<BreadcrumbSeparator />
 								<BreadcrumbItem>
 									{index === breadcrumbs.length - 1 ? (
 										<BreadcrumbPage className="capitalize">
-											{crumb.label}
+											{crumb.text}
 										</BreadcrumbPage>
 									) : (
-										<BreadcrumbLink asChild>
-											<Link to={crumb.to} className="capitalize">
-												{crumb.label}
-											</Link>
+										<BreadcrumbLink className="capitalize" asChild>
+											<Link to={crumb.pathname}>{crumb.text}</Link>
 										</BreadcrumbLink>
 									)}
 								</BreadcrumbItem>
@@ -83,7 +81,6 @@ export function SiteHeader() {
 						))}
 					</BreadcrumbList>
 				</Breadcrumb>
-
 				<SearchForm className="w-full sm:ml-auto sm:w-auto" />
 			</div>
 		</header>

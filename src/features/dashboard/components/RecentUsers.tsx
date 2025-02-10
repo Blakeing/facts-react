@@ -8,7 +8,7 @@ interface RecentUsersProps {
 
 export const RecentUsers: React.FC<RecentUsersProps> = ({ users }) => {
 	return (
-		<div className="mt-8 rounded-lg bg-white p-6 shadow-sm">
+		<div className="mt-8 rounded-lg bg-white p-6 shadow-xs">
 			<h2 className="text-xl font-semibold text-gray-900">Recent Users</h2>
 			<div className="mt-4">
 				<table className="min-w-full divide-y divide-gray-200">

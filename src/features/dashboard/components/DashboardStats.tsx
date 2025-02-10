@@ -15,15 +15,15 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
 }) => {
 	return (
 		<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-			<div className="rounded-lg bg-white p-6 shadow-sm">
+			<div className="rounded-lg bg-white p-6 shadow-xs">
 				<h3 className="text-lg font-semibold text-gray-900">Total Users</h3>
 				<p className="mt-2 text-3xl font-bold text-blue-600">{totalUsers}</p>
 			</div>
-			<div className="rounded-lg bg-white p-6 shadow-sm">
+			<div className="rounded-lg bg-white p-6 shadow-xs">
 				<h3 className="text-lg font-semibold text-gray-900">Active Users</h3>
 				<p className="mt-2 text-3xl font-bold text-green-600">{activeUsers}</p>
 			</div>
-			<div className="rounded-lg bg-white p-6 shadow-sm">
+			<div className="rounded-lg bg-white p-6 shadow-xs">
 				<h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
 				<div className="mt-2">
 					{recentActivity.slice(0, 3).map((user) => (
