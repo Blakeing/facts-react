@@ -246,12 +246,12 @@ const GeneralSection = ({ actor }: GeneralSectionProps) => {
 										defaultValue={field.value}
 									>
 										<FormControl>
-											<SelectTrigger>
+											<SelectTrigger hasValue={!!field.value}>
 												<SelectValue
 													placeholder={
 														field.value
 															? formatPlaceholder(field.value)
-															: "Select a funeral director"
+															: "Select funeral director"
 													}
 												/>
 											</SelectTrigger>
@@ -280,7 +280,7 @@ const GeneralSection = ({ actor }: GeneralSectionProps) => {
 										defaultValue={field.value}
 									>
 										<FormControl>
-											<SelectTrigger>
+											<SelectTrigger hasValue={!!field.value}>
 												<SelectValue
 													placeholder={
 														field.value
@@ -314,7 +314,7 @@ const GeneralSection = ({ actor }: GeneralSectionProps) => {
 										defaultValue={field.value}
 									>
 										<FormControl>
-											<SelectTrigger>
+											<SelectTrigger hasValue={!!field.value}>
 												<SelectValue
 													placeholder={
 														field.value
@@ -348,7 +348,7 @@ const GeneralSection = ({ actor }: GeneralSectionProps) => {
 										defaultValue={field.value}
 									>
 										<FormControl>
-											<SelectTrigger>
+											<SelectTrigger hasValue={!!field.value}>
 												<SelectValue
 													placeholder={
 														field.value
