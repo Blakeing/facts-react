@@ -187,7 +187,7 @@ type ContractSend = (event: ContractEvent) => void;
 const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts } = useContracts();
-	const [ConfirmDialog, confirm] = useConfirm(
+	const ConfirmDialog = useConfirm(
 		"Unsaved Changes",
 		"You have unsaved changes. Are you sure you want to continue?",
 		() => hasUnsavedChanges,
@@ -454,13 +454,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 						<div className="flex items-center gap-4">
 							<Button
 								variant="outline"
-								onClick={async () => {
-									if (hasUnsavedChanges) {
-										const confirmed = await confirm();
-										if (!confirmed) {
-											return;
-										}
-									}
+								onClick={() => {
 									navigate({ to: "/test" });
 								}}
 							>

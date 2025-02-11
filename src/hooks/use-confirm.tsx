@@ -14,40 +14,22 @@ export const useConfirm = (
 	title: string,
 	message: string,
 	shouldBlock?: () => boolean,
-): [() => React.ReactNode, () => Promise<unknown>] => {
-	const [promise, setPromise] = useState<{
-		resolve: (value: boolean) => void;
-	} | null>(null);
-
+): (() => React.ReactNode) => {
 	const { proceed, reset, status } = useBlocker({
 		shouldBlockFn: shouldBlock || (() => false),
 		withResolver: true,
 	});
 
-	const confirm = () =>
-		new Promise((resolve) => {
-			setPromise({ resolve });
-		});
-
-	const handleClose = () => {
-		setPromise(null);
-		reset?.();
-	};
-
 	const handleConfirm = () => {
-		promise?.resolve(true);
 		proceed?.();
-		handleClose();
 	};
 
 	const handleCancel = () => {
-		promise?.resolve(false);
 		reset?.();
-		handleClose();
 	};
 
 	const ConfirmationDialog = () => (
-		<Dialog open={promise !== null || status === "blocked"}>
+		<Dialog open={status === "blocked"}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
@@ -63,5 +45,5 @@ export const useConfirm = (
 		</Dialog>
 	);
 
-	return [ConfirmationDialog, confirm];
+	return ConfirmationDialog;
 };
