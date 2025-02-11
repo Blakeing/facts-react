@@ -441,15 +441,9 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 
 	const handleTabChange = useCallback(
 		async (value: string) => {
-			if (hasUnsavedChanges) {
-				const confirmed = await confirm();
-				if (!confirmed) {
-					return;
-				}
-			}
 			send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
 		},
-		[hasUnsavedChanges, confirm, send],
+		[send],
 	);
 
 	return (
