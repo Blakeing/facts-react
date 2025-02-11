@@ -7,14 +7,16 @@ import { memo, useCallback } from "react";
 import type { BuyerData } from "../../machines/buyerMachine";
 import type { GeneralData } from "../../machines/generalMachine";
 import type { PaymentData } from "../../machines/paymentMachine";
+import type { FinancingData } from "../../types/contract";
 
 export interface ReviewSectionProps {
 	generalData: GeneralData | null;
 	buyerData: BuyerData | null;
 	paymentData: PaymentData | null;
+	financingData: FinancingData | null;
 	readOnly?: boolean;
 	status?: "finalized" | "void";
-	onEdit?: (section: "buyer" | "payment" | "general") => void;
+	onEdit?: (section: "buyer" | "payment" | "general" | "financing") => void;
 }
 
 const ReviewSection = memo(
@@ -22,12 +24,13 @@ const ReviewSection = memo(
 		generalData,
 		buyerData,
 		paymentData,
+		financingData,
 		readOnly,
 		status,
 		onEdit,
 	}: ReviewSectionProps) => {
 		const handleEdit = useCallback(
-			(section: "buyer" | "payment" | "general") => {
+			(section: "buyer" | "payment" | "general" | "financing") => {
 				onEdit?.(section);
 			},
 			[onEdit],
@@ -110,6 +113,93 @@ const ReviewSection = memo(
 								<div>
 									<p>Payment Method: {paymentData.paymentMethod}</p>
 									<p>Amount: ${paymentData.amount}</p>
+								</div>
+							)}
+						</div>
+
+						<Separator />
+
+						<div className="space-y-2">
+							<div className="flex justify-between items-center">
+								<h3 className="text-lg font-semibold">Financing Information</h3>
+								{!readOnly && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => handleEdit("financing")}
+									>
+										Edit
+									</Button>
+								)}
+							</div>
+							{financingData?.isFinanceContract && (
+								<div className="space-y-2">
+									<div>
+										<p>Down Payment: ${financingData.downPayment}</p>
+										<p>Other Credits: ${financingData.otherCredits}</p>
+										<p>
+											Total Down Payment/Credits: $
+											{financingData.downPayment + financingData.otherCredits}
+										</p>
+									</div>
+									<div>
+										{financingData.interestRate && (
+											<p>Interest Rate: {financingData.interestRate}%</p>
+										)}
+										{financingData.imputedInterestRate && (
+											<p>
+												Imputed Interest Rate:{" "}
+												{financingData.imputedInterestRate}%
+											</p>
+										)}
+									</div>
+									<div>
+										<p>
+											Late Fee:{" "}
+											{financingData.lateFeeType === "percentage"
+												? `${financingData.lateFeePercentage}% of payment amount`
+												: `$${financingData.maxLateFeeAmount} fixed amount`}
+										</p>
+										<p>
+											Maximum Late Fee Amount: ${financingData.maxLateFeeAmount}
+										</p>
+										<p>Grace Period: {financingData.gracePeriod} days</p>
+									</div>
+									<div>
+										<p>Payment Frequency: {financingData.paymentFrequency}</p>
+										{financingData.numberOfPayments && (
+											<p>
+												Number of Payments: {financingData.numberOfPayments}
+											</p>
+										)}
+										{financingData.firstPaymentDate && (
+											<p>
+												First Payment Date:{" "}
+												{format(
+													new Date(financingData.firstPaymentDate),
+													"PPP",
+												)}
+											</p>
+										)}
+									</div>
+									<div>
+										<p>
+											Interest Rebate Period:{" "}
+											{financingData.interestRebatePeriod} days
+										</p>
+										<p>
+											Send Coupon Book:{" "}
+											{financingData.sendCouponBook ? "Yes" : "No"}
+										</p>
+										<p>
+											Use Calculated Payment Amount:{" "}
+											{financingData.useCalculatedPaymentAmount ? "Yes" : "No"}
+										</p>
+										<p>
+											Use Calculated Finance Charges:{" "}
+											{financingData.useCalculatedFinanceCharges ? "Yes" : "No"}
+										</p>
+									</div>
 								</div>
 							)}
 						</div>

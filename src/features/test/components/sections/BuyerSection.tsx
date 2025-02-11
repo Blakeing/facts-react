@@ -16,6 +16,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
 	Select,
 	SelectContent,
@@ -27,9 +28,9 @@ import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Trash2Icon } from "lucide-react";
 import { memo, useCallback, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import type { Path, PathValue } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
@@ -141,6 +142,24 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 		mode: "onTouched",
 	});
 
+	const {
+		fields: phoneFields,
+		append: appendPhone,
+		remove: removePhone,
+	} = useFieldArray({
+		control: form.control,
+		name: "phones",
+	});
+
+	const {
+		fields: emailFields,
+		append: appendEmail,
+		remove: removeEmail,
+	} = useFieldArray({
+		control: form.control,
+		name: "emails",
+	});
+
 	const handleFieldChange = useCallback(
 		<T extends Path<BuyerFormValues>>(
 			field: T,
@@ -202,26 +221,213 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 	);
 
 	return (
-		<Card>
-			<CardContent className="pt-6">
+		<Card className="bg-background">
+			<CardContent className="p-6">
 				<Form {...form}>
-					<form className="space-y-8">
+					<form className="space-y-6">
 						{/* Name Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Name</h3>
-							<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Name</h3>
+								<Separator className="flex-1" />
+							</div>
+							<div className="space-y-6">
+								<div className="grid grid-cols-2 gap-6">
+									<FormField
+										control={form.control}
+										name="name.companyName"
+										render={({ field }) => (
+											<FormItem className="col-span-2">
+												<FormLabel>Company Name</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange(
+																"name.companyName",
+																e.target.value,
+															)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="grid grid-cols-6 gap-6">
+									<FormField
+										control={form.control}
+										name="name.prefix"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Prefix</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("name.prefix", value || undefined)
+													}
+													value={field.value || ""}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Prefix" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="Mr">Mr.</SelectItem>
+														<SelectItem value="Mrs">Mrs.</SelectItem>
+														<SelectItem value="Ms">Ms.</SelectItem>
+														<SelectItem value="Dr">Dr.</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="name.first"
+										render={({ field }) => (
+											<FormItem className="col-span-2">
+												<FormLabel>First Name</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange("name.first", e.target.value)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="name.middle"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Middle Name</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange("name.middle", e.target.value)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="name.last"
+										render={({ field }) => (
+											<FormItem className="col-span-2">
+												<FormLabel>Last Name</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange("name.last", e.target.value)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="grid grid-cols-3 gap-6">
+									<FormField
+										control={form.control}
+										name="name.nickname"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Nickname</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange("name.nickname", e.target.value)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="name.maiden"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Maiden Name</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange("name.maiden", e.target.value)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="name.gender"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Gender</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("name.gender", value || undefined)
+													}
+													value={field.value || ""}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Select gender" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="male">Male</SelectItem>
+														<SelectItem value="female">Female</SelectItem>
+														<SelectItem value="other">Other</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+						</div>
+
+						<Separator />
+
+						{/* Physical Address Section */}
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Physical Address</h3>
+								<Separator className="flex-1" />
+							</div>
+							<div className="space-y-6">
 								<FormField
 									control={form.control}
-									name="name.companyName"
+									name="physicalAddress.street"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Company Name</FormLabel>
+											<FormLabel>Street Address</FormLabel>
 											<FormControl>
 												<Input
 													{...field}
 													onChange={(e) =>
 														handleFieldChange(
-															"name.companyName",
+															"physicalAddress.street",
 															e.target.value,
 														)
 													}
@@ -231,149 +437,99 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 										</FormItem>
 									)}
 								/>
-							</div>
-							<div className="grid grid-cols-6 gap-4">
+								<div className="grid grid-cols-4 gap-6">
+									<FormField
+										control={form.control}
+										name="physicalAddress.city"
+										render={({ field }) => (
+											<FormItem className="col-span-2">
+												<FormLabel>City</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange(
+																"physicalAddress.city",
+																e.target.value,
+															)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="physicalAddress.state"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>State</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("physicalAddress.state", value)
+													}
+													value={field.value}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="State" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="CA">California</SelectItem>
+														<SelectItem value="NY">New York</SelectItem>
+														<SelectItem value="TX">Texas</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="physicalAddress.postalCode"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Postal Code</FormLabel>
+												<FormControl>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange(
+																"physicalAddress.postalCode",
+																e.target.value,
+															)
+														}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
 								<FormField
 									control={form.control}
-									name="name.prefix"
+									name="physicalAddress.country"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Prefix</FormLabel>
+										<FormItem className="max-w-[50%]">
+											<FormLabel>Country</FormLabel>
 											<Select
 												onValueChange={(value: string) =>
-													handleFieldChange("name.prefix", value || undefined)
+													handleFieldChange("physicalAddress.country", value)
 												}
-												value={field.value || ""}
+												value={field.value}
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder="Prefix" />
+														<SelectValue placeholder="Select country" />
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													<SelectItem value="Mr">Mr.</SelectItem>
-													<SelectItem value="Mrs">Mrs.</SelectItem>
-													<SelectItem value="Ms">Ms.</SelectItem>
-													<SelectItem value="Dr">Dr.</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="name.first"
-									render={({ field }) => (
-										<FormItem className="col-span-2">
-											<FormLabel>First</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.first", e.target.value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="name.middle"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Middle</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.middle", e.target.value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="name.last"
-									render={({ field }) => (
-										<FormItem className="col-span-2">
-											<FormLabel>Last</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.last", e.target.value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-							<div className="grid grid-cols-3 gap-4">
-								<FormField
-									control={form.control}
-									name="name.nickname"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Nickname</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.nickname", e.target.value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="name.maiden"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Maiden</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.maiden", e.target.value)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="name.gender"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Gender</FormLabel>
-											<Select
-												onValueChange={(value: string) =>
-													handleFieldChange("name.gender", value || undefined)
-												}
-												value={field.value || ""}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select gender" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="male">Male</SelectItem>
-													<SelectItem value="female">Female</SelectItem>
-													<SelectItem value="other">Other</SelectItem>
+													<SelectItem value="United States">
+														United States
+													</SelectItem>
+													<SelectItem value="Canada">Canada</SelectItem>
 												</SelectContent>
 											</Select>
 											<FormMessage />
@@ -383,332 +539,226 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 							</div>
 						</div>
 
-						{/* Physical Address Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Physical Address</h3>
+						<Separator />
+
+						{/* Mailing Address Section */}
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Mailing Address</h3>
+								<Separator className="flex-1" />
+							</div>
 							<FormField
 								control={form.control}
-								name="physicalAddress.street"
+								name="mailingAddressSameAsPhysical"
 								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Address</FormLabel>
+									<FormItem className="flex flex-row items-center gap-2">
 										<FormControl>
-											<Input
-												{...field}
-												onChange={(e) =>
+											<Switch
+												checked={field.value}
+												onCheckedChange={(checked) =>
 													handleFieldChange(
-														"physicalAddress.street",
-														e.target.value,
+														"mailingAddressSameAsPhysical",
+														Boolean(checked),
 													)
 												}
 											/>
 										</FormControl>
-										<FormMessage />
+										<FormLabel className="!mt-0 font-normal">
+											Same as physical address
+										</FormLabel>
 									</FormItem>
 								)}
 							/>
-							<div className="grid grid-cols-4 gap-4">
-								<FormField
-									control={form.control}
-									name="physicalAddress.city"
-									render={({ field }) => (
-										<FormItem className="col-span-2">
-											<FormLabel>City</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"physicalAddress.city",
-															e.target.value,
-														)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="physicalAddress.state"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>State</FormLabel>
-											<Select
-												onValueChange={(value: string) =>
-													handleFieldChange("physicalAddress.state", value)
-												}
-												value={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="State" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="CA">California</SelectItem>
-													<SelectItem value="NY">New York</SelectItem>
-													<SelectItem value="TX">Texas</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="physicalAddress.postalCode"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Postal Code</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"physicalAddress.postalCode",
-															e.target.value,
-														)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-							<FormField
-								control={form.control}
-								name="physicalAddress.country"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Country</FormLabel>
-										<Select
-											onValueChange={(value: string) =>
-												handleFieldChange("physicalAddress.country", value)
-											}
-											value={field.value}
-										>
-											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select country" />
-												</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-												<SelectItem value="United States">
-													United States
-												</SelectItem>
-												<SelectItem value="Canada">Canada</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-
-						{/* Mailing Address Section */}
-						<div className="space-y-4">
-							<div className="flex items-center space-x-2">
-								<FormField
-									control={form.control}
-									name="mailingAddressSameAsPhysical"
-									render={({ field }) => (
-										<FormItem className="flex flex-row items-center space-x-2">
-											<FormControl>
-												<Switch
-													checked={field.value}
-													onCheckedChange={(checked) =>
-														handleFieldChange(
-															"mailingAddressSameAsPhysical",
-															Boolean(checked),
-														)
-													}
-												/>
-											</FormControl>
-											<FormLabel className="!mt-0">
-												Mailing address same as physical
-											</FormLabel>
-										</FormItem>
-									)}
-								/>
-							</div>
 						</div>
 
 						{/* Identification Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Identification</h3>
-							<div className="grid grid-cols-2 gap-4">
-								<FormField
-									control={form.control}
-									name="identification.stateIdNumber"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>State ID Number</FormLabel>
-											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"identification.stateIdNumber",
-															e.target.value,
-														)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="identification.issuer"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Issuer</FormLabel>
-											<Select
-												onValueChange={(value: string) =>
-													handleFieldChange("identification.issuer", value)
-												}
-												value={field.value}
-											>
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Identification</h3>
+								<Separator className="flex-1" />
+							</div>
+							<div className="space-y-6">
+								<div className="grid grid-cols-2 gap-6">
+									<FormField
+										control={form.control}
+										name="identification.stateIdNumber"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>State ID Number</FormLabel>
 												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select issuer" />
-													</SelectTrigger>
+													<Input
+														{...field}
+														onChange={(e) =>
+															handleFieldChange(
+																"identification.stateIdNumber",
+																e.target.value,
+															)
+														}
+													/>
 												</FormControl>
-												<SelectContent>
-													<SelectItem value="CA">California</SelectItem>
-													<SelectItem value="NY">New York</SelectItem>
-													<SelectItem value="TX">Texas</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="identification.issuer"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Issuer</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("identification.issuer", value)
+													}
+													value={field.value}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Select issuer" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="CA">California</SelectItem>
+														<SelectItem value="NY">New York</SelectItem>
+														<SelectItem value="TX">Texas</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
 							</div>
 						</div>
 
 						{/* Dates Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Dates</h3>
-							<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Dates</h3>
+								<Separator className="flex-1" />
+							</div>
+							<div className="space-y-6">
+								<div className="grid grid-cols-2 gap-6">
+									<FormField
+										control={form.control}
+										name="dates.dateOfBirth"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Date of Birth</FormLabel>
+												<Popover>
+													<PopoverTrigger asChild>
+														<FormControl>
+															<Button
+																variant="outline"
+																className="w-full pl-3 text-left font-normal"
+															>
+																{field.value ? (
+																	format(new Date(field.value), "PPP")
+																) : (
+																	<span>Pick a date</span>
+																)}
+																<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+															</Button>
+														</FormControl>
+													</PopoverTrigger>
+													<PopoverContent className="w-auto p-0" align="start">
+														<Calendar
+															mode="single"
+															selected={
+																field.value ? new Date(field.value) : undefined
+															}
+															onSelect={(date) =>
+																handleFieldChange(
+																	"dates.dateOfBirth",
+																	date?.toISOString(),
+																)
+															}
+															disabled={(date) =>
+																date > new Date() ||
+																date < new Date("1900-01-01")
+															}
+															initialFocus
+														/>
+													</PopoverContent>
+												</Popover>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="dates.dateOfDeath"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Date of Death</FormLabel>
+												<Popover>
+													<PopoverTrigger asChild>
+														<FormControl>
+															<Button
+																variant="outline"
+																className="w-full pl-3 text-left font-normal"
+																disabled={!form.getValues("dates.isDeceased")}
+															>
+																{field.value ? (
+																	format(new Date(field.value), "PPP")
+																) : (
+																	<span>Pick a date</span>
+																)}
+																<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+															</Button>
+														</FormControl>
+													</PopoverTrigger>
+													<PopoverContent className="w-auto p-0" align="start">
+														<Calendar
+															mode="single"
+															selected={
+																field.value ? new Date(field.value) : undefined
+															}
+															onSelect={(date) =>
+																handleFieldChange(
+																	"dates.dateOfDeath",
+																	date?.toISOString(),
+																)
+															}
+															disabled={(date) =>
+																date > new Date() ||
+																date < new Date("1900-01-01")
+															}
+															initialFocus
+														/>
+													</PopoverContent>
+												</Popover>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
 								<FormField
 									control={form.control}
-									name="dates.dateOfBirth"
+									name="dates.isDeceased"
 									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Date of Birth</FormLabel>
-											<Popover>
-												<PopoverTrigger asChild>
-													<FormControl>
-														<Button
-															variant="outline"
-															className="w-full pl-3 text-left font-normal"
-														>
-															{field.value ? (
-																format(new Date(field.value), "PPP")
-															) : (
-																<span>Pick a date</span>
-															)}
-															<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-														</Button>
-													</FormControl>
-												</PopoverTrigger>
-												<PopoverContent className="w-auto p-0" align="start">
-													<Calendar
-														mode="single"
-														selected={
-															field.value ? new Date(field.value) : undefined
-														}
-														onSelect={(date) =>
-															handleFieldChange(
-																"dates.dateOfBirth",
-																date?.toISOString(),
-															)
-														}
-														disabled={(date) =>
-															date > new Date() || date < new Date("1900-01-01")
-														}
-														initialFocus
-													/>
-												</PopoverContent>
-											</Popover>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="dates.dateOfDeath"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Date of Death</FormLabel>
-											<Popover>
-												<PopoverTrigger asChild>
-													<FormControl>
-														<Button
-															variant="outline"
-															className="w-full pl-3 text-left font-normal"
-															disabled={!form.getValues("dates.isDeceased")}
-														>
-															{field.value ? (
-																format(new Date(field.value), "PPP")
-															) : (
-																<span>Pick a date</span>
-															)}
-															<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-														</Button>
-													</FormControl>
-												</PopoverTrigger>
-												<PopoverContent className="w-auto p-0" align="start">
-													<Calendar
-														mode="single"
-														selected={
-															field.value ? new Date(field.value) : undefined
-														}
-														onSelect={(date) =>
-															handleFieldChange(
-																"dates.dateOfDeath",
-																date?.toISOString(),
-															)
-														}
-														disabled={(date) =>
-															date > new Date() || date < new Date("1900-01-01")
-														}
-														initialFocus
-													/>
-												</PopoverContent>
-											</Popover>
-											<FormMessage />
+										<FormItem className="flex flex-row items-center space-x-2">
+											<FormControl>
+												<Checkbox
+													checked={field.value}
+													onCheckedChange={(
+														checked: boolean | "indeterminate",
+													) => handleFieldChange("dates.isDeceased", !!checked)}
+												/>
+											</FormControl>
+											<FormLabel className="!mt-0">Deceased</FormLabel>
 										</FormItem>
 									)}
 								/>
 							</div>
-							<FormField
-								control={form.control}
-								name="dates.isDeceased"
-								render={({ field }) => (
-									<FormItem className="flex flex-row items-center space-x-2">
-										<FormControl>
-											<Checkbox
-												checked={field.value}
-												onCheckedChange={(checked: boolean | "indeterminate") =>
-													handleFieldChange("dates.isDeceased", !!checked)
-												}
-											/>
-										</FormControl>
-										<FormLabel className="!mt-0">Deceased</FormLabel>
-									</FormItem>
-								)}
-							/>
 						</div>
 
 						{/* Roles Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Roles</h3>
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Roles</h3>
+								<Separator className="flex-1" />
+							</div>
 							<FormField
 								control={form.control}
 								name="role"
@@ -739,76 +789,84 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 						</div>
 
 						{/* Demographic Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Demographic</h3>
-							<div className="grid grid-cols-2 gap-4">
-								<FormField
-									control={form.control}
-									name="ethnicity"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Ethnicity</FormLabel>
-											<Select
-												onValueChange={(value: string) =>
-													handleFieldChange("ethnicity", value || undefined)
-												}
-												value={field.value || ""}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select ethnicity" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="hispanic">Hispanic</SelectItem>
-													<SelectItem value="non-hispanic">
-														Non-Hispanic
-													</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="race"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Race</FormLabel>
-											<Select
-												onValueChange={(value: string) =>
-													handleFieldChange("race", value || undefined)
-												}
-												value={field.value || ""}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select race" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													<SelectItem value="white">White</SelectItem>
-													<SelectItem value="black">Black</SelectItem>
-													<SelectItem value="asian">Asian</SelectItem>
-													<SelectItem value="native">
-														Native American
-													</SelectItem>
-													<SelectItem value="pacific">
-														Pacific Islander
-													</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Demographic</h3>
+								<Separator className="flex-1" />
+							</div>
+							<div className="space-y-6">
+								<div className="grid grid-cols-2 gap-6">
+									<FormField
+										control={form.control}
+										name="ethnicity"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Ethnicity</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("ethnicity", value || undefined)
+													}
+													value={field.value || ""}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Select ethnicity" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="hispanic">Hispanic</SelectItem>
+														<SelectItem value="non-hispanic">
+															Non-Hispanic
+														</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={form.control}
+										name="race"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Race</FormLabel>
+												<Select
+													onValueChange={(value: string) =>
+														handleFieldChange("race", value || undefined)
+													}
+													value={field.value || ""}
+												>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Select race" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectItem value="white">White</SelectItem>
+														<SelectItem value="black">Black</SelectItem>
+														<SelectItem value="asian">Asian</SelectItem>
+														<SelectItem value="native">
+															Native American
+														</SelectItem>
+														<SelectItem value="pacific">
+															Pacific Islander
+														</SelectItem>
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
 							</div>
 						</div>
 
 						{/* Military Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Military</h3>
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Military</h3>
+								<Separator className="flex-1" />
+							</div>
 							<FormField
 								control={form.control}
 								name="isVeteran"
@@ -829,12 +887,15 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 						</div>
 
 						{/* Phone Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Phone</h3>
-							{form.watch("phones")?.map((phone, index) => (
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Phone</h3>
+								<Separator className="flex-1" />
+							</div>
+							{phoneFields.map((field, index) => (
 								<div
-									key={`phone-${index}-${phone.number}`}
-									className="grid grid-cols-3 gap-4"
+									key={field.id}
+									className="grid grid-cols-[1fr_1fr_auto_auto] gap-4 items-end"
 								>
 									<FormField
 										control={form.control}
@@ -888,7 +949,7 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 										control={form.control}
 										name={`phones.${index}.isPreferred`}
 										render={({ field }) => (
-											<FormItem className="flex flex-row items-end space-x-2">
+											<FormItem className="flex flex-row items-center space-x-2">
 												<FormControl>
 													<Checkbox
 														checked={field.value}
@@ -906,29 +967,50 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 											</FormItem>
 										)}
 									/>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="text-destructive"
+										onClick={() => {
+											removePhone(index);
+											handleFieldChange(
+												"phones",
+												form.getValues("phones").filter((_, i) => i !== index),
+											);
+										}}
+									>
+										<Trash2Icon className="h-4 w-4" />
+									</Button>
 								</div>
 							))}
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() =>
-									handleFieldChange("phones", [
-										...form.getValues("phones"),
-										{ number: "", type: "Mobile", isPreferred: false },
-									])
-								}
+								onClick={() => {
+									appendPhone({
+										number: "",
+										type: "Mobile",
+										isPreferred: false,
+									});
+									const newPhones = form.getValues("phones");
+									handleFieldChange("phones", newPhones);
+								}}
 							>
 								Add Phone
 							</Button>
 						</div>
 
 						{/* Email Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Email</h3>
-							{form.watch("emails")?.map((email, index) => (
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Email</h3>
+								<Separator className="flex-1" />
+							</div>
+							{emailFields.map((field, index) => (
 								<div
-									key={`email-${index}-${email.address}`}
-									className="grid grid-cols-2 gap-4"
+									key={field.id}
+									className="grid grid-cols-[1fr_auto_auto] gap-4 items-end"
 								>
 									<FormField
 										control={form.control}
@@ -956,7 +1038,7 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 										control={form.control}
 										name={`emails.${index}.isPreferred`}
 										render={({ field }) => (
-											<FormItem className="flex flex-row items-end space-x-2">
+											<FormItem className="flex flex-row items-center space-x-2">
 												<FormControl>
 													<Checkbox
 														checked={field.value}
@@ -974,25 +1056,42 @@ const BuyerSection = ({ actor }: BuyerSectionProps) => {
 											</FormItem>
 										)}
 									/>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="text-destructive"
+										onClick={() => {
+											removeEmail(index);
+											handleFieldChange(
+												"emails",
+												form.getValues("emails").filter((_, i) => i !== index),
+											);
+										}}
+									>
+										<Trash2Icon className="h-4 w-4" />
+									</Button>
 								</div>
 							))}
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() =>
-									handleFieldChange("emails", [
-										...form.getValues("emails"),
-										{ address: "", isPreferred: false },
-									])
-								}
+								onClick={() => {
+									appendEmail({ address: "", isPreferred: false });
+									const newEmails = form.getValues("emails");
+									handleFieldChange("emails", newEmails);
+								}}
 							>
 								Add Email
 							</Button>
 						</div>
 
 						{/* Marketing Section */}
-						<div className="space-y-4">
-							<h3 className="text-lg font-medium">Marketing</h3>
+						<div className="space-y-6">
+							<div className="flex items-center gap-2">
+								<h3 className="text-lg font-semibold">Marketing</h3>
+								<Separator className="flex-1" />
+							</div>
 							<FormField
 								control={form.control}
 								name="optOutOfFutureMarketing"

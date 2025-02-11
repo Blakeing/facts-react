@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { toast } from "sonner";
-import type { Contract } from "../types";
+import type { Contract } from "../types/contract";
 
 const API_URL = "http://localhost:3001";
 
@@ -18,10 +17,9 @@ export const useContractMutations = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["contracts"] });
-			toast.success("Contract created successfully");
 		},
 		onError: (error) => {
-			toast.error("Failed to create contract");
+			console.error("Failed to create contract:", error);
 		},
 	});
 
@@ -67,10 +65,9 @@ export const useContractMutations = () => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["contracts"] });
-			toast.success("Contract updated successfully");
 		},
 		onError: (error) => {
-			toast.error("Failed to update contract");
+			console.error("Failed to update contract:", error);
 		},
 		onSettled: (data) => {
 			// Always refetch after error or success to ensure data is in sync

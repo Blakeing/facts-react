@@ -23,6 +23,8 @@ import BuyerSection from "./sections/BuyerSection";
 import GeneralSection from "./sections/GeneralSection";
 import PaymentSection from "./sections/PaymentSection";
 import ReviewSection from "./sections/ReviewSection";
+import FinancingSection from "./sections/FinancingSection";
+import { useConfirm } from "@/hooks/use-confirm";
 
 export interface FuneralServiceFormProps {
 	onComplete?: () => void;
@@ -46,10 +48,11 @@ const SECTION_MAP = {
 	general: "GO_TO_GENERAL",
 	buyer: "GO_TO_BUYER",
 	payment: "GO_TO_PAYMENT",
+	financing: "GO_TO_FINANCING",
 	review: "GO_TO_REVIEW",
 } as const;
 
-type ReviewSectionType = "buyer" | "payment" | "general";
+type ReviewSectionType = "buyer" | "payment" | "general" | "financing";
 type ContractStateValue =
 	| "draft"
 	| "executed"
@@ -57,6 +60,7 @@ type ContractStateValue =
 	| "void"
 	| "buyer"
 	| "payment"
+	| "financing"
 	| "review"
 	| "general";
 
@@ -131,12 +135,15 @@ const FormSection = ({
 			return <BuyerSection actor={actor} />;
 		case "payment":
 			return <PaymentSection actor={actor} />;
+		case "financing":
+			return <FinancingSection actor={actor} />;
 		case "review":
 			return (
 				<ReviewSection
 					generalData={formData.general}
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
+					financingData={formData.financing}
 					onEdit={onEdit || (() => {})}
 				/>
 			);
@@ -146,6 +153,7 @@ const FormSection = ({
 					generalData={formData.general}
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
+					financingData={formData.financing}
 					readOnly
 				/>
 			);
@@ -156,6 +164,7 @@ const FormSection = ({
 					generalData={formData.general}
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
+					financingData={formData.financing}
 					readOnly
 					{...(currentState === "finalized" || currentState === "void"
 						? { status: currentState }
@@ -178,6 +187,11 @@ type ContractSend = (event: ContractEvent) => void;
 const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts } = useContracts();
+	const [ConfirmDialog, confirm] = useConfirm(
+		"Unsaved Changes",
+		"You have unsaved changes. Are you sure you want to continue?",
+		() => hasUnsavedChanges,
+	);
 
 	// Use ref for stable machine config
 	const mutationsRef = useRef({ createMutation, updateMutation });
@@ -412,74 +426,112 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		currentState === "draft" ? "general" : currentState
 	) as string;
 
+	// Handle browser's native beforeunload event
+	useEffect(() => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			if (hasUnsavedChanges) {
+				e.preventDefault();
+				e.returnValue = "";
+			}
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+	}, [hasUnsavedChanges]);
+
+	const handleTabChange = useCallback(
+		async (value: string) => {
+			if (hasUnsavedChanges) {
+				const confirmed = await confirm();
+				if (!confirmed) {
+					return;
+				}
+			}
+			send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
+		},
+		[hasUnsavedChanges, confirm, send],
+	);
+
 	return (
-		<Card>
-			<CardHeader>
-				<div className="flex items-center justify-between p-4 border-b">
-					<div className="flex items-center gap-4">
-						<Button variant="outline" onClick={() => navigate({ to: "/test" })}>
-							Back to Test
-						</Button>
-						{hasUnsavedChanges && (
-							<Badge
-								variant="secondary"
-								className="bg-yellow-100 text-yellow-800"
+		<>
+			<Card>
+				<CardHeader>
+					<div className="flex items-center justify-between p-4 border-b">
+						<div className="flex items-center gap-4">
+							<Button
+								variant="outline"
+								onClick={async () => {
+									if (hasUnsavedChanges) {
+										const confirmed = await confirm();
+										if (!confirmed) {
+											return;
+										}
+									}
+									navigate({ to: "/test" });
+								}}
 							>
-								Unsaved Changes
-							</Badge>
-						)}
+								Back to Test
+							</Button>
+							<div className="w-[120px]">
+								{hasUnsavedChanges && (
+									<Badge
+										variant="secondary"
+										className="bg-yellow-100 text-yellow-800"
+									>
+										Unsaved Changes
+									</Badge>
+								)}
+							</div>
+						</div>
+						<div className="flex items-center gap-2">
+							<Button
+								onClick={handleSave}
+								disabled={
+									!hasUnsavedChanges ||
+									createMutation.isPending ||
+									updateMutation.isPending
+								}
+							>
+								Save Changes
+							</Button>
+							<ActionButtons
+								state={effectiveState}
+								onExecute={handleExecute}
+								onVoid={handleVoid}
+								onFinalize={handleFinalize}
+							/>
+							<ContractStateBadge
+								state={effectiveState}
+								isPending={updateMutation.isPending}
+							/>
+						</div>
 					</div>
-					<div className="flex items-center gap-2">
-						<Button
-							onClick={handleSave}
-							disabled={
-								!hasUnsavedChanges ||
-								createMutation.isPending ||
-								updateMutation.isPending
-							}
-						>
-							Save Changes
-						</Button>
-						<ActionButtons
-							state={effectiveState}
-							onExecute={handleExecute}
-							onVoid={handleVoid}
-							onFinalize={handleFinalize}
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-4">
+						<div>
+							<Tabs value={tabValue} onValueChange={handleTabChange}>
+								<TabsList>
+									<TabsTrigger value="general">General</TabsTrigger>
+									<TabsTrigger value="buyer">Buyer</TabsTrigger>
+									<TabsTrigger value="payment">Payment</TabsTrigger>
+									<TabsTrigger value="financing">Financing</TabsTrigger>
+									<TabsTrigger value="review">Review</TabsTrigger>
+								</TabsList>
+							</Tabs>
+						</div>
+						<FormSection
+							currentState={currentState}
+							actor={actor}
+							formData={state.context.formData}
+							onEdit={handleEdit}
+							status={currentState}
 						/>
-						<ContractStateBadge
-							state={effectiveState}
-							isPending={updateMutation.isPending}
-						/>
 					</div>
-				</div>
-			</CardHeader>
-			<CardContent>
-				<div className="space-y-4">
-					<div>
-						<Tabs
-							value={tabValue}
-							onValueChange={(value: string) => {
-								send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
-							}}
-						>
-							<TabsList>
-								<TabsTrigger value="general">General</TabsTrigger>
-								<TabsTrigger value="buyer">Buyer</TabsTrigger>
-								<TabsTrigger value="payment">Payment</TabsTrigger>
-								<TabsTrigger value="review">Review</TabsTrigger>
-							</TabsList>
-						</Tabs>
-					</div>
-					<FormSection
-						currentState={currentState}
-						actor={actor}
-						formData={state.context.formData}
-						onEdit={handleEdit}
-						status={currentState}
-					/>
-				</div>
-			</CardContent>
-		</Card>
+				</CardContent>
+			</Card>
+			<ConfirmDialog />
+		</>
 	);
 };
 

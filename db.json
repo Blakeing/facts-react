@@ -58,7 +58,8 @@
           ],
           "optOutOfFutureMarketing": false
         },
-        "payment": null
+        "payment": null,
+        "financing": null
       }
     },
     {
@@ -72,7 +73,7 @@
           "atNeedType": "type2",
           "contractType": "type2",
           "campaign": "campaign1",
-          "prePrintedContractNumber": "513"
+          "prePrintedContractNumber": "514"
         },
         "buyer": {
           "name": {
@@ -115,11 +116,19 @@
             {
               "address": "jynig@mailinator.com",
               "isPreferred": true
+            },
+            {
+              "address": "blakeingenthron@gmail.com",
+              "isPreferred": false
             }
           ],
           "optOutOfFutureMarketing": false
         },
-        "payment": null
+        "payment": {
+          "paymentMethod": "credit",
+          "amount": 0
+        },
+        "financing": null
       }
     },
     {
@@ -180,7 +189,101 @@
           ],
           "optOutOfFutureMarketing": false
         },
-        "payment": null
+        "payment": null,
+        "financing": {
+          "isFinanceContract": true,
+          "downPayment": 24,
+          "otherCredits": 0,
+          "lateFeeType": "percentage",
+          "lateFeePercentage": 5,
+          "maxLateFeeAmount": 5,
+          "gracePeriod": 10,
+          "paymentFrequency": "monthly",
+          "interestRebatePeriod": 0,
+          "sendCouponBook": false,
+          "useCalculatedPaymentAmount": true,
+          "useCalculatedFinanceCharges": true
+        }
+      }
+    },
+    {
+      "id": 4,
+      "contractState": "draft",
+      "formData": {
+        "general": {
+          "serviceDate": "2025-02-07T01:06:37.882Z",
+          "contractSignDate": "2025-02-07T01:06:37.882Z",
+          "funeralDirector": "director3",
+          "atNeedType": "type3",
+          "contractType": "type3",
+          "campaign": "campaign2",
+          "prePrintedContractNumber": "4"
+        },
+        "buyer": {
+          "name": {
+            "first": "John",
+            "last": "Doe",
+            "prefix": "Mr",
+            "middle": "A",
+            "companyName": "Sample Company",
+            "gender": "male"
+          },
+          "physicalAddress": {
+            "street": "123 Main St",
+            "city": "Anytown",
+            "state": "CA",
+            "postalCode": "12345",
+            "country": "USA"
+          },
+          "mailingAddressSameAsPhysical": true,
+          "identification": {
+            "stateIdNumber": "123456",
+            "issuer": "CA"
+          },
+          "dates": {
+            "isDeceased": false
+          },
+          "role": "primary",
+          "ethnicity": "non-hispanic",
+          "race": "white",
+          "isVeteran": false,
+          "phones": [
+            {
+              "number": "+1 (555) 123-4567",
+              "type": "Mobile",
+              "isPreferred": true
+            }
+          ],
+          "emails": [
+            {
+              "address": "john.doe@example.com",
+              "isPreferred": true
+            }
+          ],
+          "optOutOfFutureMarketing": false
+        },
+        "payment": {
+          "paymentMethod": "credit",
+          "amount": 10000
+        },
+        "financing": {
+          "isFinanceContract": true,
+          "downPayment": 2000,
+          "otherCredits": 500,
+          "interestRate": 5.99,
+          "imputedInterestRate": 6.5,
+          "lateFeeType": "percentage",
+          "lateFeePercentage": 5,
+          "maxLateFeeAmount": 50,
+          "gracePeriod": 10,
+          "paymentFrequency": "monthly",
+          "numberOfPayments": 24,
+          "firstPaymentDate": "2025-03-01",
+          "interestRebatePeriod": 30,
+          "sendCouponBook": true,
+          "useCalculatedPaymentAmount": true,
+          "useCalculatedFinanceCharges": true
+        }
       }
     }
   ]

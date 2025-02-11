@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type { Contract } from "../types";
+import type { Contract } from "../types/contract";
 
 const API_URL = "http://localhost:3001";
 

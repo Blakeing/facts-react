@@ -6,10 +6,30 @@ import type { ContractApiError } from "./errors";
 
 export type ContractState = "draft" | "executed" | "finalized" | "void";
 
+export interface FinancingData {
+	isFinanceContract: boolean;
+	downPayment: number;
+	otherCredits: number;
+	interestRate?: number;
+	imputedInterestRate?: number;
+	lateFeeType: "percentage" | "fixed";
+	lateFeePercentage: number;
+	maxLateFeeAmount: number;
+	gracePeriod: number;
+	paymentFrequency: "monthly" | "weekly" | "biweekly";
+	numberOfPayments?: number;
+	firstPaymentDate?: string;
+	interestRebatePeriod: number;
+	sendCouponBook: boolean;
+	useCalculatedPaymentAmount: boolean;
+	useCalculatedFinanceCharges: boolean;
+}
+
 export interface FormData {
 	general: GeneralData | null;
 	buyer: BuyerData | null;
 	payment: PaymentData | null;
+	financing: FinancingData | null;
 }
 
 export interface Contract {
@@ -36,6 +56,7 @@ export type ContractEvent =
 	| { type: "GO_TO_GENERAL" }
 	| { type: "GO_TO_BUYER" }
 	| { type: "GO_TO_PAYMENT" }
+	| { type: "GO_TO_FINANCING" }
 	| { type: "GO_TO_REVIEW" }
 	| { type: "EXECUTE" }
 	| { type: "FINALIZE" }
@@ -43,7 +64,8 @@ export type ContractEvent =
 	| { type: "SAVE_CONTRACT" }
 	| { type: "UPDATE_GENERAL"; data: GeneralData }
 	| { type: "UPDATE_BUYER"; data: BuyerData }
-	| { type: "UPDATE_PAYMENT"; data: PaymentData };
+	| { type: "UPDATE_PAYMENT"; data: PaymentData }
+	| { type: "UPDATE_FINANCING"; data: FinancingData };
 
 export interface ContractServices {
 	mutations: {
