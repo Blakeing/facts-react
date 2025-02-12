@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { memo, useCallback } from "react";
 import type { BuyerData } from "../../machines/buyerMachine";
 import type { GeneralData } from "../../machines/generalMachine";
-import type { PaymentData } from "../../machines/paymentMachine";
+import type { PaymentData } from "../../types/contract";
 import type { FinancingData } from "../../types/contract";
 import type { BeneficiaryData } from "../../types/contract";
 import type { ReviewSectionType } from "../../types/contract";

@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -11,11 +10,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { Separator } from "@/components/ui/separator";
 import {
 	Select,
@@ -26,8 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import type { Path, PathValue } from "react-hook-form";
@@ -77,8 +71,9 @@ export function BeneficiaryForm({
 		) => {
 			form.setValue(field, value);
 			const values = form.getValues();
+			const { mailingAddress, role, ethnicity, race, ...restValues } = values;
 			const formattedValues: BeneficiaryData = {
-				...values,
+				...restValues,
 				name: {
 					...values.name,
 					prefix: values.name.prefix || undefined,
@@ -89,10 +84,19 @@ export function BeneficiaryForm({
 					maiden: values.name.maiden || undefined,
 					gender: values.name.gender || undefined,
 				},
-				mailingAddress: values.mailingAddress || undefined,
-				role: values.role || undefined,
-				ethnicity: values.ethnicity || undefined,
-				race: values.race || undefined,
+				dates: {
+					isDeceased: values.dates.isDeceased,
+					...(values.dates.dateOfBirth && {
+						dateOfBirth: values.dates.dateOfBirth,
+					}),
+					...(values.dates.dateOfDeath && {
+						dateOfDeath: values.dates.dateOfDeath,
+					}),
+				},
+				...(mailingAddress && { mailingAddress }),
+				...(role && { role }),
+				...(ethnicity && { ethnicity }),
+				...(race && { race }),
 			};
 			onSubmit(formattedValues);
 		},
@@ -219,7 +223,7 @@ export function BeneficiaryForm({
 												onValueChange={(value) =>
 													handleFieldChange("ethnicity", value)
 												}
-												defaultValue={field.value || undefined}
+												{...(field.value && { defaultValue: field.value })}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -247,7 +251,7 @@ export function BeneficiaryForm({
 												onValueChange={(value) =>
 													handleFieldChange("race", value)
 												}
-												defaultValue={field.value || undefined}
+												{...(field.value && { defaultValue: field.value })}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -282,7 +286,7 @@ export function BeneficiaryForm({
 												<Checkbox
 													checked={field.value}
 													onCheckedChange={(checked) =>
-														handleFieldChange("isVeteran", checked)
+														handleFieldChange("isVeteran", checked === true)
 													}
 												/>
 											</FormControl>
@@ -556,7 +560,7 @@ export function BeneficiaryForm({
 													onCheckedChange={(checked) =>
 														handleFieldChange(
 															"optOutOfFutureMarketing",
-															checked,
+															checked === true,
 														)
 													}
 												/>

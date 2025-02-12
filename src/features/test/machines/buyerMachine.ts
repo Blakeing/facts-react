@@ -139,7 +139,6 @@ const createBuyerMachine = (initialContext?: Partial<BuyerContext>) => {
 			}),
 		},
 	}).createMachine({
-		/** @xstate-layout N4IgpgJg5mDOIC5QCMCuBPMAnAymAxgC4CWA9gHYB0xEANmAMQCqACgCICCAKgKID6AISYBNHgCUA2gAYAuolAAHUrGIkK8kAA9EAVgBMlPXoBsO43p0AaEOl3GAjJQAcATinmdAX0-W0mXARqVDT0zOzc-AByHACyPNJySCBKKkEa2gg6OpQAzE56TvYW1rYIACymzkVePiB+2HhEZMF0jKycvHwcbGxiPDg4CRopqs3piGV6JYg5xi6UAOw5ZTkLNb4YDYHN1K1hHfwsABIA8pHxssPKo+pJGTpSlC4Lph7TCHpLlK8W3hv+jSCu1C3TYfGOZwuiUU1zSd0QxjK3wW9ica3e9gWC0oOgWhV+tXqASaFGBjD6MROADVDqdzkMkiM4aAMmV5vYcgVqu9CjjvLVyKQIHANETAWNGbCJSzEABaYzveV-OqbYlAkJgK6paVaRAuJyGKQ5bk2BHmJ7GNE1bxAA */
 		id: "buyerSection",
 		initial: "idle",
 		context: {

@@ -5,8 +5,6 @@ import type createContractMachine from "../../machines/contractMachine";
 import type { BeneficiaryData } from "../../types/contract";
 import { BeneficiaryForm } from "../../forms/beneficiary-form";
 
-type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
-
 type BeneficiarySectionProps = {
 	actor: ActorRefFrom<ReturnType<typeof createContractMachine>>;
 	onSubmit?: (data: BeneficiaryData) => void;
@@ -59,17 +57,43 @@ export const BeneficiarySection = memo(
 		const send = actor.send;
 		const formData = useSelector(actor, beneficiaryDataSelector);
 
-		return (
-			<BeneficiaryForm
-				defaultValues={formData}
-				onSubmit={(data) => {
-					send({ type: "UPDATE_BENEFICIARY", data });
-					if (onSubmit) {
-						onSubmit(data);
-					}
-				}}
-			/>
-		);
+		const handleChange = (data: BeneficiaryData) => {
+			const beneficiaryData: BeneficiaryData = {
+				name: {
+					first: data.name.first,
+					last: data.name.last,
+					prefix: data.name.prefix || undefined,
+					middle: data.name.middle || undefined,
+					suffix: data.name.suffix || undefined,
+					companyName: data.name.companyName || undefined,
+					nickname: data.name.nickname || undefined,
+					maiden: data.name.maiden || undefined,
+					gender: data.name.gender || undefined,
+				},
+				physicalAddress: data.physicalAddress,
+				mailingAddressSameAsPhysical: data.mailingAddressSameAsPhysical,
+				mailingAddress: data.mailingAddress || undefined,
+				identification: data.identification,
+				dates: {
+					isDeceased: data.dates.isDeceased,
+					dateOfBirth: data.dates.dateOfBirth || undefined,
+					dateOfDeath: data.dates.dateOfDeath || undefined,
+				},
+				role: data.role || undefined,
+				ethnicity: data.ethnicity || undefined,
+				race: data.race || undefined,
+				isVeteran: data.isVeteran,
+				phones: data.phones,
+				emails: data.emails,
+				optOutOfFutureMarketing: data.optOutOfFutureMarketing,
+			};
+			send({ type: "UPDATE_BENEFICIARY", data: beneficiaryData });
+			if (onSubmit) {
+				onSubmit(beneficiaryData);
+			}
+		};
+
+		return <BeneficiaryForm defaultValues={formData} onSubmit={handleChange} />;
 	},
 );
 

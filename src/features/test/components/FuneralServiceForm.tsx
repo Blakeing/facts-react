@@ -18,6 +18,7 @@ import type {
 	ContractEvent,
 	ContractState,
 	FormData,
+	ReviewSectionType,
 } from "../types/contract";
 import { BuyerSection } from "./sections/BuyerSection";
 import GeneralSection from "./sections/GeneralSection";
@@ -26,7 +27,6 @@ import ReviewSection from "./sections/ReviewSection";
 import FinancingSection from "./sections/FinancingSection";
 import { BeneficiarySection } from "./sections/BeneficiarySection";
 import { useConfirm } from "@/hooks/use-confirm";
-import { PeopleSidebar } from "./PeopleSidebar";
 import PeopleSection from "./sections/PeopleSection";
 
 export interface FuneralServiceFormProps {
@@ -57,7 +57,6 @@ const SECTION_MAP = {
 	review: "GO_TO_REVIEW",
 } as const;
 
-type ReviewSectionType = "people" | "payment" | "general" | "financing";
 type ContractStateValue =
 	| "draft"
 	| "executed"
@@ -127,7 +126,6 @@ const FormSection = ({
 	actor,
 	formData,
 	onEdit,
-	status,
 }: {
 	currentState: ContractStateValue;
 	actor: ContractActor;
@@ -147,7 +145,7 @@ const FormSection = ({
 					buyer={formData.buyer}
 					beneficiary={formData.beneficiary}
 					onSelect={(section) => {
-						if (onEdit) onEdit("people");
+						if (onEdit) onEdit(section);
 					}}
 				/>
 			);

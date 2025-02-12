@@ -16,7 +16,7 @@ import { useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
-import type { PaymentData } from "../../machines/paymentMachine";
+import type { PaymentData } from "../../types/contract";
 
 const paymentFormSchema = z.object({
 	paymentMethod: z.enum(["cash", "credit"], {

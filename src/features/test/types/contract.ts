@@ -1,10 +1,30 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { BuyerData } from "../machines/buyerMachine";
 import type { GeneralData } from "../machines/generalMachine";
-import type { PaymentData } from "../machines/paymentMachine";
 import type { ContractApiError } from "./errors";
 
+// Core Types
 export type ContractState = "draft" | "executed" | "finalized" | "void";
+
+export interface Contract {
+	id: string;
+	contractState: ContractState;
+	formData: FormData;
+}
+
+// Form Data Types
+export interface FormData {
+	general: GeneralData | null;
+	buyer: BuyerData | null;
+	payment: PaymentData | null;
+	financing: FinancingData | null;
+	beneficiary: BeneficiaryData | null;
+}
+
+export type PaymentData = {
+	paymentMethod: "cash" | "credit";
+	amount: number;
+} | null;
 
 export interface FinancingData {
 	isFinanceContract: boolean;
@@ -25,48 +45,39 @@ export interface FinancingData {
 	useCalculatedFinanceCharges: boolean;
 }
 
-export interface BeneficiaryData {
-	name: {
-		first: string;
-		last: string;
-		prefix: string | undefined;
-		middle: string | undefined;
-		suffix: string | undefined;
-		companyName: string | undefined;
-		nickname: string | undefined;
-		maiden: string | undefined;
-		gender: string | undefined;
-	};
-	physicalAddress: {
-		street: string;
-		city: string;
-		state: string;
-		postalCode: string;
-		country: string;
-	};
-	mailingAddressSameAsPhysical: boolean;
-	mailingAddress:
-		| {
-				street: string;
-				city: string;
-				state: string;
-				postalCode: string;
-				country: string;
-		  }
-		| undefined;
-	identification: {
-		stateIdNumber: string;
-		issuer: string;
-	};
-	dates: {
-		dateOfBirth: string | undefined;
-		dateOfDeath: string | undefined;
-		isDeceased: boolean;
-	};
-	role: string | undefined;
-	ethnicity: string | undefined;
-	race: string | undefined;
-	isVeteran: boolean;
+// Person Data Types
+export interface PersonName {
+	first: string;
+	last: string;
+	prefix?: string | undefined;
+	middle?: string | undefined;
+	suffix?: string | undefined;
+	companyName?: string | undefined;
+	nickname?: string | undefined;
+	maiden?: string | undefined;
+	gender?: string | undefined;
+}
+
+export interface Address {
+	street: string;
+	city: string;
+	state: string;
+	postalCode: string;
+	country: string;
+}
+
+export interface PersonDates {
+	dateOfBirth?: string | undefined;
+	dateOfDeath?: string | undefined;
+	isDeceased: boolean;
+}
+
+interface PersonIdentification {
+	stateIdNumber: string;
+	issuer: string;
+}
+
+interface ContactInfo {
 	phones: Array<{
 		number: string;
 		type: string;
@@ -76,23 +87,23 @@ export interface BeneficiaryData {
 		address: string;
 		isPreferred: boolean;
 	}>;
+}
+
+export interface BeneficiaryData extends ContactInfo {
+	name: PersonName;
+	physicalAddress: Address;
+	mailingAddressSameAsPhysical: boolean;
+	mailingAddress?: Address | undefined;
+	identification: PersonIdentification;
+	dates: PersonDates;
+	role?: string | undefined;
+	ethnicity?: string | undefined;
+	race?: string | undefined;
+	isVeteran: boolean;
 	optOutOfFutureMarketing: boolean;
 }
 
-export interface FormData {
-	general: GeneralData | null;
-	buyer: BuyerData | null;
-	payment: PaymentData | null;
-	financing: FinancingData | null;
-	beneficiary: BeneficiaryData | null;
-}
-
-export interface Contract {
-	id: string;
-	contractState: ContractState;
-	formData: FormData;
-}
-
+// State Machine Types
 export interface ContractContext {
 	id: string | null;
 	contractState: ContractState;
@@ -125,6 +136,7 @@ export type ContractEvent =
 	| { type: "UPDATE_FINANCING"; data: FinancingData }
 	| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData };
 
+// Service Types
 export interface ContractServices {
 	mutations: {
 		updateMutation: UseMutationResult<Contract, Error, Contract>;
@@ -132,6 +144,7 @@ export interface ContractServices {
 	};
 }
 
+// Constants
 export const CONTRACT_STATE_MAP: Record<
 	"EXECUTE" | "FINALIZE" | "VOID",
 	ContractState
@@ -141,4 +154,11 @@ export const CONTRACT_STATE_MAP: Record<
 	VOID: "void",
 } as const;
 
-export type ReviewSectionType = "people" | "payment" | "general" | "financing";
+// UI Types
+export type ReviewSectionType =
+	| "people"
+	| "payment"
+	| "general"
+	| "financing"
+	| "buyer"
+	| "beneficiary";

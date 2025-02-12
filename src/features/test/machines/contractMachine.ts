@@ -4,38 +4,15 @@ import type {
 	ContractContext,
 	ContractEvent,
 	ContractServices,
-	LoadContractData,
-	FinancingData,
-	BeneficiaryData,
 } from "../types/contract";
 import { CONTRACT_STATE_MAP } from "../types/contract";
 import { isContractApiError } from "../types/errors";
-import type { GeneralData } from "./generalMachine";
-import type { BuyerData } from "./buyerMachine";
-import type { PaymentData } from "./paymentMachine";
 
 const createContractMachine = (services: ContractServices) => {
 	return setup({
 		types: {
 			context: {} as ContractContext,
-			events: {} as
-				| { type: "LOAD_CONTRACT"; data: LoadContractData }
-				| { type: "GO_TO_GENERAL" }
-				| { type: "GO_TO_PEOPLE" }
-				| { type: "GO_TO_BUYER" }
-				| { type: "GO_TO_BENEFICIARY" }
-				| { type: "GO_TO_PAYMENT" }
-				| { type: "GO_TO_FINANCING" }
-				| { type: "GO_TO_REVIEW" }
-				| { type: "EXECUTE" }
-				| { type: "FINALIZE" }
-				| { type: "VOID" }
-				| { type: "SAVE_CONTRACT" }
-				| { type: "UPDATE_GENERAL"; data: GeneralData }
-				| { type: "UPDATE_BUYER"; data: BuyerData }
-				| { type: "UPDATE_PAYMENT"; data: PaymentData }
-				| { type: "UPDATE_FINANCING"; data: FinancingData }
-				| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData },
+			events: {} as ContractEvent,
 		},
 		actors: {
 			saveContract: fromPromise<Contract, { context: ContractContext }>(
@@ -96,46 +73,31 @@ const createContractMachine = (services: ContractServices) => {
 			updateGeneralData: assign({
 				formData: ({ context, event }) => {
 					if (event.type !== "UPDATE_GENERAL") return context.formData;
-					return {
-						...context.formData,
-						general: event.data,
-					};
+					return { ...context.formData, general: event.data };
 				},
 			}),
 			updateBuyerData: assign({
 				formData: ({ context, event }) => {
 					if (event.type !== "UPDATE_BUYER") return context.formData;
-					return {
-						...context.formData,
-						buyer: event.data,
-					};
+					return { ...context.formData, buyer: event.data };
 				},
 			}),
 			updatePaymentData: assign({
 				formData: ({ context, event }) => {
 					if (event.type !== "UPDATE_PAYMENT") return context.formData;
-					return {
-						...context.formData,
-						payment: event.data,
-					};
+					return { ...context.formData, payment: event.data };
 				},
 			}),
 			updateFinancingData: assign({
 				formData: ({ context, event }) => {
 					if (event.type !== "UPDATE_FINANCING") return context.formData;
-					return {
-						...context.formData,
-						financing: event.data,
-					};
+					return { ...context.formData, financing: event.data };
 				},
 			}),
 			updateBeneficiaryData: assign({
 				formData: ({ context, event }) => {
 					if (event.type !== "UPDATE_BENEFICIARY") return context.formData;
-					return {
-						...context.formData,
-						beneficiary: event.data,
-					};
+					return { ...context.formData, beneficiary: event.data };
 				},
 			}),
 			updateContractState: assign(({ event }) => {
@@ -174,12 +136,11 @@ const createContractMachine = (services: ContractServices) => {
 				actions: "loadContract",
 				target: ".general",
 			},
-			UPDATE_GENERAL: {
-				actions: "updateGeneralData",
-			},
-			UPDATE_FINANCING: {
-				actions: "updateFinancingData",
-			},
+			UPDATE_GENERAL: { actions: "updateGeneralData" },
+			UPDATE_BUYER: { actions: "updateBuyerData" },
+			UPDATE_PAYMENT: { actions: "updatePaymentData" },
+			UPDATE_FINANCING: { actions: "updateFinancingData" },
+			UPDATE_BENEFICIARY: { actions: "updateBeneficiaryData" },
 		},
 		states: {
 			general: {
@@ -190,9 +151,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_FINANCING: "financing",
 					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
-					UPDATE_GENERAL: {
-						actions: "updateGeneralData",
-					},
 				},
 			},
 			people: {
@@ -203,12 +161,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_FINANCING: "financing",
 					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
-					UPDATE_BUYER: {
-						actions: "updateBuyerData",
-					},
-					UPDATE_BENEFICIARY: {
-						actions: "updateBeneficiaryData",
-					},
 				},
 			},
 			buyer: {
@@ -219,14 +171,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_FINANCING: "financing",
 					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
-					UPDATE_BUYER: {
-						actions: assign({
-							formData: ({ context, event }) => ({
-								...context.formData,
-								buyer: event.data,
-							}),
-						}),
-					},
 				},
 			},
 			payment: {
@@ -237,14 +181,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_FINANCING: "financing",
 					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
-					UPDATE_PAYMENT: {
-						actions: assign({
-							formData: ({ context, event }) => ({
-								...context.formData,
-								payment: event.data,
-							}),
-						}),
-					},
 				},
 			},
 			financing: {
@@ -255,9 +191,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_PAYMENT: "payment",
 					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
-					UPDATE_FINANCING: {
-						actions: "updateFinancingData",
-					},
 				},
 			},
 			beneficiary: {
@@ -268,9 +201,6 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_PAYMENT: "payment",
 					GO_TO_FINANCING: "financing",
 					GO_TO_REVIEW: "review",
-					UPDATE_BENEFICIARY: {
-						actions: "updateBeneficiaryData",
-					},
 				},
 			},
 			review: {
@@ -281,21 +211,9 @@ const createContractMachine = (services: ContractServices) => {
 					GO_TO_PAYMENT: "payment",
 					GO_TO_FINANCING: "financing",
 					GO_TO_BENEFICIARY: "beneficiary",
-					EXECUTE: {
-						actions: assign({
-							contractState: () => CONTRACT_STATE_MAP.EXECUTE,
-						}),
-					},
-					FINALIZE: {
-						actions: assign({
-							contractState: () => CONTRACT_STATE_MAP.FINALIZE,
-						}),
-					},
-					VOID: {
-						actions: assign({
-							contractState: () => CONTRACT_STATE_MAP.VOID,
-						}),
-					},
+					EXECUTE: { actions: "updateContractState" },
+					FINALIZE: { actions: "updateContractState" },
+					VOID: { actions: "updateContractState" },
 				},
 			},
 		},
