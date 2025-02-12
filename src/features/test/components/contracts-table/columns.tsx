@@ -6,6 +6,17 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Contract } from "../../types";
 import { DataTableColumnHeader } from "./components/column-header";
 
+const formatFuneralDirector = (value: string | undefined): string => {
+	if (!value) return "N/A";
+	// Split by numbers or special characters
+	const parts = value.split(/(?=[0-9])|(?<=[0-9])/);
+	// Capitalize first letter of each word and join with space
+	return parts
+		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+		.join(" ")
+		.trim();
+};
+
 export const columns = (
 	onEditContract: (id: string) => void,
 ): ColumnDef<Contract>[] => [
@@ -72,7 +83,7 @@ export const columns = (
 		),
 		cell: ({ row }) => {
 			const value = row.original.formData.general?.funeralDirector;
-			return <div>{value ?? "N/A"}</div>;
+			return <div>{formatFuneralDirector(value)}</div>;
 		},
 	},
 	{

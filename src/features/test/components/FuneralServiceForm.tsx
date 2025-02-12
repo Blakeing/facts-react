@@ -19,12 +19,15 @@ import type {
 	ContractState,
 	FormData,
 } from "../types/contract";
-import BuyerSection from "./sections/BuyerSection";
+import { BuyerSection } from "./sections/BuyerSection";
 import GeneralSection from "./sections/GeneralSection";
 import PaymentSection from "./sections/PaymentSection";
 import ReviewSection from "./sections/ReviewSection";
 import FinancingSection from "./sections/FinancingSection";
+import { BeneficiarySection } from "./sections/BeneficiarySection";
 import { useConfirm } from "@/hooks/use-confirm";
+import { PeopleSidebar } from "./PeopleSidebar";
+import PeopleSection from "./sections/PeopleSection";
 
 export interface FuneralServiceFormProps {
 	onComplete?: () => void;
@@ -46,19 +49,23 @@ const STATE_STYLES = {
 
 const SECTION_MAP = {
 	general: "GO_TO_GENERAL",
+	people: "GO_TO_PEOPLE",
 	buyer: "GO_TO_BUYER",
+	beneficiary: "GO_TO_BENEFICIARY",
 	payment: "GO_TO_PAYMENT",
 	financing: "GO_TO_FINANCING",
 	review: "GO_TO_REVIEW",
 } as const;
 
-type ReviewSectionType = "buyer" | "payment" | "general" | "financing";
+type ReviewSectionType = "people" | "payment" | "general" | "financing";
 type ContractStateValue =
 	| "draft"
 	| "executed"
 	| "finalized"
 	| "void"
+	| "people"
 	| "buyer"
+	| "beneficiary"
 	| "payment"
 	| "financing"
 	| "review"
@@ -120,6 +127,7 @@ const FormSection = ({
 	actor,
 	formData,
 	onEdit,
+	status,
 }: {
 	currentState: ContractStateValue;
 	actor: ContractActor;
@@ -131,8 +139,22 @@ const FormSection = ({
 		case "general":
 		case "draft":
 			return <GeneralSection actor={actor} />;
+		case "people":
+			return (
+				<PeopleSection
+					actor={actor}
+					currentState={currentState}
+					buyer={formData.buyer}
+					beneficiary={formData.beneficiary}
+					onSelect={(section) => {
+						if (onEdit) onEdit("people");
+					}}
+				/>
+			);
 		case "buyer":
 			return <BuyerSection actor={actor} />;
+		case "beneficiary":
+			return <BeneficiarySection actor={actor} />;
 		case "payment":
 			return <PaymentSection actor={actor} />;
 		case "financing":
@@ -144,6 +166,7 @@ const FormSection = ({
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
 					financingData={formData.financing}
+					beneficiaryData={formData.beneficiary}
 					onEdit={onEdit || (() => {})}
 				/>
 			);
@@ -154,6 +177,7 @@ const FormSection = ({
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
 					financingData={formData.financing}
+					beneficiaryData={formData.beneficiary}
 					readOnly
 				/>
 			);
@@ -165,6 +189,7 @@ const FormSection = ({
 					buyerData={formData.buyer}
 					paymentData={formData.payment}
 					financingData={formData.financing}
+					beneficiaryData={formData.beneficiary}
 					readOnly
 					{...(currentState === "finalized" || currentState === "void"
 						? { status: currentState }
@@ -501,7 +526,9 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 							<Tabs value={tabValue} onValueChange={handleTabChange}>
 								<TabsList>
 									<TabsTrigger value="general">General</TabsTrigger>
+									<TabsTrigger value="people">People</TabsTrigger>
 									<TabsTrigger value="buyer">Buyer</TabsTrigger>
+									<TabsTrigger value="beneficiary">Beneficiary</TabsTrigger>
 									<TabsTrigger value="payment">Payment</TabsTrigger>
 									<TabsTrigger value="financing">Financing</TabsTrigger>
 									<TabsTrigger value="review">Review</TabsTrigger>

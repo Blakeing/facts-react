@@ -88,7 +88,12 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 
 	const handleFieldChange = useCallback(
 		(field: keyof FinancingData, value: FinancingData[keyof FinancingData]) => {
-			form.setValue(field, value, { shouldDirty: true });
+			if (typeof value === "string" && value === "") {
+				// Handle empty string case for number fields
+				form.setValue(field, undefined, { shouldDirty: true });
+			} else {
+				form.setValue(field, value, { shouldDirty: true });
+			}
 			const values = form.getValues();
 			send({
 				type: "UPDATE_FINANCING",
@@ -142,11 +147,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"downPayment",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -166,11 +173,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"otherCredits",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -196,11 +205,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"interestRate",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -220,11 +231,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"imputedInterestRate",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -281,11 +294,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"lateFeePercentage",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -305,11 +320,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 														<Input
 															type="number"
 															step="0.01"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"maxLateFeeAmount",
-																	Number.parseFloat(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -328,11 +345,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 													<FormControl>
 														<Input
 															type="number"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"gracePeriod",
-																	Number.parseInt(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -387,11 +406,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 													<FormControl>
 														<Input
 															type="number"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"numberOfPayments",
-																	Number.parseInt(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>
@@ -433,11 +454,13 @@ const FinancingSection = ({ actor }: FinancingSectionProps) => {
 													<FormControl>
 														<Input
 															type="number"
-															{...field}
+															value={field.value ?? ""}
 															onChange={(e) =>
 																handleFieldChange(
 																	"interestRebatePeriod",
-																	Number.parseInt(e.target.value),
+																	e.target.value === ""
+																		? undefined
+																		: Number(e.target.value),
 																)
 															}
 														/>

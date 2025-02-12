@@ -8,15 +8,18 @@ import type { BuyerData } from "../../machines/buyerMachine";
 import type { GeneralData } from "../../machines/generalMachine";
 import type { PaymentData } from "../../machines/paymentMachine";
 import type { FinancingData } from "../../types/contract";
+import type { BeneficiaryData } from "../../types/contract";
+import type { ReviewSectionType } from "../../types/contract";
 
 export interface ReviewSectionProps {
 	generalData: GeneralData | null;
 	buyerData: BuyerData | null;
 	paymentData: PaymentData | null;
 	financingData: FinancingData | null;
+	beneficiaryData: BeneficiaryData | null;
+	onEdit?: (section: ReviewSectionType) => void;
 	readOnly?: boolean;
 	status?: "finalized" | "void";
-	onEdit?: (section: "buyer" | "payment" | "general" | "financing") => void;
 }
 
 const ReviewSection = memo(
@@ -25,12 +28,15 @@ const ReviewSection = memo(
 		buyerData,
 		paymentData,
 		financingData,
-		readOnly,
-		status,
+		beneficiaryData,
 		onEdit,
+		readOnly = false,
+		status,
 	}: ReviewSectionProps) => {
 		const handleEdit = useCallback(
-			(section: "buyer" | "payment" | "general" | "financing") => {
+			(
+				section: "buyer" | "payment" | "general" | "financing" | "beneficiary",
+			) => {
 				onEdit?.(section);
 			},
 			[onEdit],
@@ -200,6 +206,39 @@ const ReviewSection = memo(
 											{financingData.useCalculatedFinanceCharges ? "Yes" : "No"}
 										</p>
 									</div>
+								</div>
+							)}
+						</div>
+
+						<Separator />
+
+						<div className="space-y-2">
+							<div className="flex justify-between items-center">
+								<h3 className="text-lg font-semibold">
+									Beneficiary Information
+								</h3>
+								{!readOnly && (
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => handleEdit("beneficiary")}
+									>
+										Edit
+									</Button>
+								)}
+							</div>
+							{beneficiaryData && (
+								<div>
+									<p>
+										Name:{" "}
+										{`${beneficiaryData.name.first} ${beneficiaryData.name.last}`}
+									</p>
+									<p>
+										Address:{" "}
+										{`${beneficiaryData.physicalAddress.street}, ${beneficiaryData.physicalAddress.city}, ${beneficiaryData.physicalAddress.state} ${beneficiaryData.physicalAddress.postalCode}`}
+									</p>
+									<p>Phone: {beneficiaryData.phones[0]?.number}</p>
+									<p>Email: {beneficiaryData.emails[0]?.address}</p>
 								</div>
 							)}
 						</div>

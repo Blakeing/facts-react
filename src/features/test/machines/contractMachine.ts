@@ -4,15 +4,38 @@ import type {
 	ContractContext,
 	ContractEvent,
 	ContractServices,
+	LoadContractData,
+	FinancingData,
+	BeneficiaryData,
 } from "../types/contract";
 import { CONTRACT_STATE_MAP } from "../types/contract";
 import { isContractApiError } from "../types/errors";
+import type { GeneralData } from "./generalMachine";
+import type { BuyerData } from "./buyerMachine";
+import type { PaymentData } from "./paymentMachine";
 
 const createContractMachine = (services: ContractServices) => {
 	return setup({
 		types: {
 			context: {} as ContractContext,
-			events: {} as ContractEvent,
+			events: {} as
+				| { type: "LOAD_CONTRACT"; data: LoadContractData }
+				| { type: "GO_TO_GENERAL" }
+				| { type: "GO_TO_PEOPLE" }
+				| { type: "GO_TO_BUYER" }
+				| { type: "GO_TO_BENEFICIARY" }
+				| { type: "GO_TO_PAYMENT" }
+				| { type: "GO_TO_FINANCING" }
+				| { type: "GO_TO_REVIEW" }
+				| { type: "EXECUTE" }
+				| { type: "FINALIZE" }
+				| { type: "VOID" }
+				| { type: "SAVE_CONTRACT" }
+				| { type: "UPDATE_GENERAL"; data: GeneralData }
+				| { type: "UPDATE_BUYER"; data: BuyerData }
+				| { type: "UPDATE_PAYMENT"; data: PaymentData }
+				| { type: "UPDATE_FINANCING"; data: FinancingData }
+				| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData },
 		},
 		actors: {
 			saveContract: fromPromise<Contract, { context: ContractContext }>(
@@ -106,6 +129,15 @@ const createContractMachine = (services: ContractServices) => {
 					};
 				},
 			}),
+			updateBeneficiaryData: assign({
+				formData: ({ context, event }) => {
+					if (event.type !== "UPDATE_BENEFICIARY") return context.formData;
+					return {
+						...context.formData,
+						beneficiary: event.data,
+					};
+				},
+			}),
 			updateContractState: assign(({ event }) => {
 				const eventType = event.type as keyof typeof CONTRACT_STATE_MAP;
 				if (!(eventType in CONTRACT_STATE_MAP)) return {};
@@ -133,6 +165,7 @@ const createContractMachine = (services: ContractServices) => {
 				buyer: null,
 				payment: null,
 				financing: null,
+				beneficiary: null,
 			},
 			error: null,
 		},
@@ -151,20 +184,40 @@ const createContractMachine = (services: ContractServices) => {
 		states: {
 			general: {
 				on: {
+					GO_TO_PEOPLE: "people",
 					GO_TO_BUYER: "buyer",
 					GO_TO_PAYMENT: "payment",
 					GO_TO_FINANCING: "financing",
+					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
 					UPDATE_GENERAL: {
 						actions: "updateGeneralData",
 					},
 				},
 			},
+			people: {
+				on: {
+					GO_TO_GENERAL: "general",
+					GO_TO_BUYER: "buyer",
+					GO_TO_PAYMENT: "payment",
+					GO_TO_FINANCING: "financing",
+					GO_TO_BENEFICIARY: "beneficiary",
+					GO_TO_REVIEW: "review",
+					UPDATE_BUYER: {
+						actions: "updateBuyerData",
+					},
+					UPDATE_BENEFICIARY: {
+						actions: "updateBeneficiaryData",
+					},
+				},
+			},
 			buyer: {
 				on: {
 					GO_TO_GENERAL: "general",
+					GO_TO_PEOPLE: "people",
 					GO_TO_PAYMENT: "payment",
 					GO_TO_FINANCING: "financing",
+					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
 					UPDATE_BUYER: {
 						actions: assign({
@@ -179,8 +232,10 @@ const createContractMachine = (services: ContractServices) => {
 			payment: {
 				on: {
 					GO_TO_GENERAL: "general",
+					GO_TO_PEOPLE: "people",
 					GO_TO_BUYER: "buyer",
 					GO_TO_FINANCING: "financing",
+					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
 					UPDATE_PAYMENT: {
 						actions: assign({
@@ -195,20 +250,37 @@ const createContractMachine = (services: ContractServices) => {
 			financing: {
 				on: {
 					GO_TO_GENERAL: "general",
+					GO_TO_PEOPLE: "people",
 					GO_TO_BUYER: "buyer",
 					GO_TO_PAYMENT: "payment",
+					GO_TO_BENEFICIARY: "beneficiary",
 					GO_TO_REVIEW: "review",
 					UPDATE_FINANCING: {
 						actions: "updateFinancingData",
 					},
 				},
 			},
-			review: {
+			beneficiary: {
 				on: {
 					GO_TO_GENERAL: "general",
+					GO_TO_PEOPLE: "people",
 					GO_TO_BUYER: "buyer",
 					GO_TO_PAYMENT: "payment",
 					GO_TO_FINANCING: "financing",
+					GO_TO_REVIEW: "review",
+					UPDATE_BENEFICIARY: {
+						actions: "updateBeneficiaryData",
+					},
+				},
+			},
+			review: {
+				on: {
+					GO_TO_GENERAL: "general",
+					GO_TO_PEOPLE: "people",
+					GO_TO_BUYER: "buyer",
+					GO_TO_PAYMENT: "payment",
+					GO_TO_FINANCING: "financing",
+					GO_TO_BENEFICIARY: "beneficiary",
 					EXECUTE: {
 						actions: assign({
 							contractState: () => CONTRACT_STATE_MAP.EXECUTE,
