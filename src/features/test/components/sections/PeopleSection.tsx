@@ -1,12 +1,12 @@
-import { memo, useState, useEffect, useCallback } from "react";
+import { useSelector } from "@xstate/react";
+import { memo, useCallback, useEffect, useState } from "react";
 import type { ActorRefFrom } from "xstate";
 import type createContractMachine from "../../machines/contractMachine";
-import type { BuyerData } from "../../machines/buyerMachine";
+import type { BuyerData } from "../../types/buyer";
 import type { BeneficiaryData } from "../../types/contract";
 import { PeopleSidebar } from "../PeopleSidebar";
-import { BuyerSection } from "./BuyerSection";
 import { BeneficiarySection } from "./BeneficiarySection";
-import { useSelector } from "@xstate/react";
+import { BuyerSection } from "./BuyerSection";
 
 type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 

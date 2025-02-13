@@ -1,7 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
-import type { BuyerData } from "../machines/buyerMachine";
-import type { GeneralData } from "../machines/generalMachine";
+import type { BuyerData } from "./buyer";
 import type { ContractApiError } from "./errors";
+import type { GeneralData } from "./general";
 
 // Core Types
 export type ContractState = "draft" | "executed" | "finalized" | "void";

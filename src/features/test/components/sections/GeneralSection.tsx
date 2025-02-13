@@ -32,7 +32,7 @@ import { useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
-import type { GeneralData } from "../../machines/generalMachine";
+import type { GeneralData } from "../../types/general";
 
 const formatPlaceholder = (value: string): string => {
 	// Split by numbers or special characters

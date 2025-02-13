@@ -1,9 +1,9 @@
-import type { Contract } from "./types";
+import type { Contract } from "./types/contract";
 
 const API_URL = "http://localhost:3001/contracts";
 
 // Helper function to simulate network delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function handleResponse<T>(response: Response): Promise<T> {
 	if (!response.ok) {

@@ -4,12 +4,12 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { memo, useCallback } from "react";
-import type { BuyerData } from "../../machines/buyerMachine";
-import type { GeneralData } from "../../machines/generalMachine";
+import type { BuyerData } from "../../types/buyer";
 import type { PaymentData } from "../../types/contract";
 import type { FinancingData } from "../../types/contract";
 import type { BeneficiaryData } from "../../types/contract";
 import type { ReviewSectionType } from "../../types/contract";
+import type { GeneralData } from "../../types/general";
 
 export interface ReviewSectionProps {
 	generalData: GeneralData | null;

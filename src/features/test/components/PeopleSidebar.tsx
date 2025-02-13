@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { UserIcon } from "lucide-react";
-import type { BuyerData } from "../machines/buyerMachine";
+import type { BuyerData } from "../types/buyer";
 import type { BeneficiaryData } from "../types/contract";
 
 interface PeopleSidebarProps {

@@ -23,7 +23,7 @@ import { useCallback, useEffect } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import type { Path, PathValue } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
-import type { BuyerData } from "../machines/buyerMachine";
+import type { BuyerData } from "../types/buyer";
 import { type BuyerFormValues, buyerFormSchema } from "./schemas/buyer-form";
 
 interface BuyerFormProps {
