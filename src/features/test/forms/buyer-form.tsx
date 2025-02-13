@@ -1,17 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import {
 	Form,
 	FormControl,
@@ -20,10 +9,22 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { buyerFormSchema, type BuyerFormValues } from "./schemas/buyer-form";
-import { useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import type { Path, PathValue } from "react-hook-form";
+import { useDebouncedCallback } from "use-debounce";
 import type { BuyerData } from "../machines/buyerMachine";
+import { type BuyerFormValues, buyerFormSchema } from "./schemas/buyer-form";
 
 interface BuyerFormProps {
 	defaultValues: BuyerFormValues;
@@ -33,8 +34,23 @@ interface BuyerFormProps {
 export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 	const form = useForm<BuyerFormValues>({
 		resolver: zodResolver(buyerFormSchema),
-		defaultValues,
-		mode: "onTouched",
+		defaultValues: {
+			...defaultValues,
+			phones: defaultValues.phones.map((phone) => ({ ...phone })),
+			emails: defaultValues.emails.map((email) => ({ ...email })),
+		},
+		mode: "all",
+		reValidateMode: "onChange",
+	});
+
+	// Create debounced submit handler
+	const debouncedSubmit = useDebouncedCallback((data: BuyerData) => {
+		onSubmit(data);
+	}, 300);
+
+	// Watch all form values
+	const formValues = useWatch({
+		control: form.control,
 	});
 
 	const {
@@ -60,8 +76,78 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 			field: T,
 			value: PathValue<BuyerFormValues, T>,
 		) => {
-			form.setValue(field, value);
-			const values = form.getValues();
+			form.setValue(field, value, {
+				shouldTouch: true,
+				shouldDirty: true,
+			});
+		},
+		[form],
+	);
+
+	// Sync form changes with XState using debounced submit
+	useEffect(() => {
+		if (!formValues) return;
+
+		const formattedValues: BuyerData = {
+			...formValues,
+			name: {
+				first: formValues.name?.first || "",
+				last: formValues.name?.last || "",
+				prefix: formValues.name?.prefix || undefined,
+				middle: formValues.name?.middle || undefined,
+				suffix: formValues.name?.suffix || undefined,
+				companyName: formValues.name?.companyName || undefined,
+				nickname: formValues.name?.nickname || undefined,
+				maiden: formValues.name?.maiden || undefined,
+				gender: formValues.name?.gender || undefined,
+			},
+			dates: {
+				dateOfBirth: formValues.dates?.dateOfBirth || undefined,
+				dateOfDeath: formValues.dates?.dateOfDeath || undefined,
+				isDeceased: formValues.dates?.isDeceased || false,
+			},
+			physicalAddress: {
+				street: formValues.physicalAddress?.street || "",
+				city: formValues.physicalAddress?.city || "",
+				state: formValues.physicalAddress?.state || "",
+				postalCode: formValues.physicalAddress?.postalCode || "",
+				country: formValues.physicalAddress?.country || "",
+			},
+			mailingAddress: formValues.mailingAddress
+				? {
+						street: formValues.mailingAddress.street || "",
+						city: formValues.mailingAddress.city || "",
+						state: formValues.mailingAddress.state || "",
+						postalCode: formValues.mailingAddress.postalCode || "",
+						country: formValues.mailingAddress.country || "",
+					}
+				: undefined,
+			role: formValues.role || undefined,
+			ethnicity: formValues.ethnicity || undefined,
+			race: formValues.race || undefined,
+			phones: (formValues.phones || []).map((phone) => ({
+				number: phone.number || "",
+				type: phone.type || "Mobile",
+				isPreferred: phone.isPreferred || false,
+			})),
+			emails: (formValues.emails || []).map((email) => ({
+				address: email.address || "",
+				isPreferred: email.isPreferred || false,
+			})),
+			optOutOfFutureMarketing: formValues.optOutOfFutureMarketing || false,
+			mailingAddressSameAsPhysical:
+				formValues.mailingAddressSameAsPhysical || false,
+			identification: {
+				stateIdNumber: formValues.identification?.stateIdNumber || "",
+				issuer: formValues.identification?.issuer || "",
+			},
+			isVeteran: formValues.isVeteran || false,
+		};
+		debouncedSubmit(formattedValues);
+	}, [formValues, debouncedSubmit]);
+
+	const handleSubmit = useCallback(
+		(values: BuyerFormValues) => {
 			const formattedValues: BuyerData = {
 				...values,
 				name: {
@@ -74,6 +160,11 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 					maiden: values.name.maiden || undefined,
 					gender: values.name.gender || undefined,
 				},
+				dates: {
+					...values.dates,
+					dateOfBirth: values.dates.dateOfBirth || undefined,
+					dateOfDeath: values.dates.dateOfDeath || undefined,
+				},
 				mailingAddress: values.mailingAddress || undefined,
 				role: values.role || undefined,
 				ethnicity: values.ethnicity || undefined,
@@ -81,12 +172,12 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 			};
 			onSubmit(formattedValues);
 		},
-		[form, onSubmit],
+		[onSubmit],
 	);
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
 				<Card className="p-6">
 					<h3 className="text-lg font-semibold mb-4">Personal Information</h3>
 					<div className="grid grid-cols-2 gap-4">
@@ -225,41 +316,27 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 						<div>
 							<Label>Phone Numbers</Label>
 							{phoneFields.map((field, index) => (
-								<div key={field.id} className="flex items-end gap-4 mt-2">
-									<FormField
+								<div key={field.id} className="flex items-start  gap-4 mt-2">
+									<Controller
 										control={form.control}
 										name={`phones.${index}.number`}
-										render={({ field }) => (
+										render={({ field: inputField }) => (
 											<FormItem>
 												<FormControl>
-													<Input
-														{...field}
-														placeholder="Phone number"
-														onChange={(e) =>
-															handleFieldChange(
-																`phones.${index}.number` as Path<BuyerFormValues>,
-																e.target.value,
-															)
-														}
-													/>
+													<Input {...inputField} placeholder="Phone number" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
-									<FormField
+									<Controller
 										control={form.control}
 										name={`phones.${index}.type`}
-										render={({ field }) => (
+										render={({ field: selectField }) => (
 											<FormItem>
 												<Select
-													onValueChange={(value) =>
-														handleFieldChange(
-															`phones.${index}.type` as Path<BuyerFormValues>,
-															value,
-														)
-													}
-													defaultValue={field.value}
+													onValueChange={selectField.onChange}
+													value={selectField.value}
 												>
 													<SelectTrigger>
 														<SelectValue placeholder="Type" />
@@ -286,13 +363,13 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() =>
+								onClick={() => {
 									appendPhone({
 										number: "",
 										type: "Mobile",
 										isPreferred: false,
-									})
-								}
+									});
+								}}
 								className="mt-2"
 							>
 								Add Phone
@@ -302,26 +379,29 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 						<div>
 							<Label>Email Addresses</Label>
 							{emailFields.map((field, index) => (
-								<div key={field.id} className="flex items-end gap-4 mt-2">
-									<FormField
+								<div key={field.id} className="flex items-start gap-4 mt-2">
+									<Controller
 										control={form.control}
 										name={`emails.${index}.address`}
-										render={({ field }) => (
-											<FormItem>
+										render={({ field: inputField, fieldState: { error } }) => (
+											<FormItem className="flex-1">
 												<FormControl>
 													<Input
-														{...field}
+														{...inputField}
 														type="email"
 														placeholder="Email address"
-														onChange={(e) =>
-															handleFieldChange(
-																`emails.${index}.address` as Path<BuyerFormValues>,
-																e.target.value,
-															)
-														}
+														onBlur={async () => {
+															inputField.onBlur();
+															await form.trigger(`emails.${index}.address`);
+														}}
+														onChange={(e) => {
+															inputField.onChange(e);
+															form.trigger(`emails.${index}.address`);
+														}}
+														className={error ? "border-red-500" : ""}
 													/>
 												</FormControl>
-												<FormMessage />
+												{error && <FormMessage>{error.message}</FormMessage>}
 											</FormItem>
 										)}
 									/>
@@ -337,7 +417,9 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => appendEmail({ address: "", isPreferred: false })}
+								onClick={() => {
+									appendEmail({ address: "", isPreferred: false });
+								}}
 								className="mt-2"
 							>
 								Add Email
@@ -369,10 +451,6 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 						/>
 					</div>
 				</Card>
-
-				<div className="flex justify-end">
-					<Button type="submit">Save Changes</Button>
-				</div>
 			</form>
 		</Form>
 	);
