@@ -1,21 +1,37 @@
 import { assign, fromPromise, setup } from "xstate";
+import type { DoneActorEvent, ErrorActorEvent } from "xstate";
 import type {
 	Contract,
 	ContractContext,
 	ContractEvent,
 	ContractServices,
+	ContractState,
+	FormData,
 } from "../types/contract";
 import { CONTRACT_STATE_MAP } from "../types/contract";
 import { isContractApiError } from "../types/errors";
+import type { ContractApiError } from "../types/errors";
+
+type MachineEvents = ContractEvent | DoneActorEvent<Contract> | ErrorActorEvent;
 
 const createContractMachine = (services: ContractServices) => {
+	const navTransitions = {
+		GO_TO_GENERAL: "general",
+		GO_TO_PEOPLE: "people",
+		GO_TO_BUYER: "buyer",
+		GO_TO_PAYMENT: "payment",
+		GO_TO_FINANCING: "financing",
+		GO_TO_BENEFICIARY: "beneficiary",
+		GO_TO_REVIEW: "review",
+	};
+
 	return setup({
 		types: {
 			context: {} as ContractContext,
-			events: {} as ContractEvent,
+			events: {} as MachineEvents,
 		},
 		actors: {
-			saveContract: fromPromise<Contract, { context: ContractContext }>(
+			upsertContract: fromPromise<Contract, { context: ContractContext }>(
 				async ({ input: { context } }) => {
 					const contractData = {
 						contractState: context.contractState,
@@ -23,15 +39,15 @@ const createContractMachine = (services: ContractServices) => {
 					};
 
 					try {
-						if (!context.id) {
-							return await services.mutations.createMutation.mutateAsync(
-								contractData,
-							);
+						if (context.id) {
+							return await services.mutations.updateMutation.mutateAsync({
+								...contractData,
+								id: context.id,
+							});
 						}
-						return await services.mutations.updateMutation.mutateAsync({
-							...contractData,
-							id: context.id,
-						});
+						return await services.mutations.createMutation.mutateAsync(
+							contractData,
+						);
 					} catch (error) {
 						if (isContractApiError(error)) {
 							throw error;
@@ -40,80 +56,57 @@ const createContractMachine = (services: ContractServices) => {
 					}
 				},
 			),
-			updateContract: fromPromise<Contract, { context: ContractContext }>(
-				async ({ input: { context } }) => {
-					if (!context.id) {
-						throw new Error("Cannot update contract without ID");
-					}
-
-					try {
-						return await services.mutations.updateMutation.mutateAsync({
-							id: context.id,
-							contractState: context.contractState,
-							formData: context.formData,
-						});
-					} catch (error) {
-						if (isContractApiError(error)) {
-							throw error;
-						}
-						throw new Error("Failed to update contract");
-					}
-				},
-			),
 		},
 		actions: {
-			loadContract: assign(({ event }) => {
-				if (event.type !== "LOAD_CONTRACT") return {};
-				return {
-					id: event.data.id,
-					contractState: event.data.contractState,
-					formData: event.data.formData,
-				};
+			loadContract: assign({
+				id: (
+					_,
+					params: {
+						id: string;
+						contractState: ContractState;
+						formData: FormData;
+					},
+				) => params.id,
+				contractState: (
+					_,
+					params: {
+						id: string;
+						contractState: ContractState;
+						formData: FormData;
+					},
+				) => params.contractState,
+				formData: (
+					_,
+					params: {
+						id: string;
+						contractState: ContractState;
+						formData: FormData;
+					},
+				) => params.formData,
 			}),
-			updateGeneralData: assign({
-				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_GENERAL") return context.formData;
-					return { ...context.formData, general: event.data };
-				},
+			updateFormData: assign({
+				formData: (
+					{ context },
+					params: { section: keyof FormData; data: FormData[keyof FormData] },
+				) => ({
+					...context.formData,
+					[params.section]: params.data,
+				}),
 			}),
-			updateBuyerData: assign({
-				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_BUYER") return context.formData;
-					return { ...context.formData, buyer: event.data };
-				},
-			}),
-			updatePaymentData: assign({
-				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_PAYMENT") return context.formData;
-					return { ...context.formData, payment: event.data };
-				},
-			}),
-			updateFinancingData: assign({
-				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_FINANCING") return context.formData;
-					return { ...context.formData, financing: event.data };
-				},
-			}),
-			updateBeneficiaryData: assign({
-				formData: ({ context, event }) => {
-					if (event.type !== "UPDATE_BENEFICIARY") return context.formData;
-					return { ...context.formData, beneficiary: event.data };
-				},
-			}),
-			updateContractState: assign(({ event }) => {
-				const eventType = event.type as keyof typeof CONTRACT_STATE_MAP;
-				if (!(eventType in CONTRACT_STATE_MAP)) return {};
-				return {
-					contractState: CONTRACT_STATE_MAP[eventType],
-				};
+			updateContractState: assign({
+				contractState: (
+					_,
+					params: { state: keyof typeof CONTRACT_STATE_MAP },
+				) => CONTRACT_STATE_MAP[params.state],
 			}),
 			handleError: assign({
-				error: (_, event: { error: unknown }) => {
-					if (isContractApiError(event.error)) {
-						return event.error;
-					}
-					return null;
-				},
+				error: (_, params: { error: ContractApiError | null }) => params.error,
+			}),
+			clearError: assign({
+				error: () => null,
+			}),
+			handleSaveSuccess: assign({
+				id: (_, params: { id: string }) => params.id,
 			}),
 		},
 	}).createMachine({
@@ -133,87 +126,138 @@ const createContractMachine = (services: ContractServices) => {
 		},
 		on: {
 			LOAD_CONTRACT: {
-				actions: "loadContract",
+				actions: {
+					type: "loadContract",
+					params: ({ event }) => ({
+						id: event.data.id,
+						contractState: event.data.contractState,
+						formData: event.data.formData,
+					}),
+				},
 				target: ".general",
 			},
-			UPDATE_GENERAL: { actions: "updateGeneralData" },
-			UPDATE_BUYER: { actions: "updateBuyerData" },
-			UPDATE_PAYMENT: { actions: "updatePaymentData" },
-			UPDATE_FINANCING: { actions: "updateFinancingData" },
-			UPDATE_BENEFICIARY: { actions: "updateBeneficiaryData" },
+			UPDATE_GENERAL: {
+				actions: {
+					type: "updateFormData",
+					params: ({ event }) => ({
+						section: "general",
+						data: event.data,
+					}),
+				},
+			},
+			UPDATE_BUYER: {
+				actions: {
+					type: "updateFormData",
+					params: ({ event }) => ({
+						section: "buyer",
+						data: event.data,
+					}),
+				},
+			},
+			UPDATE_PAYMENT: {
+				actions: {
+					type: "updateFormData",
+					params: ({ event }) => ({
+						section: "payment",
+						data: event.data,
+					}),
+				},
+			},
+			UPDATE_FINANCING: {
+				actions: {
+					type: "updateFormData",
+					params: ({ event }) => ({
+						section: "financing",
+						data: event.data,
+					}),
+				},
+			},
+			UPDATE_BENEFICIARY: {
+				actions: {
+					type: "updateFormData",
+					params: ({ event }) => ({
+						section: "beneficiary",
+						data: event.data,
+					}),
+				},
+			},
+			SAVE_CONTRACT: {
+				target: ".saving",
+			},
 		},
 		states: {
 			general: {
-				on: {
-					GO_TO_PEOPLE: "people",
-					GO_TO_BUYER: "buyer",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_FINANCING: "financing",
-					GO_TO_BENEFICIARY: "beneficiary",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			people: {
-				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_BUYER: "buyer",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_FINANCING: "financing",
-					GO_TO_BENEFICIARY: "beneficiary",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			buyer: {
-				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_PEOPLE: "people",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_FINANCING: "financing",
-					GO_TO_BENEFICIARY: "beneficiary",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			payment: {
-				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_PEOPLE: "people",
-					GO_TO_BUYER: "buyer",
-					GO_TO_FINANCING: "financing",
-					GO_TO_BENEFICIARY: "beneficiary",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			financing: {
-				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_PEOPLE: "people",
-					GO_TO_BUYER: "buyer",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_BENEFICIARY: "beneficiary",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			beneficiary: {
-				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_PEOPLE: "people",
-					GO_TO_BUYER: "buyer",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_FINANCING: "financing",
-					GO_TO_REVIEW: "review",
-				},
+				on: navTransitions,
 			},
 			review: {
 				on: {
-					GO_TO_GENERAL: "general",
-					GO_TO_PEOPLE: "people",
-					GO_TO_BUYER: "buyer",
-					GO_TO_PAYMENT: "payment",
-					GO_TO_FINANCING: "financing",
-					GO_TO_BENEFICIARY: "beneficiary",
-					EXECUTE: { actions: "updateContractState" },
-					FINALIZE: { actions: "updateContractState" },
-					VOID: { actions: "updateContractState" },
+					...navTransitions,
+					EXECUTE: {
+						actions: {
+							type: "updateContractState",
+							params: { state: "EXECUTE" },
+						},
+					},
+					FINALIZE: {
+						actions: {
+							type: "updateContractState",
+							params: { state: "FINALIZE" },
+						},
+					},
+					VOID: {
+						actions: {
+							type: "updateContractState",
+							params: { state: "VOID" },
+						},
+					},
+				},
+			},
+			saving: {
+				entry: "clearError",
+				invoke: {
+					src: "upsertContract",
+					input: ({ context }) => ({ context }),
+					onDone: {
+						target: "general",
+						actions: {
+							type: "handleSaveSuccess",
+							params: ({ event }) => ({
+								id: event.output.id,
+							}),
+						},
+					},
+					onError: {
+						target: "error",
+						actions: {
+							type: "handleError",
+							params: ({ event }) => ({
+								error: isContractApiError(event.error) ? event.error : null,
+							}),
+						},
+					},
+				},
+			},
+			error: {
+				on: {
+					SAVE_CONTRACT: {
+						target: "saving",
+					},
+					...navTransitions,
 				},
 			},
 		},

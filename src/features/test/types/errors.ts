@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import type { AxiosError } from "axios";
 
 export type ApiErrorCode =
@@ -16,9 +17,5 @@ export type ContractApiError = AxiosError<ApiErrorData>;
 export const isContractApiError = (
 	error: unknown,
 ): error is ContractApiError => {
-	return (
-		error instanceof Error &&
-		"isAxiosError" in error &&
-		error.isAxiosError === true
-	);
+	return isAxiosError(error) && !!error.response?.data?.code;
 };
