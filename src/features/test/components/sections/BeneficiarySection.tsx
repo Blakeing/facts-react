@@ -1,7 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
 import { produce } from "immer";
-import { forwardRef, memo, useImperativeHandle } from "react";
+import { forwardRef, memo, useCallback, useImperativeHandle } from "react";
 import type { UseFormReturn } from "react-hook-form";
+import { useForm, useFormState } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import { BeneficiaryForm } from "../../forms/beneficiary-form";
 import {
@@ -14,6 +16,8 @@ import type { ContractContext } from "../../types/contract";
 
 export interface BeneficiaryRef {
 	form: UseFormReturn<BeneficiaryFormValues>;
+	isDirty: boolean;
+	save: () => void;
 }
 
 interface BeneficiarySectionProps {
@@ -70,15 +74,36 @@ export const BeneficiarySection = forwardRef<
 	const send = actor.send;
 	const formData = useSelector(actor, beneficiaryDataSelector);
 
-	const handleChange = (data: BeneficiaryFormValues) => {
+	const form = useForm<BeneficiaryFormValues>({
+		resolver: zodResolver(beneficiaryFormSchema),
+		defaultValues: formData,
+		mode: "onChange",
+	});
+
+	const formState = useFormState({
+		control: form.control,
+	});
+
+	const saveToXState = useCallback(() => {
+		const data = form.getValues();
 		const beneficiaryData = produce(data, (draft) => draft) as BeneficiaryData;
 		send({ type: "UPDATE_BENEFICIARY", data: beneficiaryData });
 		if (onSubmit) {
 			onSubmit(beneficiaryData);
 		}
-	};
+	}, [form, send, onSubmit]);
 
-	return <BeneficiaryForm defaultValues={formData} onSubmit={handleChange} />;
+	useImperativeHandle(
+		ref,
+		() => ({
+			form,
+			isDirty: formState.isDirty,
+			save: saveToXState,
+		}),
+		[form, formState.isDirty, saveToXState],
+	);
+
+	return <BeneficiaryForm defaultValues={formData} onSubmit={saveToXState} />;
 });
 
 BeneficiarySection.displayName = "BeneficiarySection";

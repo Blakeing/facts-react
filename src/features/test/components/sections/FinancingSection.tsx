@@ -18,8 +18,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { useForm } from "react-hook-form";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import { type UseFormReturn, useForm, useFormState } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
@@ -51,7 +51,9 @@ type FinancingFormValues = z.infer<typeof financingFormSchema>;
 type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 export interface FinancingSectionRef {
-	form: ReturnType<typeof useForm<FinancingFormValues>>;
+	form: UseFormReturn<FinancingFormValues>;
+	isDirty: boolean;
+	save: () => void;
 }
 
 interface FinancingSectionProps {
@@ -87,16 +89,61 @@ const FinancingSection = forwardRef<FinancingSectionRef, FinancingSectionProps>(
 		const form = useForm<FinancingFormValues>({
 			resolver: zodResolver(financingFormSchema),
 			defaultValues: financingData,
-			mode: "onTouched",
+			mode: "onChange",
 		});
+
+		const formState = useFormState({
+			control: form.control,
+		});
+
+		const saveToXState = useCallback(() => {
+			const values = form.getValues();
+			const today = new Date().toISOString().split("T")[0];
+			const data = {
+				isFinanceContract: values.isFinanceContract,
+				downPayment: values.downPayment,
+				otherCredits: values.otherCredits,
+				lateFeeType: values.lateFeeType,
+				lateFeePercentage: values.lateFeePercentage,
+				maxLateFeeAmount: values.maxLateFeeAmount,
+				gracePeriod: values.gracePeriod,
+				paymentFrequency: values.paymentFrequency,
+				interestRebatePeriod: values.interestRebatePeriod,
+				sendCouponBook: values.sendCouponBook,
+				useCalculatedPaymentAmount: values.useCalculatedPaymentAmount,
+				useCalculatedFinanceCharges: values.useCalculatedFinanceCharges,
+				...(values.interestRate !== undefined && {
+					interestRate: values.interestRate,
+				}),
+				...(values.imputedInterestRate !== undefined && {
+					imputedInterestRate: values.imputedInterestRate,
+				}),
+				...(values.numberOfPayments !== undefined && {
+					numberOfPayments: values.numberOfPayments,
+				}),
+				...(values.firstPaymentDate !== undefined && {
+					firstPaymentDate: values.firstPaymentDate,
+				}),
+			} satisfies FinancingData;
+			send({
+				type: "UPDATE_FINANCING",
+				data,
+			});
+		}, [form, send]);
 
 		useEffect(() => {
 			form.reset(financingData);
 		}, [form, financingData]);
 
-		useImperativeHandle(ref, () => ({
-			form,
-		}));
+		useImperativeHandle(
+			ref,
+			() => ({
+				form,
+				isDirty: formState.isDirty,
+				save: saveToXState,
+			}),
+			[form, formState.isDirty, saveToXState],
+		);
 
 		const handleFieldChange = (
 			field: keyof FinancingFormValues,

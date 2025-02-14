@@ -79,13 +79,22 @@ const createContractMachine = (services: ContractServices) => {
 					},
 				) => params.contractState,
 				draftData: (
-					_,
+					{ context },
 					params: {
 						id: string;
 						contractState: ContractState;
 						formData: FormData;
 					},
-				) => params.formData,
+				) => {
+					return {
+						general: params.formData.general ?? context.draftData.general,
+						buyer: params.formData.buyer ?? context.draftData.buyer,
+						payment: params.formData.payment ?? context.draftData.payment,
+						financing: params.formData.financing ?? context.draftData.financing,
+						beneficiary:
+							params.formData.beneficiary ?? context.draftData.beneficiary,
+					};
+				},
 				finalizedData: (
 					_,
 					params: {

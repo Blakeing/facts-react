@@ -10,31 +10,31 @@ export const nameSchema = z.object({
 	prefix: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	middle: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	suffix: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	companyName: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	nickname: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	maiden: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 	gender: z
 		.string()
 		.optional()
-		.transform((v) => v || undefined),
+		.transform((v) => (v === "" ? undefined : v)),
 });
 export type Name = z.infer<typeof nameSchema>;
 

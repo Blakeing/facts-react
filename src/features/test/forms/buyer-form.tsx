@@ -17,45 +17,28 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useDebouncedCallback } from "use-debounce";
-import { type BuyerFormValues, buyerFormSchema } from "./schemas/buyer-form";
+
+import { forwardRef, useEffect } from "react";
+import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
+import type { BuyerFormValues } from "./schemas/buyer-form";
 
 interface BuyerFormProps {
-	defaultValues: BuyerFormValues;
 	onSubmit: (data: BuyerFormValues) => void;
 }
 
-export interface BuyerFormRef {
-	form: ReturnType<typeof useForm<BuyerFormValues>>;
-}
-
-export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
-	({ defaultValues, onSubmit }, ref) => {
-		const form = useForm<BuyerFormValues>({
-			resolver: zodResolver(buyerFormSchema),
-			defaultValues,
-			mode: "onSubmit",
-			reValidateMode: "onChange",
+export const BuyerForm = forwardRef<HTMLFormElement, BuyerFormProps>(
+	({ onSubmit }, ref) => {
+		const methods = useFormContext<BuyerFormValues>();
+		const formState = useFormState({
+			control: methods.control,
 		});
-
-		useImperativeHandle(ref, () => ({
-			form,
-		}));
-
-		const {
-			formState: { isDirty },
-			watch,
-		} = form;
 
 		const {
 			fields: phoneFields,
 			append: appendPhone,
 			remove: removePhone,
 		} = useFieldArray({
-			control: form.control,
+			control: methods.control,
 			name: "phones",
 		});
 
@@ -64,46 +47,26 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 			append: appendEmail,
 			remove: removeEmail,
 		} = useFieldArray({
-			control: form.control,
+			control: methods.control,
 			name: "emails",
 		});
 
-		// Create debounced submit handler for partial updates
-		const debouncedPartialSubmit = useDebouncedCallback(
-			(data: BuyerFormValues) => {
-				// Clone the data to avoid Immer freeze issues
-				const unfrozenData = structuredClone(data);
-				onSubmit(unfrozenData);
-			},
-			300,
-		);
-
-		// Watch form values for partial updates
-		const values = watch();
-
-		// Effect for partial updates - triggers on any change
-		useEffect(() => {
-			if (isDirty) {
-				debouncedPartialSubmit(values);
-			}
-		}, [isDirty, values, debouncedPartialSubmit]);
-
-		// Handle final form submission with full validation
-		const handleSubmit = form.handleSubmit((data) => {
-			const result = buyerFormSchema.safeParse(data);
-			if (result.success) {
-				onSubmit(result.data);
-			}
-		});
-
 		return (
-			<Form {...form}>
-				<form onSubmit={handleSubmit} className="space-y-8">
+			<Form {...methods}>
+				<form
+					ref={ref}
+					className="space-y-8"
+					onSubmit={(e) => {
+						methods.handleSubmit((data) => {
+							onSubmit(data);
+						})(e);
+					}}
+				>
 					<Card className="p-6">
 						<h3 className="text-lg font-semibold mb-4">Personal Information</h3>
 						<div className="grid grid-cols-2 gap-4">
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="name.first"
 								render={({ field }) => (
 									<FormItem>
@@ -116,7 +79,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								)}
 							/>
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="name.last"
 								render={({ field }) => (
 									<FormItem>
@@ -135,7 +98,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 						<h3 className="text-lg font-semibold mb-4">Physical Address</h3>
 						<div className="space-y-4">
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="physicalAddress.street"
 								render={({ field }) => (
 									<FormItem>
@@ -148,7 +111,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								)}
 							/>
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="physicalAddress.city"
 								render={({ field }) => (
 									<FormItem>
@@ -161,7 +124,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								)}
 							/>
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="physicalAddress.state"
 								render={({ field }) => (
 									<FormItem>
@@ -174,7 +137,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								)}
 							/>
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="physicalAddress.postalCode"
 								render={({ field }) => (
 									<FormItem>
@@ -193,7 +156,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 						<h3 className="text-lg font-semibold mb-4">Identification</h3>
 						<div className="grid grid-cols-2 gap-4">
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="identification.stateIdNumber"
 								render={({ field }) => (
 									<FormItem>
@@ -206,7 +169,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								)}
 							/>
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="identification.issuer"
 								render={({ field }) => (
 									<FormItem>
@@ -229,7 +192,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								{phoneFields.map((field, index) => (
 									<div key={field.id} className="flex items-start gap-4 mt-2">
 										<FormField
-											control={form.control}
+											control={methods.control}
 											name={`phones.${index}.number`}
 											render={({ field }) => (
 												<FormItem className="flex-1">
@@ -241,7 +204,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 											)}
 										/>
 										<FormField
-											control={form.control}
+											control={methods.control}
 											name={`phones.${index}.type`}
 											render={({ field }) => (
 												<FormItem>
@@ -294,7 +257,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 								{emailFields.map((field, index) => (
 									<div key={field.id} className="flex items-start gap-4 mt-2">
 										<FormField
-											control={form.control}
+											control={methods.control}
 											name={`emails.${index}.address`}
 											render={({ field, fieldState: { error } }) => (
 												<FormItem className="flex-1">
@@ -303,12 +266,6 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 															{...field}
 															type="email"
 															placeholder="Email address"
-															onBlur={async () => {
-																if (field.value) {
-																	field.onBlur();
-																	await form.trigger(`emails.${index}.address`);
-																}
-															}}
 															className={error ? "border-red-500" : ""}
 														/>
 													</FormControl>
@@ -345,7 +302,7 @@ export const BuyerForm = forwardRef<BuyerFormRef, BuyerFormProps>(
 						</h3>
 						<div className="space-y-4">
 							<FormField
-								control={form.control}
+								control={methods.control}
 								name="optOutOfFutureMarketing"
 								render={({ field }) => (
 									<FormItem className="flex items-center gap-2">

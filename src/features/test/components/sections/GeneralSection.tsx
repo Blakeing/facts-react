@@ -28,7 +28,7 @@ import { useSelector } from "@xstate/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { forwardRef, useCallback, useImperativeHandle } from "react";
-import { type UseFormReturn, useForm } from "react-hook-form";
+import { type UseFormReturn, useForm, useFormState } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
@@ -74,6 +74,8 @@ type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 export interface GeneralSectionRef {
 	form: UseFormReturn<GeneralFormValues>;
+	isDirty: boolean;
+	save: () => void;
 }
 
 interface GeneralSectionProps {
@@ -90,13 +92,42 @@ const GeneralSection = forwardRef<GeneralSectionRef, GeneralSectionProps>(
 
 		const form = useForm<GeneralFormValues>({
 			resolver: zodResolver(generalFormSchema),
-			defaultValues,
+			defaultValues: defaultValues,
+			mode: "onChange",
 		});
 
-		// Expose form state to parent
-		useImperativeHandle(ref, () => ({
-			form,
-		}));
+		const formState = useFormState({
+			control: form.control,
+		});
+
+		const saveToXState = useCallback(() => {
+			const values = form.getValues();
+			const data: GeneralData = {
+				serviceDate: values.serviceDate,
+				contractSignDate: values.contractSignDate,
+				funeralDirector: values.funeralDirector,
+				atNeedType: values.atNeedType,
+				contractType: values.contractType,
+				campaign: values.campaign,
+				...(values.prePrintedContractNumber
+					? { prePrintedContractNumber: values.prePrintedContractNumber }
+					: {}),
+			};
+			send({
+				type: "UPDATE_GENERAL",
+				data,
+			});
+		}, [form, send]);
+
+		useImperativeHandle(
+			ref,
+			() => ({
+				form,
+				isDirty: formState.isDirty,
+				save: saveToXState,
+			}),
+			[form, formState.isDirty, saveToXState],
+		);
 
 		const handleFieldChange = useCallback(
 			(field: keyof GeneralFormValues, value: string | Date) => {

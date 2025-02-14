@@ -1,8 +1,15 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { forwardRef, useImperativeHandle, useRef } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import {
+	FormProvider,
+	type Resolver,
+	type UseFormReturn,
+	useForm,
+	useFormState,
+} from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
-import { BuyerForm, type BuyerFormRef } from "../../forms/buyer-form";
+import { BuyerForm } from "../../forms/buyer-form";
 import {
 	type BuyerFormValues,
 	buyerFormSchema,
@@ -13,11 +20,13 @@ import type { ContractContext } from "../../types/contract";
 
 export interface BuyerSectionRef {
 	form: UseFormReturn<BuyerFormValues>;
+	isDirty: boolean;
+	save: () => void;
 }
 
 type BuyerSectionProps = {
 	actor: ActorRefFrom<ReturnType<typeof createContractMachine>>;
-	onSubmit?: (data: BuyerData) => void;
+	onDirtyChange?: (isDirty: boolean) => void;
 };
 
 const defaultBuyerData: BuyerFormValues = {
@@ -47,38 +56,74 @@ const defaultBuyerData: BuyerFormValues = {
 };
 
 export const BuyerSection = forwardRef<BuyerSectionRef, BuyerSectionProps>(
-	({ actor, onSubmit }, ref) => {
+	({ actor, onDirtyChange }, ref) => {
+		// Get initial data from XState
 		const buyerData = useSelector(
 			actor,
-			(state: { context: ContractContext }) =>
-				state.context.draftData.buyer ?? defaultBuyerData,
+			(state: { context: ContractContext }) => {
+				return state.context.draftData.buyer ?? defaultBuyerData;
+			},
 		);
 
-		const formRef = useRef<BuyerFormRef>(null);
+		const contractState = useSelector(
+			actor,
+			(state: { context: ContractContext }) => state.context.contractState,
+		);
 
+		// Initialize form with RHF
+		const form = useForm<BuyerFormValues>({
+			defaultValues: buyerData,
+			mode: "onSubmit", // Only validate on submit
+		});
+
+		// Track form state for dirty tracking
+		const formState = useFormState({
+			control: form.control,
+		});
+
+		// Function to save form data to XState
+		const saveToXState = useCallback(() => {
+			const data = form.getValues();
+			actor.send({
+				type: "UPDATE_BUYER",
+				data: data as BuyerData,
+				isValid: true, // Always valid in draft mode
+			});
+		}, [form, actor]);
+
+		// Expose form methods, dirty state, and save function to parent
 		useImperativeHandle(
 			ref,
 			() => ({
-				get form() {
-					if (!formRef.current?.form) {
-						throw new Error("Form not initialized");
-					}
-					return formRef.current.form;
-				},
+				form,
+				isDirty: formState.isDirty,
+				save: saveToXState,
 			}),
-			[],
+			[form, formState.isDirty, saveToXState],
 		);
 
-		const handleSubmit = (data: BuyerFormValues) => {
-			onSubmit?.(data as BuyerData);
-		};
+		// Reset form when external data changes and form isn't dirty
+		useEffect(() => {
+			if (!formState.isDirty) {
+				// Only reset if the data is actually different
+				const currentValues = form.getValues();
+				const isDifferent =
+					JSON.stringify(currentValues) !== JSON.stringify(buyerData);
+				if (isDifferent) {
+					form.reset(buyerData);
+				}
+			}
+		}, [form, buyerData, formState.isDirty]);
+
+		// Notify parent of dirty state changes
+		useEffect(() => {
+			onDirtyChange?.(formState.isDirty);
+		}, [formState.isDirty, onDirtyChange]);
 
 		return (
-			<BuyerForm
-				ref={formRef}
-				defaultValues={buyerData}
-				onSubmit={handleSubmit}
-			/>
+			<FormProvider {...form}>
+				<BuyerForm onSubmit={saveToXState} />
+			</FormProvider>
 		);
 	},
 );

@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { forwardRef, useEffect, useImperativeHandle } from "react";
-import { useForm } from "react-hook-form";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import { type UseFormReturn, useForm, useFormState } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
@@ -35,7 +35,9 @@ type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
 export interface PaymentSectionRef {
-	form: ReturnType<typeof useForm<PaymentFormValues>>;
+	form: UseFormReturn<PaymentFormValues>;
+	isDirty: boolean;
+	save: () => void;
 }
 
 interface PaymentSectionProps {
@@ -62,16 +64,34 @@ const PaymentSection = forwardRef<PaymentSectionRef, PaymentSectionProps>(
 				paymentMethod,
 				amount,
 			},
-			mode: "onTouched",
+			mode: "onChange",
 		});
+
+		const formState = useFormState({
+			control: form.control,
+		});
+
+		const saveToXState = useCallback(() => {
+			const values = form.getValues();
+			send({
+				type: "UPDATE_PAYMENT",
+				data: values,
+			});
+		}, [form, send]);
 
 		useEffect(() => {
 			form.reset({ paymentMethod, amount });
 		}, [form, paymentMethod, amount]);
 
-		useImperativeHandle(ref, () => ({
-			form,
-		}));
+		useImperativeHandle(
+			ref,
+			() => ({
+				form,
+				isDirty: formState.isDirty,
+				save: saveToXState,
+			}),
+			[form, formState.isDirty, saveToXState],
+		);
 
 		const handlePaymentMethodChange = (value: "cash" | "credit") => {
 			form.setValue("paymentMethod", value);
