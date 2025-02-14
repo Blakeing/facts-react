@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { useCallback, useEffect } from "react";
+import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
@@ -34,123 +34,129 @@ type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
 type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
 
+export interface PaymentSectionRef {
+	form: ReturnType<typeof useForm<PaymentFormValues>>;
+}
+
 interface PaymentSectionProps {
 	actor: ContractActor;
 }
 
 const paymentDataSelector = (state: {
-	context: { formData: { payment: PaymentData | null } };
+	context: { draftData: { payment: PaymentData | null } };
 }) => ({
-	paymentMethod: state.context.formData.payment?.paymentMethod ?? "cash",
-	amount: state.context.formData.payment?.amount ?? 0,
+	paymentMethod: state.context.draftData.payment?.paymentMethod ?? "cash",
+	amount: state.context.draftData.payment?.amount ?? 0,
 });
 
-const PaymentSection = ({ actor }: PaymentSectionProps) => {
-	if (!actor) return null;
+const PaymentSection = forwardRef<PaymentSectionRef, PaymentSectionProps>(
+	({ actor }, ref) => {
+		if (!actor) return null;
 
-	const send = actor.send;
-	const { paymentMethod, amount } = useSelector(actor, paymentDataSelector);
+		const send = actor.send;
+		const { paymentMethod, amount } = useSelector(actor, paymentDataSelector);
 
-	const form = useForm<PaymentFormValues>({
-		resolver: zodResolver(paymentFormSchema),
-		defaultValues: {
-			paymentMethod: "cash",
-			amount: 0,
-		},
-		mode: "onTouched",
-	});
+		const form = useForm<PaymentFormValues>({
+			resolver: zodResolver(paymentFormSchema),
+			defaultValues: {
+				paymentMethod,
+				amount,
+			},
+			mode: "onTouched",
+		});
 
-	useEffect(() => {
-		form.reset({ paymentMethod, amount });
-	}, [paymentMethod, amount, form]);
+		useEffect(() => {
+			form.reset({ paymentMethod, amount });
+		}, [form, paymentMethod, amount]);
 
-	const handlePaymentMethodChange = useCallback(
-		(value: "cash" | "credit") => {
+		useImperativeHandle(ref, () => ({
+			form,
+		}));
+
+		const handlePaymentMethodChange = (value: "cash" | "credit") => {
 			form.setValue("paymentMethod", value);
 			const values = form.getValues();
 			send({
 				type: "UPDATE_PAYMENT",
 				data: values,
 			});
-		},
-		[form, send],
-	);
+		};
 
-	const handleAmountChange = useCallback(
-		(value: number) => {
+		const handleAmountChange = (value: number) => {
 			form.setValue("amount", value);
 			const values = form.getValues();
 			send({
 				type: "UPDATE_PAYMENT",
 				data: values,
 			});
-		},
-		[form, send],
-	);
+		};
 
-	return (
-		<Card>
-			<CardContent className="pt-6">
-				<Form {...form}>
-					<form className="space-y-6">
-						<FormField
-							control={form.control}
-							name="paymentMethod"
-							render={({ field }) => (
-								<FormItem className="space-y-3">
-									<FormLabel>Payment Method</FormLabel>
-									<FormControl>
-										<RadioGroup
-											onValueChange={handlePaymentMethodChange}
-											value={field.value}
-											className="flex flex-col space-y-1"
-										>
-											<FormItem className="flex items-center space-x-3 space-y-0">
-												<FormControl>
-													<RadioGroupItem value="cash" />
-												</FormControl>
-												<FormLabel className="font-normal">Cash</FormLabel>
-											</FormItem>
-											<FormItem className="flex items-center space-x-3 space-y-0">
-												<FormControl>
-													<RadioGroupItem value="credit" />
-												</FormControl>
-												<FormLabel className="font-normal">
-													Credit Card
-												</FormLabel>
-											</FormItem>
-										</RadioGroup>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="amount"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Amount</FormLabel>
-									<FormControl>
-										<Input
-											type="number"
-											step="0.01"
-											{...field}
-											onChange={(e) =>
-												handleAmountChange(Number.parseFloat(e.target.value))
-											}
-											required
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</form>
-				</Form>
-			</CardContent>
-		</Card>
-	);
-};
+		return (
+			<Card>
+				<CardContent className="pt-6">
+					<Form {...form}>
+						<form className="space-y-6">
+							<FormField
+								control={form.control}
+								name="paymentMethod"
+								render={({ field }) => (
+									<FormItem className="space-y-3">
+										<FormLabel>Payment Method</FormLabel>
+										<FormControl>
+											<RadioGroup
+												onValueChange={handlePaymentMethodChange}
+												value={field.value}
+												className="flex flex-col space-y-1"
+											>
+												<FormItem className="flex items-center space-x-3 space-y-0">
+													<FormControl>
+														<RadioGroupItem value="cash" />
+													</FormControl>
+													<FormLabel className="font-normal">Cash</FormLabel>
+												</FormItem>
+												<FormItem className="flex items-center space-x-3 space-y-0">
+													<FormControl>
+														<RadioGroupItem value="credit" />
+													</FormControl>
+													<FormLabel className="font-normal">
+														Credit Card
+													</FormLabel>
+												</FormItem>
+											</RadioGroup>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="amount"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Amount</FormLabel>
+										<FormControl>
+											<Input
+												type="number"
+												step="0.01"
+												{...field}
+												onChange={(e) =>
+													handleAmountChange(Number.parseFloat(e.target.value))
+												}
+												required
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</form>
+					</Form>
+				</CardContent>
+			</Card>
+		);
+	},
+);
+
+PaymentSection.displayName = "PaymentSection";
 
 export default PaymentSection;

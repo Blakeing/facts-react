@@ -27,11 +27,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import * as z from "zod";
 import type createContractMachine from "../../machines/contractMachine";
+import type { ContractSnapshot } from "../../types/contract";
 import type { GeneralData } from "../../types/general";
 
 const formatPlaceholder = (value: string): string => {
@@ -67,313 +68,312 @@ const generalFormSchema = z.object({
 });
 
 type GeneralFormValues = z.infer<typeof generalFormSchema>;
+export type { GeneralFormValues };
 
 type ContractActor = ActorRefFrom<ReturnType<typeof createContractMachine>>;
+
+export interface GeneralSectionRef {
+	form: UseFormReturn<GeneralFormValues>;
+}
 
 interface GeneralSectionProps {
 	actor: ContractActor;
 }
 
-const generalDataSelector = (state: {
-	context: { formData: { general: GeneralData | null } };
-}) =>
-	state.context.formData.general || {
-		serviceDate: new Date(),
-		contractSignDate: new Date(),
-		funeralDirector: "",
-		atNeedType: "",
-		contractType: "",
-		campaign: "",
-	};
+const generalDataSelector = (state: ContractSnapshot) =>
+	state.context.draftData.general || {};
 
-const GeneralSection = ({ actor }: GeneralSectionProps) => {
-	const send = actor.send;
-	const formData = useSelector(actor, generalDataSelector);
+const GeneralSection = forwardRef<GeneralSectionRef, GeneralSectionProps>(
+	({ actor }, ref) => {
+		const send = actor.send;
+		const defaultValues = useSelector(actor, generalDataSelector);
 
-	const form = useForm<GeneralFormValues>({
-		resolver: zodResolver(generalFormSchema),
-		values: {
-			...formData,
-			prePrintedContractNumber: formData.prePrintedContractNumber || "",
-		},
-		mode: "onTouched",
-	});
+		const form = useForm<GeneralFormValues>({
+			resolver: zodResolver(generalFormSchema),
+			defaultValues,
+		});
 
-	const handleFieldChange = useCallback(
-		(field: keyof GeneralFormValues, value: string | Date) => {
-			form.setValue(field, value);
-			const values = form.getValues();
-			const formattedValues: GeneralData = {
-				serviceDate: values.serviceDate,
-				contractSignDate: values.contractSignDate,
-				funeralDirector: values.funeralDirector,
-				atNeedType: values.atNeedType,
-				contractType: values.contractType,
-				campaign: values.campaign,
-				...(values.prePrintedContractNumber
-					? { prePrintedContractNumber: values.prePrintedContractNumber }
-					: {}),
-			};
-			send({
-				type: "UPDATE_GENERAL",
-				data: formattedValues,
-			});
-		},
-		[form, send],
-	);
+		// Expose form state to parent
+		useImperativeHandle(ref, () => ({
+			form,
+		}));
 
-	return (
-		<Card>
-			<CardContent className="pt-6">
-				<Form {...form}>
-					<form className="grid w-full items-center gap-4">
-						<FormField
-							control={form.control}
-							name="serviceDate"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>Service Date</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant={"outline"}
-													className={cn(
-														"w-full pl-3 text-left font-normal",
-														!field.value && "text-muted-foreground",
-													)}
-												>
-													{field.value ? (
-														format(field.value, "PPP")
-													) : (
-														<span>Pick a date</span>
-													)}
-													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-auto p-0" align="start">
-											<Calendar
-												mode="single"
-												selected={field.value}
-												onSelect={(date) =>
-													date && handleFieldChange("serviceDate", date)
+		const handleFieldChange = useCallback(
+			(field: keyof GeneralFormValues, value: string | Date) => {
+				form.setValue(field, value);
+				const values = form.getValues();
+				const formattedValues: GeneralData = {
+					serviceDate: values.serviceDate,
+					contractSignDate: values.contractSignDate,
+					funeralDirector: values.funeralDirector,
+					atNeedType: values.atNeedType,
+					contractType: values.contractType,
+					campaign: values.campaign,
+					...(values.prePrintedContractNumber
+						? { prePrintedContractNumber: values.prePrintedContractNumber }
+						: {}),
+				};
+				send({
+					type: "UPDATE_GENERAL",
+					data: formattedValues,
+				});
+			},
+			[form, send],
+		);
+
+		return (
+			<Card>
+				<CardContent className="pt-6">
+					<Form {...form}>
+						<form className="grid w-full items-center gap-4">
+							<FormField
+								control={form.control}
+								name="serviceDate"
+								render={({ field }) => (
+									<FormItem className="flex flex-col">
+										<FormLabel>Service Date</FormLabel>
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant={"outline"}
+														className={cn(
+															"w-full pl-3 text-left font-normal",
+															!field.value && "text-muted-foreground",
+														)}
+													>
+														{field.value ? (
+															format(field.value, "PPP")
+														) : (
+															<span>Pick a date</span>
+														)}
+														<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-auto p-0" align="start">
+												<Calendar
+													mode="single"
+													selected={field.value}
+													onSelect={(date) =>
+														date && handleFieldChange("serviceDate", date)
+													}
+													disabled={(date) => date < new Date("1900-01-01")}
+													initialFocus
+												/>
+											</PopoverContent>
+										</Popover>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="contractSignDate"
+								render={({ field }) => (
+									<FormItem className="flex flex-col">
+										<FormLabel>Contract/Sign Date</FormLabel>
+										<Popover>
+											<PopoverTrigger asChild>
+												<FormControl>
+													<Button
+														variant={"outline"}
+														className={cn(
+															"w-full pl-3 text-left font-normal",
+															!field.value && "text-muted-foreground",
+														)}
+													>
+														{field.value ? (
+															format(field.value, "PPP")
+														) : (
+															<span>Pick a date</span>
+														)}
+														<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+													</Button>
+												</FormControl>
+											</PopoverTrigger>
+											<PopoverContent className="w-auto p-0" align="start">
+												<Calendar
+													mode="single"
+													selected={field.value}
+													onSelect={(date) =>
+														date && handleFieldChange("contractSignDate", date)
+													}
+													disabled={(date) => date < new Date("1900-01-01")}
+													initialFocus
+												/>
+											</PopoverContent>
+										</Popover>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="prePrintedContractNumber"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Pre-Printed Contract #</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												onChange={(e) =>
+													handleFieldChange(
+														"prePrintedContractNumber",
+														e.target.value,
+													)
 												}
-												disabled={(date) => date < new Date("1900-01-01")}
-												initialFocus
 											/>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						<FormField
-							control={form.control}
-							name="contractSignDate"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>Contract/Sign Date</FormLabel>
-									<Popover>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													variant={"outline"}
-													className={cn(
-														"w-full pl-3 text-left font-normal",
-														!field.value && "text-muted-foreground",
-													)}
-												>
-													{field.value ? (
-														format(field.value, "PPP")
-													) : (
-														<span>Pick a date</span>
-													)}
-													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent className="w-auto p-0" align="start">
-											<Calendar
-												mode="single"
-												selected={field.value}
-												onSelect={(date) =>
-													date && handleFieldChange("contractSignDate", date)
-												}
-												disabled={(date) => date < new Date("1900-01-01")}
-												initialFocus
-											/>
-										</PopoverContent>
-									</Popover>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="prePrintedContractNumber"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Pre-Printed Contract #</FormLabel>
-									<FormControl>
-										<Input
-											{...field}
-											onChange={(e) =>
-												handleFieldChange(
-													"prePrintedContractNumber",
-													e.target.value,
-												)
+							<FormField
+								control={form.control}
+								name="funeralDirector"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Funeral Director</FormLabel>
+										<Select
+											onValueChange={(value) =>
+												handleFieldChange("funeralDirector", value)
 											}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+											defaultValue={field.value}
+										>
+											<FormControl>
+												<SelectTrigger hasValue={!!field.value}>
+													<SelectValue
+														placeholder={
+															field.value
+																? formatPlaceholder(field.value)
+																: "Select funeral director"
+														}
+													/>
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="director1">Director 1</SelectItem>
+												<SelectItem value="director2">Director 2</SelectItem>
+												<SelectItem value="director3">Director 3</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						<FormField
-							control={form.control}
-							name="funeralDirector"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Funeral Director</FormLabel>
-									<Select
-										onValueChange={(value) =>
-											handleFieldChange("funeralDirector", value)
-										}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger hasValue={!!field.value}>
-												<SelectValue
-													placeholder={
-														field.value
-															? formatPlaceholder(field.value)
-															: "Select funeral director"
-													}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="director1">Director 1</SelectItem>
-											<SelectItem value="director2">Director 2</SelectItem>
-											<SelectItem value="director3">Director 3</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+							<FormField
+								control={form.control}
+								name="atNeedType"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>At-Need Type</FormLabel>
+										<Select
+											onValueChange={(value) =>
+												handleFieldChange("atNeedType", value)
+											}
+											defaultValue={field.value}
+										>
+											<FormControl>
+												<SelectTrigger hasValue={!!field.value}>
+													<SelectValue
+														placeholder={
+															field.value
+																? formatPlaceholder(field.value)
+																: "Select at-need type"
+														}
+													/>
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="type1">Type 1</SelectItem>
+												<SelectItem value="type2">Type 2</SelectItem>
+												<SelectItem value="type3">Type 3</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						<FormField
-							control={form.control}
-							name="atNeedType"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>At-Need Type</FormLabel>
-									<Select
-										onValueChange={(value) =>
-											handleFieldChange("atNeedType", value)
-										}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger hasValue={!!field.value}>
-												<SelectValue
-													placeholder={
-														field.value
-															? formatPlaceholder(field.value)
-															: "Select at-need type"
-													}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="type1">Type 1</SelectItem>
-											<SelectItem value="type2">Type 2</SelectItem>
-											<SelectItem value="type3">Type 3</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+							<FormField
+								control={form.control}
+								name="contractType"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Contract Type</FormLabel>
+										<Select
+											onValueChange={(value) =>
+												handleFieldChange("contractType", value)
+											}
+											defaultValue={field.value}
+										>
+											<FormControl>
+												<SelectTrigger hasValue={!!field.value}>
+													<SelectValue
+														placeholder={
+															field.value
+																? formatPlaceholder(field.value)
+																: "Select contract type"
+														}
+													/>
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="type1">Type 1</SelectItem>
+												<SelectItem value="type2">Type 2</SelectItem>
+												<SelectItem value="type3">Type 3</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-						<FormField
-							control={form.control}
-							name="contractType"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Contract Type</FormLabel>
-									<Select
-										onValueChange={(value) =>
-											handleFieldChange("contractType", value)
-										}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger hasValue={!!field.value}>
-												<SelectValue
-													placeholder={
-														field.value
-															? formatPlaceholder(field.value)
-															: "Select contract type"
-													}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="type1">Type 1</SelectItem>
-											<SelectItem value="type2">Type 2</SelectItem>
-											<SelectItem value="type3">Type 3</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="campaign"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Campaign</FormLabel>
-									<Select
-										onValueChange={(value) =>
-											handleFieldChange("campaign", value)
-										}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger hasValue={!!field.value}>
-												<SelectValue
-													placeholder={
-														field.value
-															? formatPlaceholder(field.value)
-															: "Select campaign"
-													}
-												/>
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="campaign1">Campaign 1</SelectItem>
-											<SelectItem value="campaign2">Campaign 2</SelectItem>
-											<SelectItem value="campaign3">Campaign 3</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</form>
-				</Form>
-			</CardContent>
-		</Card>
-	);
-};
+							<FormField
+								control={form.control}
+								name="campaign"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Campaign</FormLabel>
+										<Select
+											onValueChange={(value) =>
+												handleFieldChange("campaign", value)
+											}
+											defaultValue={field.value}
+										>
+											<FormControl>
+												<SelectTrigger hasValue={!!field.value}>
+													<SelectValue
+														placeholder={
+															field.value
+																? formatPlaceholder(field.value)
+																: "Select campaign"
+														}
+													/>
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												<SelectItem value="campaign1">Campaign 1</SelectItem>
+												<SelectItem value="campaign2">Campaign 2</SelectItem>
+												<SelectItem value="campaign3">Campaign 3</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</form>
+					</Form>
+				</CardContent>
+			</Card>
+		);
+	},
+);
 
 GeneralSection.displayName = "GeneralSection";
 

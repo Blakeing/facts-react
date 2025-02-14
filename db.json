@@ -61,12 +61,47 @@
       "contractState": "draft",
       "formData": {
         "general": null,
-        "buyer": null,
+        "buyer": {
+          "name": {
+            "first": "hjk",
+            "last": ""
+          },
+          "physicalAddress": {
+            "street": "",
+            "city": "",
+            "state": "",
+            "postalCode": "",
+            "country": "United States"
+          },
+          "mailingAddressSameAsPhysical": true,
+          "identification": {
+            "stateIdNumber": "",
+            "issuer": ""
+          },
+          "dates": {
+            "isDeceased": false
+          },
+          "isVeteran": false,
+          "phones": [
+            {
+              "number": "",
+              "type": "Mobile",
+              "isPreferred": true
+            }
+          ],
+          "emails": [
+            {
+              "address": "",
+              "isPreferred": true
+            }
+          ],
+          "optOutOfFutureMarketing": false
+        },
         "payment": null,
         "financing": null,
         "beneficiary": {
           "name": {
-            "first": "Tyronee",
+            "first": "Tyrone",
             "last": "Mcgee"
           },
           "physicalAddress": {

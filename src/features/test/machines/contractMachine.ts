@@ -31,31 +31,34 @@ const createContractMachine = (services: ContractServices) => {
 			events: {} as MachineEvents,
 		},
 		actors: {
-			upsertContract: fromPromise<Contract, { context: ContractContext }>(
-				async ({ input: { context } }) => {
-					const contractData = {
-						contractState: context.contractState,
-						formData: context.formData,
-					};
+			upsertContract: fromPromise<
+				Contract,
+				{ context: ContractContext; isDraft: boolean }
+			>(async ({ input: { context, isDraft } }) => {
+				const contractData = {
+					contractState: isDraft ? "draft" : context.contractState,
+					formData: isDraft
+						? context.draftData
+						: context.finalizedData || context.draftData,
+				};
 
-					try {
-						if (context.id) {
-							return await services.mutations.updateMutation.mutateAsync({
-								...contractData,
-								id: context.id,
-							});
-						}
-						return await services.mutations.createMutation.mutateAsync(
-							contractData,
-						);
-					} catch (error) {
-						if (isContractApiError(error)) {
-							throw error;
-						}
-						throw new Error("Failed to save contract");
+				try {
+					if (context.id) {
+						return await services.mutations.updateMutation.mutateAsync({
+							...contractData,
+							id: context.id,
+						});
 					}
-				},
-			),
+					return await services.mutations.createMutation.mutateAsync(
+						contractData,
+					);
+				} catch (error) {
+					if (isContractApiError(error)) {
+						throw error;
+					}
+					throw new Error("Failed to save contract");
+				}
+			}),
 		},
 		actions: {
 			loadContract: assign({
@@ -75,7 +78,7 @@ const createContractMachine = (services: ContractServices) => {
 						formData: FormData;
 					},
 				) => params.contractState,
-				formData: (
+				draftData: (
 					_,
 					params: {
 						id: string;
@@ -83,21 +86,57 @@ const createContractMachine = (services: ContractServices) => {
 						formData: FormData;
 					},
 				) => params.formData,
+				finalizedData: (
+					_,
+					params: {
+						id: string;
+						contractState: ContractState;
+						formData: FormData;
+					},
+				) => (params.contractState !== "draft" ? params.formData : null),
+				isDirty: () => false,
+				validSections: () => ({
+					general: false,
+					buyer: false,
+					payment: false,
+					financing: false,
+					beneficiary: false,
+				}),
 			}),
 			updateFormData: assign({
-				formData: (
+				draftData: (
 					{ context },
 					params: { section: keyof FormData; data: FormData[keyof FormData] },
 				) => ({
-					...context.formData,
+					...context.draftData,
 					[params.section]: params.data,
 				}),
+				isDirty: () => true,
+				validSections: ({ context, event }) => {
+					if ("isValid" in event) {
+						return {
+							...context.validSections,
+							[event.type.toLowerCase().replace("update_", "")]: event.isValid,
+						};
+					}
+					return context.validSections;
+				},
 			}),
 			updateContractState: assign({
 				contractState: (
 					_,
 					params: { state: keyof typeof CONTRACT_STATE_MAP },
 				) => CONTRACT_STATE_MAP[params.state],
+				finalizedData: (
+					{ context },
+					params: { state: keyof typeof CONTRACT_STATE_MAP },
+				) => {
+					if (CONTRACT_STATE_MAP[params.state] !== "draft") {
+						return context.draftData;
+					}
+					return null;
+				},
+				isDirty: () => false,
 			}),
 			handleError: assign({
 				error: (_, params: { error: ContractApiError | null }) => params.error,
@@ -107,6 +146,13 @@ const createContractMachine = (services: ContractServices) => {
 			}),
 			handleSaveSuccess: assign({
 				id: (_, params: { id: string }) => params.id,
+				isDirty: () => false,
+			}),
+			revertToDraft: assign({
+				contractState: () => "draft" as ContractState,
+				draftData: ({ context }) => context.finalizedData || context.draftData,
+				finalizedData: () => null,
+				isDirty: () => false,
 			}),
 		},
 	}).createMachine({
@@ -115,14 +161,23 @@ const createContractMachine = (services: ContractServices) => {
 		context: {
 			id: null,
 			contractState: "draft",
-			formData: {
+			draftData: {
 				general: null,
 				buyer: null,
 				payment: null,
 				financing: null,
 				beneficiary: null,
 			},
+			finalizedData: null,
 			error: null,
+			isDirty: false,
+			validSections: {
+				general: false,
+				buyer: false,
+				payment: false,
+				financing: false,
+				beneficiary: false,
+			},
 		},
 		on: {
 			LOAD_CONTRACT: {
@@ -181,8 +236,13 @@ const createContractMachine = (services: ContractServices) => {
 					}),
 				},
 			},
-			SAVE_CONTRACT: {
-				target: ".saving",
+			SAVE_DRAFT: {
+				target: ".savingDraft",
+			},
+			SAVE_FINALIZED: {
+				target: ".savingFinalized",
+				guard: ({ context }) =>
+					Object.values(context.validSections).every(Boolean),
 			},
 		},
 		states: {
@@ -212,12 +272,16 @@ const createContractMachine = (services: ContractServices) => {
 							type: "updateContractState",
 							params: { state: "EXECUTE" },
 						},
+						guard: ({ context }) =>
+							Object.values(context.validSections).every(Boolean),
 					},
 					FINALIZE: {
 						actions: {
 							type: "updateContractState",
 							params: { state: "FINALIZE" },
 						},
+						guard: ({ context }) =>
+							Object.values(context.validSections).every(Boolean),
 					},
 					VOID: {
 						actions: {
@@ -227,11 +291,36 @@ const createContractMachine = (services: ContractServices) => {
 					},
 				},
 			},
-			saving: {
+			savingDraft: {
 				entry: "clearError",
 				invoke: {
 					src: "upsertContract",
-					input: ({ context }) => ({ context }),
+					input: ({ context }) => ({ context, isDraft: true }),
+					onDone: {
+						target: "general",
+						actions: {
+							type: "handleSaveSuccess",
+							params: ({ event }) => ({
+								id: event.output.id,
+							}),
+						},
+					},
+					onError: {
+						target: "error",
+						actions: {
+							type: "handleError",
+							params: ({ event }) => ({
+								error: isContractApiError(event.error) ? event.error : null,
+							}),
+						},
+					},
+				},
+			},
+			savingFinalized: {
+				entry: "clearError",
+				invoke: {
+					src: "upsertContract",
+					input: ({ context }) => ({ context, isDraft: false }),
 					onDone: {
 						target: "general",
 						actions: {
@@ -254,8 +343,13 @@ const createContractMachine = (services: ContractServices) => {
 			},
 			error: {
 				on: {
-					SAVE_CONTRACT: {
-						target: "saving",
+					SAVE_DRAFT: {
+						target: "savingDraft",
+					},
+					SAVE_FINALIZED: {
+						target: "savingFinalized",
+						guard: ({ context }) =>
+							Object.values(context.validSections).every(Boolean),
 					},
 					...navTransitions,
 				},

@@ -2,11 +2,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useNavigate } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
 import { produce } from "immer";
 import { Loader2 } from "lucide-react";
+import { BugIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { UseFormReturn } from "react-hook-form";
+import type { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
 import type { ActorRef, SnapshotFrom } from "xstate";
 import { useContractMutations } from "../hooks/useContractMutations";
@@ -20,14 +24,25 @@ import type {
 	FormData,
 	ReviewSectionType,
 } from "../types/contract";
-import { BuyerSection } from "./sections/BuyerSection";
+import DebugSheet, { useDebugSheet } from "./DebugSheet";
+import {
+	type BeneficiaryRef,
+	BeneficiarySection,
+} from "./sections/BeneficiarySection";
+import { BuyerSection, type BuyerSectionRef } from "./sections/BuyerSection";
+import FinancingSection, {
+	type FinancingSectionRef,
+} from "./sections/FinancingSection";
+import type {
+	GeneralFormValues,
+	GeneralSectionRef,
+} from "./sections/GeneralSection";
 import GeneralSection from "./sections/GeneralSection";
-import PaymentSection from "./sections/PaymentSection";
-import ReviewSection from "./sections/ReviewSection";
-import FinancingSection from "./sections/FinancingSection";
-import { BeneficiarySection } from "./sections/BeneficiarySection";
-import { useConfirm } from "@/hooks/use-confirm";
+import PaymentSection, {
+	type PaymentSectionRef,
+} from "./sections/PaymentSection";
 import PeopleSection from "./sections/PeopleSection";
+import ReviewSection from "./sections/ReviewSection";
 
 export interface FuneralServiceFormProps {
 	onComplete?: () => void;
@@ -70,6 +85,14 @@ type ContractStateValue =
 	| "review"
 	| "general";
 
+const FORM_KEYS = {
+	GENERAL: "general",
+	BUYER: "buyer",
+	BENEFICIARY: "beneficiary",
+	PAYMENT: "payment",
+	FINANCING: "financing",
+} as const;
+
 // Memoized Badge component
 const ContractStateBadge = ({
 	state,
@@ -81,10 +104,10 @@ const ContractStateBadge = ({
 	const styles = STATE_STYLES[state];
 	return (
 		<Badge variant={styles.variant} className={styles.className}>
-			<div className="flex items-center gap-2">
+			<span className="flex items-center gap-2">
 				{isPending && <Loader2 className="h-3 w-3 animate-spin" />}
 				{state.toUpperCase()}
-			</div>
+			</span>
 		</Badge>
 	);
 };
@@ -121,22 +144,35 @@ const ActionButtons = ({
 ActionButtons.displayName = "ActionButtons";
 
 // Form Section component
-const FormSection = ({
-	currentState,
-	actor,
-	formData,
-	onEdit,
-}: {
+interface FormSectionProps {
 	currentState: ContractStateValue;
 	actor: ContractActor;
 	formData: FormData;
 	onEdit?: (section: ReviewSectionType) => void;
 	status?: ContractStateValue;
-}) => {
+	generalRef?: React.RefObject<GeneralSectionRef | null>;
+	buyerRef?: React.RefObject<BuyerSectionRef | null>;
+	beneficiaryRef?: React.RefObject<BeneficiaryRef | null>;
+	paymentRef?: React.RefObject<PaymentSectionRef | null>;
+	financingRef?: React.RefObject<FinancingSectionRef | null>;
+}
+
+const FormSection = ({
+	currentState,
+	actor,
+	formData,
+	onEdit,
+	status,
+	generalRef,
+	buyerRef,
+	beneficiaryRef,
+	paymentRef,
+	financingRef,
+}: FormSectionProps) => {
 	switch (currentState) {
 		case "general":
 		case "draft":
-			return <GeneralSection actor={actor} />;
+			return <GeneralSection ref={generalRef} actor={actor} />;
 		case "people":
 			return (
 				<PeopleSection
@@ -150,13 +186,13 @@ const FormSection = ({
 				/>
 			);
 		case "buyer":
-			return <BuyerSection actor={actor} />;
+			return <BuyerSection ref={buyerRef} actor={actor} />;
 		case "beneficiary":
-			return <BeneficiarySection actor={actor} />;
+			return <BeneficiarySection ref={beneficiaryRef} actor={actor} />;
 		case "payment":
-			return <PaymentSection actor={actor} />;
+			return <PaymentSection ref={paymentRef} actor={actor} />;
 		case "financing":
-			return <FinancingSection actor={actor} />;
+			return <FinancingSection ref={financingRef} actor={actor} />;
 		case "review":
 			return (
 				<ReviewSection
@@ -217,6 +253,12 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		"You have unsaved changes. Are you sure you want to continue?",
 		() => hasUnsavedChanges,
 	);
+	const { onOpen: openDebugSheet, setData: setDebugData } = useDebugSheet();
+	const generalFormRef = useRef<GeneralSectionRef>(null);
+	const buyerFormRef = useRef<BuyerSectionRef>(null);
+	const beneficiaryFormRef = useRef<BeneficiaryRef>(null);
+	const paymentFormRef = useRef<PaymentSectionRef>(null);
+	const financingFormRef = useRef<FinancingSectionRef>(null);
 
 	// Use ref for stable machine config
 	const mutationsRef = useRef({ createMutation, updateMutation });
@@ -305,17 +347,17 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 				: null;
 
 		if (!currentContract) {
-			return Object.values(state.context.formData).some(
+			return Object.values(state.context.draftData).some(
 				(section) => section !== null,
 			);
 		}
 
-		return !compareContracts(state.context.formData, currentContract.formData);
+		return !compareContracts(state.context.draftData, currentContract.formData);
 	}, [
 		isInitialLoad,
 		isContractsLoading,
 		state.context.id,
-		state.context.formData,
+		state.context.draftData,
 		contracts,
 		createMutation.isPending,
 		updateMutation.isPending,
@@ -325,14 +367,14 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 
 	// Use Immer for state updates in handlers
 	const handleSave = useCallback(() => {
-		const { formData, id, contractState } = state.context;
+		const { draftData, id, contractState } = state.context;
 
 		// Allow saving if at least one section is filled out
 		if (
-			!formData.general &&
-			!formData.buyer &&
-			!formData.payment &&
-			!formData.beneficiary
+			!draftData.general &&
+			!draftData.buyer &&
+			!draftData.payment &&
+			!draftData.beneficiary
 		) {
 			toast("Cannot Save Empty Form", {
 				description: "Please fill out at least one section before saving.",
@@ -345,7 +387,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 			{
 				id: nextId,
 				contractState: contractState || "draft",
-				formData,
+				formData: draftData,
 			} as Contract,
 			(draft) => draft,
 		);
@@ -428,7 +470,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		const contractData = {
 			id: state.context.id || crypto.randomUUID(),
 			contractState: "executed" as ContractState,
-			formData: state.context.formData,
+			formData: state.context.draftData,
 		};
 
 		if (state.context.id) {
@@ -447,7 +489,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		const contractData = {
 			id: state.context.id || crypto.randomUUID(),
 			contractState: "finalized" as ContractState,
-			formData: state.context.formData,
+			formData: state.context.draftData,
 		};
 
 		if (state.context.id) {
@@ -461,7 +503,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		const contractData = {
 			id: state.context.id || crypto.randomUUID(),
 			contractState: "void" as ContractState,
-			formData: state.context.formData,
+			formData: state.context.draftData,
 		};
 
 		if (state.context.id) {
@@ -509,6 +551,34 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		[send],
 	);
 
+	// Function to collect form states
+	const collectDebugData = useCallback(() => {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const formStates: Record<string, UseFormReturn<any>> = {};
+
+		if (generalFormRef.current?.form) {
+			formStates[FORM_KEYS.GENERAL] = generalFormRef.current.form;
+		}
+		if (buyerFormRef.current?.form) {
+			formStates[FORM_KEYS.BUYER] = buyerFormRef.current.form;
+		}
+		if (beneficiaryFormRef.current?.form) {
+			formStates[FORM_KEYS.BENEFICIARY] = beneficiaryFormRef.current.form;
+		}
+		if (paymentFormRef.current?.form) {
+			formStates[FORM_KEYS.PAYMENT] = paymentFormRef.current.form;
+		}
+		if (financingFormRef.current?.form) {
+			formStates[FORM_KEYS.FINANCING] = financingFormRef.current.form;
+		}
+
+		setDebugData({
+			xstateContext: state.context,
+			rhfForms: formStates,
+		});
+		openDebugSheet();
+	}, [state.context, setDebugData, openDebugSheet]);
+
 	return (
 		<>
 			<Card>
@@ -523,6 +593,14 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 								}}
 							>
 								Back to Test
+							</Button>
+							<Button
+								variant="outline"
+								size="icon"
+								onClick={collectDebugData}
+								title="Debug Information"
+							>
+								<BugIcon className="h-4 w-4" />
 							</Button>
 							<div className="w-[120px]">
 								{hasUnsavedChanges && (
@@ -577,14 +655,20 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 						<FormSection
 							currentState={currentState}
 							actor={actor}
-							formData={state.context.formData}
+							formData={state.context.draftData}
 							onEdit={handleEdit}
 							status={currentState}
+							generalRef={generalFormRef}
+							buyerRef={buyerFormRef}
+							beneficiaryRef={beneficiaryFormRef}
+							paymentRef={paymentFormRef}
+							financingRef={financingFormRef}
 						/>
 					</div>
 				</CardContent>
 			</Card>
 			<ConfirmDialog />
+			<DebugSheet />
 		</>
 	);
 };

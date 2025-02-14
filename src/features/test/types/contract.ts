@@ -1,20 +1,22 @@
 import type { UseMutationResult } from "@tanstack/react-query";
-import type { BuyerFormValues } from "../forms/schemas/buyer-form";
+import type { DoneActorEvent, ErrorActorEvent, SnapshotFrom } from "xstate";
 import type { BeneficiaryFormValues } from "../forms/schemas/beneficiary-form";
+import type { BuyerFormValues } from "../forms/schemas/buyer-form";
+import type { BuyerData } from "./buyer";
 import type { ContractApiError } from "./errors";
 import type { GeneralData } from "./general";
-import type { DoneActorEvent, ErrorActorEvent } from "xstate";
-import type { BuyerData } from "./buyer";
 
 // Re-export person types from schema
 import type {
-	Name,
 	Address,
-	Phone,
-	Email,
 	Dates,
+	Email,
+	Name,
 	Identification as PersonIdentification,
+	Phone,
 } from "../forms/schemas/buyer-form";
+
+import type createContractMachine from "../machines/contractMachine";
 
 // Core Types
 export type ContractState = "draft" | "executed" | "finalized" | "void";
@@ -82,8 +84,17 @@ export interface FinancingData {
 export interface ContractContext {
 	id: string | null;
 	contractState: ContractState;
-	formData: FormData;
+	draftData: FormData;
+	finalizedData: FormData | null;
 	error: ContractApiError | null;
+	isDirty: boolean;
+	validSections: {
+		general: boolean;
+		buyer: boolean;
+		payment: boolean;
+		financing: boolean;
+		beneficiary: boolean;
+	};
 }
 
 export interface LoadContractData {
@@ -104,12 +115,13 @@ export type ContractEvent =
 	| { type: "EXECUTE" }
 	| { type: "FINALIZE" }
 	| { type: "VOID" }
-	| { type: "SAVE_CONTRACT" }
-	| { type: "UPDATE_GENERAL"; data: GeneralData }
-	| { type: "UPDATE_BUYER"; data: BuyerData }
-	| { type: "UPDATE_PAYMENT"; data: PaymentData }
-	| { type: "UPDATE_FINANCING"; data: FinancingData }
-	| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData }
+	| { type: "SAVE_DRAFT" }
+	| { type: "SAVE_FINALIZED" }
+	| { type: "UPDATE_GENERAL"; data: GeneralData; isValid?: boolean }
+	| { type: "UPDATE_BUYER"; data: BuyerData; isValid?: boolean }
+	| { type: "UPDATE_PAYMENT"; data: PaymentData; isValid?: boolean }
+	| { type: "UPDATE_FINANCING"; data: FinancingData; isValid?: boolean }
+	| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData; isValid?: boolean }
 	| DoneActorEvent<Contract, string>
 	| ErrorActorEvent<unknown, string>;
 
@@ -139,3 +151,8 @@ export type ReviewSectionType =
 	| "financing"
 	| "buyer"
 	| "beneficiary";
+
+// Machine Types
+export type ContractSnapshot = SnapshotFrom<
+	ReturnType<typeof createContractMachine>
+>;

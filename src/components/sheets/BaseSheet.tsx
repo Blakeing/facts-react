@@ -5,6 +5,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
+
 import type { ReactNode } from "react";
 
 interface BaseSheetProps {
@@ -13,6 +14,7 @@ interface BaseSheetProps {
 	title: string;
 	description?: ReactNode;
 	children?: ReactNode;
+	className?: string;
 }
 
 function BaseSheet({
@@ -21,10 +23,11 @@ function BaseSheet({
 	title,
 	description,
 	children,
+	className,
 }: BaseSheetProps) {
 	return (
 		<Sheet open={isOpen} onOpenChange={onClose}>
-			<SheetContent>
+			<SheetContent className={className}>
 				<SheetHeader>
 					<SheetTitle>{title}</SheetTitle>
 					{description && <SheetDescription>{description}</SheetDescription>}
