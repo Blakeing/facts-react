@@ -21,14 +21,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2Icon } from "lucide-react";
-import { useEffect, useMemo } from "react";
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useEffect } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
 import {
 	beneficiaryFormSchema,
 	type BeneficiaryFormValues,
 } from "./schemas/beneficiary-form";
-import { produce } from "immer";
 
 interface BeneficiaryFormProps {
 	defaultValues: BeneficiaryFormValues;
@@ -39,21 +38,11 @@ export function BeneficiaryForm({
 	defaultValues,
 	onSubmit,
 }: BeneficiaryFormProps) {
-	// Create a mutable copy of defaultValues
-	const mutableDefaultValues = useMemo(
-		() => produce(defaultValues, (draft) => draft),
-		[defaultValues],
-	);
-
 	const form = useForm<BeneficiaryFormValues>({
 		resolver: zodResolver(beneficiaryFormSchema),
-		defaultValues: mutableDefaultValues,
-		mode: "onChange",
-		reValidateMode: "onChange",
+		defaultValues,
+		mode: "onSubmit",
 	});
-
-	const { formState } = form;
-	const { isDirty, isValid, errors } = formState;
 
 	const {
 		fields: phoneFields,
@@ -74,30 +63,29 @@ export function BeneficiaryForm({
 	});
 
 	// Create debounced submit handler
-	const debouncedSubmit = useDebouncedCallback(
-		(data: BeneficiaryFormValues) => {
-			if (isValid) {
-				onSubmit(data);
-			}
-		},
-		300,
-	);
+	const debouncedSubmit = useDebouncedCallback(onSubmit, 300);
 
-	// Handle form changes
+	// Watch all form values
+	const formValues = useWatch({
+		control: form.control,
+	});
+
+	// Sync form changes with state using debounced submit
 	useEffect(() => {
-		const subscription = form.watch((data) => {
-			if (data && isValid) {
-				debouncedSubmit(data as BeneficiaryFormValues);
-			}
-		});
-		return () => subscription.unsubscribe();
-	}, [form, debouncedSubmit, isValid]);
+		if (!formValues) return;
+
+		// Validate the form values with the schema
+		const result = beneficiaryFormSchema.safeParse(formValues);
+		if (result.success) {
+			debouncedSubmit(result.data);
+		}
+	}, [formValues, debouncedSubmit]);
 
 	return (
 		<Card className="bg-background">
 			<CardContent className="p-6">
 				<Form {...form}>
-					<form className="space-y-6">
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 						{/* Name Section */}
 						<div className="space-y-6">
 							<div className="flex items-center gap-2">
@@ -373,15 +361,15 @@ export function BeneficiaryForm({
 												</FormItem>
 											)}
 										/>
-										<Controller
+										<FormField
 											control={form.control}
 											name={`phones.${index}.type`}
-											render={({ field: selectField }) => (
+											render={({ field }) => (
 												<FormItem>
 													<FormLabel>Type</FormLabel>
 													<Select
-														onValueChange={selectField.onChange}
-														value={selectField.value}
+														onValueChange={field.onChange}
+														value={field.value}
 													>
 														<FormControl>
 															<SelectTrigger>

@@ -10,7 +10,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
 import { buyerFormSchema, type BuyerFormValues } from "./schemas/buyer-form";
 
@@ -33,20 +32,14 @@ export function BuyerForm({ defaultValues, onSubmit }: BuyerFormProps) {
 	const form = useForm<BuyerFormValues>({
 		resolver: zodResolver(buyerFormSchema),
 		defaultValues,
-		mode: "onChange",
+		mode: "onSubmit",
 		reValidateMode: "onChange",
 	});
 
-	// Create debounced submit handler
-	const debouncedSubmit = useDebouncedCallback(onSubmit, 300);
-
-	const { formState } = form;
-	const { isDirty, isValid, errors } = formState;
-
-	// Watch all form values and validate with schema
-	const formValues = useWatch({
-		control: form.control,
-	});
+	const {
+		formState: { isDirty },
+		watch,
+	} = form;
 
 	const {
 		fields: phoneFields,
@@ -66,40 +59,37 @@ export function BuyerForm({ defaultValues, onSubmit }: BuyerFormProps) {
 		name: "emails",
 	});
 
-	// Log form state changes
-	useEffect(() => {
-		console.log("Buyer Form State:", {
-			isDirty,
-			isValid,
-			errors,
-			currentValues: form.getValues(),
-		});
-	}, [isDirty, isValid, errors, form]);
+	// Create debounced submit handler for partial updates
+	const debouncedPartialSubmit = useDebouncedCallback(
+		(data: BuyerFormValues) => {
+			// Clone the data to avoid Immer freeze issues
+			const unfrozenData = structuredClone(data);
+			onSubmit(unfrozenData);
+		},
+		300,
+	);
 
-	// Sync form changes with XState using debounced submit
+	// Watch form values for partial updates
+	const values = watch();
+
+	// Effect for partial updates - triggers on any change
 	useEffect(() => {
-		if (isDirty && isValid) {
-			const data = form.getValues();
-			console.log("Buyer Form Submitting:", data);
-			debouncedSubmit(data);
-		} else {
-			console.log("Buyer Form Not Submitting:", {
-				isDirty,
-				isValid,
-				hasErrors: Object.keys(errors).length > 0,
-			});
+		if (isDirty) {
+			debouncedPartialSubmit(values);
 		}
-	}, [isDirty, isValid, debouncedSubmit, form, errors]);
+	}, [isDirty, values, debouncedPartialSubmit]);
+
+	// Handle final form submission with full validation
+	const handleSubmit = form.handleSubmit((data) => {
+		const result = buyerFormSchema.safeParse(data);
+		if (result.success) {
+			onSubmit(result.data);
+		}
+	});
 
 	return (
 		<Form {...form}>
-			<form
-				className="space-y-8"
-				onChange={() => {
-					console.log("Buyer Form onChange triggered");
-					form.trigger();
-				}}
-			>
+			<form onSubmit={handleSubmit} className="space-y-8">
 				<Card className="p-6">
 					<h3 className="text-lg font-semibold mb-4">Personal Information</h3>
 					<div className="grid grid-cols-2 gap-4">
@@ -191,36 +181,70 @@ export function BuyerForm({ defaultValues, onSubmit }: BuyerFormProps) {
 				</Card>
 
 				<Card className="p-6">
+					<h3 className="text-lg font-semibold mb-4">Identification</h3>
+					<div className="grid grid-cols-2 gap-4">
+						<FormField
+							control={form.control}
+							name="identification.stateIdNumber"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>State ID Number</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="identification.issuer"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Issuer</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+				</Card>
+
+				<Card className="p-6">
 					<h3 className="text-lg font-semibold mb-4">Contact Information</h3>
 					<div className="space-y-6">
 						<div>
-							<Label>Phone Numbers</Label>
+							<h4 className="text-sm font-medium mb-2">Phone Numbers</h4>
 							{phoneFields.map((field, index) => (
 								<div key={field.id} className="flex items-start gap-4 mt-2">
-									<Controller
+									<FormField
 										control={form.control}
 										name={`phones.${index}.number`}
-										render={({ field: inputField }) => (
-											<FormItem>
+										render={({ field }) => (
+											<FormItem className="flex-1">
 												<FormControl>
-													<Input {...inputField} placeholder="Phone number" />
+													<Input {...field} placeholder="Phone number" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
-									<Controller
+									<FormField
 										control={form.control}
 										name={`phones.${index}.type`}
-										render={({ field: selectField }) => (
+										render={({ field }) => (
 											<FormItem>
 												<Select
-													onValueChange={selectField.onChange}
-													value={selectField.value}
+													onValueChange={field.onChange}
+													value={field.value}
 												>
-													<SelectTrigger>
-														<SelectValue placeholder="Type" />
-													</SelectTrigger>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder="Type" />
+														</SelectTrigger>
+													</FormControl>
 													<SelectContent>
 														<SelectItem value="Mobile">Mobile</SelectItem>
 														<SelectItem value="Home">Home</SelectItem>
@@ -257,22 +281,22 @@ export function BuyerForm({ defaultValues, onSubmit }: BuyerFormProps) {
 						</div>
 
 						<div>
-							<Label>Email Addresses</Label>
+							<h4 className="text-sm font-medium mb-2">Email Addresses</h4>
 							{emailFields.map((field, index) => (
 								<div key={field.id} className="flex items-start gap-4 mt-2">
-									<Controller
+									<FormField
 										control={form.control}
 										name={`emails.${index}.address`}
-										render={({ field: inputField, fieldState: { error } }) => (
+										render={({ field, fieldState: { error } }) => (
 											<FormItem className="flex-1">
 												<FormControl>
 													<Input
-														{...inputField}
+														{...field}
 														type="email"
 														placeholder="Email address"
 														onBlur={async () => {
-															if (inputField.value) {
-																inputField.onBlur();
+															if (field.value) {
+																field.onBlur();
 																await form.trigger(`emails.${index}.address`);
 															}
 														}}

@@ -57,6 +57,7 @@
       "id": 1
     },
     {
+      "id": 2,
       "contractState": "draft",
       "formData": {
         "general": null,
@@ -65,7 +66,7 @@
         "financing": null,
         "beneficiary": {
           "name": {
-            "first": "Tyrone",
+            "first": "Tyronee",
             "last": "Mcgee"
           },
           "physicalAddress": {
@@ -101,11 +102,11 @@
           ],
           "optOutOfFutureMarketing": false
         }
-      },
-      "id": 2
+      }
     },
     {
-      "contractState": "draft",
+      "id": 3,
+      "contractState": "executed",
       "formData": {
         "general": null,
         "buyer": null,
@@ -149,8 +150,7 @@
           ],
           "optOutOfFutureMarketing": false
         }
-      },
-      "id": 3
+      }
     },
     {
       "contractState": "draft",
