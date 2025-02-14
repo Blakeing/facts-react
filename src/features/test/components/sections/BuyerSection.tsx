@@ -2,16 +2,18 @@ import { useSelector } from "@xstate/react";
 import { memo } from "react";
 import type { ActorRefFrom } from "xstate";
 import { BuyerForm } from "../../forms/buyer-form";
-import type { BuyerFormValues } from "../../forms/schemas/buyer-form";
+import {
+	buyerFormSchema,
+	type BuyerFormValues,
+} from "../../forms/schemas/buyer-form";
 import type createContractMachine from "../../machines/contractMachine";
-import type { BuyerData } from "../../types/buyer";
 
 type BuyerSectionProps = {
 	actor: ActorRefFrom<ReturnType<typeof createContractMachine>>;
-	onSubmit?: (data: BuyerData) => void;
+	onSubmit?: (data: BuyerFormValues) => void;
 };
 
-const defaultBuyerData: BuyerData = {
+const defaultBuyerData: BuyerFormValues = {
 	name: {
 		first: "",
 		last: "",
@@ -51,39 +53,24 @@ const defaultBuyerData: BuyerData = {
 };
 
 const buyerDataSelector = (state: {
-	context: { formData: { buyer: BuyerData | null } };
-}) => state.context.formData.buyer || defaultBuyerData;
+	context: { formData: { buyer: BuyerFormValues | null } };
+}) => {
+	const buyerData = state.context.formData.buyer;
+	if (!buyerData) return defaultBuyerData;
+
+	// Parse the buyer data through our schema to ensure it matches our form values type
+	const result = buyerFormSchema.safeParse(buyerData);
+	return result.success ? result.data : defaultBuyerData;
+};
 
 export const BuyerSection = memo(({ actor, onSubmit }: BuyerSectionProps) => {
 	const send = actor.send;
 	const formData = useSelector(actor, buyerDataSelector);
 
 	const handleChange = (data: BuyerFormValues) => {
-		const buyerData: BuyerData = {
-			...data,
-			mailingAddress: data.mailingAddress || undefined,
-			name: {
-				...data.name,
-				prefix: data.name.prefix ?? undefined,
-				middle: data.name.middle ?? undefined,
-				suffix: data.name.suffix ?? undefined,
-				companyName: data.name.companyName ?? undefined,
-				nickname: data.name.nickname ?? undefined,
-				maiden: data.name.maiden ?? undefined,
-				gender: data.name.gender ?? undefined,
-			},
-			dates: {
-				...data.dates,
-				dateOfBirth: data.dates.dateOfBirth ?? undefined,
-				dateOfDeath: data.dates.dateOfDeath ?? undefined,
-			},
-			role: data.role ?? undefined,
-			ethnicity: data.ethnicity ?? undefined,
-			race: data.race ?? undefined,
-		};
-		send({ type: "UPDATE_BUYER", data: buyerData });
+		send({ type: "UPDATE_BUYER", data });
 		if (onSubmit) {
-			onSubmit(buyerData);
+			onSubmit(data);
 		}
 	};
 

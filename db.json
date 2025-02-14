@@ -237,6 +237,10 @@
             {
               "address": "siqubavogo@mailinator.com",
               "isPreferred": true
+            },
+            {
+              "address": "blakeingenthron@gmail.com",
+              "isPreferred": false
             }
           ],
           "optOutOfFutureMarketing": false
