@@ -1,8 +1,10 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { BuyerFormValues } from "../forms/schemas/buyer-form";
+import type { BeneficiaryFormValues } from "../forms/schemas/beneficiary-form";
 import type { ContractApiError } from "./errors";
 import type { GeneralData } from "./general";
 import type { DoneActorEvent, ErrorActorEvent } from "xstate";
+import type { BuyerData } from "./buyer";
 
 // Re-export person types from schema
 import type {
@@ -33,12 +35,12 @@ export interface BeneficiaryData extends ContactInfo {
 	name: Name;
 	physicalAddress: Address;
 	mailingAddressSameAsPhysical: boolean;
-	mailingAddress?: Address;
+	mailingAddress?: Address | undefined;
 	identification: PersonIdentification;
 	dates: Dates;
-	role?: string;
-	ethnicity?: string;
-	race?: string;
+	role?: string | undefined;
+	ethnicity?: string | undefined;
+	race?: string | undefined;
 	isVeteran: boolean;
 	optOutOfFutureMarketing: boolean;
 }
@@ -46,7 +48,7 @@ export interface BeneficiaryData extends ContactInfo {
 // Form Data Types
 export interface FormData {
 	general: GeneralData | null;
-	buyer: BuyerFormValues | null;
+	buyer: BuyerData | null;
 	payment: PaymentData | null;
 	financing: FinancingData | null;
 	beneficiary: BeneficiaryData | null;
@@ -104,7 +106,7 @@ export type ContractEvent =
 	| { type: "VOID" }
 	| { type: "SAVE_CONTRACT" }
 	| { type: "UPDATE_GENERAL"; data: GeneralData }
-	| { type: "UPDATE_BUYER"; data: BuyerFormValues }
+	| { type: "UPDATE_BUYER"; data: BuyerData }
 	| { type: "UPDATE_PAYMENT"; data: PaymentData }
 	| { type: "UPDATE_FINANCING"; data: FinancingData }
 	| { type: "UPDATE_BENEFICIARY"; data: BeneficiaryData }

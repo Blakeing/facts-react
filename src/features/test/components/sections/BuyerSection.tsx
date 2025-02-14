@@ -6,14 +6,15 @@ import {
 	buyerFormSchema,
 	type BuyerFormValues,
 } from "../../forms/schemas/buyer-form";
+import type { BuyerData } from "../../types/buyer";
 import type createContractMachine from "../../machines/contractMachine";
 
 type BuyerSectionProps = {
 	actor: ActorRefFrom<ReturnType<typeof createContractMachine>>;
-	onSubmit?: (data: BuyerFormValues) => void;
+	onSubmit?: (data: BuyerData) => void;
 };
 
-const defaultBuyerData: BuyerFormValues = {
+const defaultBuyerData: BuyerData = {
 	name: {
 		first: "",
 		last: "",
@@ -53,7 +54,7 @@ const defaultBuyerData: BuyerFormValues = {
 };
 
 const buyerDataSelector = (state: {
-	context: { formData: { buyer: BuyerFormValues | null } };
+	context: { formData: { buyer: BuyerData | null } };
 }) => {
 	const buyerData = state.context.formData.buyer;
 	if (!buyerData) return defaultBuyerData;
@@ -68,9 +69,10 @@ export const BuyerSection = memo(({ actor, onSubmit }: BuyerSectionProps) => {
 	const formData = useSelector(actor, buyerDataSelector);
 
 	const handleChange = (data: BuyerFormValues) => {
-		send({ type: "UPDATE_BUYER", data });
+		const buyerData = data as BuyerData; // Safe since they're the same type
+		send({ type: "UPDATE_BUYER", data: buyerData });
 		if (onSubmit) {
-			onSubmit(data);
+			onSubmit(buyerData);
 		}
 	};
 

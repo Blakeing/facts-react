@@ -29,16 +29,19 @@ interface BuyerFormProps {
 	onSubmit: (data: BuyerFormValues) => void;
 }
 
-export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
+export function BuyerForm({ defaultValues, onSubmit }: BuyerFormProps) {
 	const form = useForm<BuyerFormValues>({
 		resolver: zodResolver(buyerFormSchema),
 		defaultValues,
-		mode: "onSubmit",
+		mode: "onChange",
 		reValidateMode: "onChange",
 	});
 
 	// Create debounced submit handler
 	const debouncedSubmit = useDebouncedCallback(onSubmit, 300);
+
+	const { formState } = form;
+	const { isDirty, isValid, errors } = formState;
 
 	// Watch all form values and validate with schema
 	const formValues = useWatch({
@@ -63,20 +66,40 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 		name: "emails",
 	});
 
+	// Log form state changes
+	useEffect(() => {
+		console.log("Buyer Form State:", {
+			isDirty,
+			isValid,
+			errors,
+			currentValues: form.getValues(),
+		});
+	}, [isDirty, isValid, errors, form]);
+
 	// Sync form changes with XState using debounced submit
 	useEffect(() => {
-		if (!formValues) return;
-
-		// Validate the form values with the schema
-		const result = buyerFormSchema.safeParse(formValues);
-		if (result.success) {
-			debouncedSubmit(result.data);
+		if (isDirty && isValid) {
+			const data = form.getValues();
+			console.log("Buyer Form Submitting:", data);
+			debouncedSubmit(data);
+		} else {
+			console.log("Buyer Form Not Submitting:", {
+				isDirty,
+				isValid,
+				hasErrors: Object.keys(errors).length > 0,
+			});
 		}
-	}, [formValues, debouncedSubmit]);
+	}, [isDirty, isValid, debouncedSubmit, form, errors]);
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form
+				className="space-y-8"
+				onChange={() => {
+					console.log("Buyer Form onChange triggered");
+					form.trigger();
+				}}
+			>
 				<Card className="p-6">
 					<h3 className="text-lg font-semibold mb-4">Personal Information</h3>
 					<div className="grid grid-cols-2 gap-4">
@@ -307,4 +330,4 @@ export const BuyerForm = ({ defaultValues, onSubmit }: BuyerFormProps) => {
 			</form>
 		</Form>
 	);
-};
+}

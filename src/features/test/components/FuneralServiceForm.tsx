@@ -6,7 +6,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useMachine } from "@xstate/react";
 import { produce } from "immer";
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ActorRef, SnapshotFrom } from "xstate";
 import { useContractMutations } from "../hooks/useContractMutations";
@@ -209,7 +209,9 @@ type ContractSend = (event: ContractEvent) => void;
 
 const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
-	const { data: contracts } = useContracts();
+	const { data: contracts, isLoading: isContractsLoading } = useContracts();
+	const [isInitialLoad, setIsInitialLoad] = useState(true);
+	const [isNavigating, setIsNavigating] = useState(false);
 	const ConfirmDialog = useConfirm(
 		"Unsaved Changes",
 		"You have unsaved changes. Are you sure you want to continue?",
@@ -254,9 +256,48 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		);
 	}, []);
 
+	// Load initial data or sync with latest contract data
+	useEffect(() => {
+		if (isContractsLoading) {
+			return;
+		}
+
+		if (initialData && !state.context.id) {
+			send({ type: "LOAD_CONTRACT", data: initialData });
+			// Delay setting initial load to false to ensure state is updated
+			setTimeout(() => setIsInitialLoad(false), 100);
+		} else if (state.context.id && contracts) {
+			const currentContract = contracts.find((c) => c.id === state.context.id);
+			if (
+				currentContract &&
+				currentContract.contractState !== state.context.contractState
+			) {
+				send({ type: "LOAD_CONTRACT", data: currentContract });
+			}
+			setTimeout(() => setIsInitialLoad(false), 100);
+		} else if (!initialData && !state.context.id) {
+			setTimeout(() => setIsInitialLoad(false), 100);
+		}
+	}, [
+		initialData,
+		contracts,
+		state.context.id,
+		state.context.contractState,
+		send,
+		isContractsLoading,
+	]);
+
 	// Track unsaved changes by comparing current form data with saved contract
 	const hasUnsavedChanges = useMemo(() => {
-		if (createMutation.isPending || updateMutation.isPending) return false;
+		if (
+			isInitialLoad ||
+			isContractsLoading ||
+			createMutation.isPending ||
+			updateMutation.isPending ||
+			isNavigating
+		) {
+			return false;
+		}
 
 		const currentContract =
 			state.context.id && contracts
@@ -271,33 +312,15 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 
 		return !compareContracts(state.context.formData, currentContract.formData);
 	}, [
+		isInitialLoad,
+		isContractsLoading,
 		state.context.id,
 		state.context.formData,
 		contracts,
 		createMutation.isPending,
 		updateMutation.isPending,
 		compareContracts,
-	]);
-
-	// Load initial data or sync with latest contract data
-	useEffect(() => {
-		if (initialData && !state.context.id) {
-			send({ type: "LOAD_CONTRACT", data: initialData });
-		} else if (state.context.id && contracts) {
-			const currentContract = contracts.find((c) => c.id === state.context.id);
-			if (
-				currentContract &&
-				currentContract.contractState !== state.context.contractState
-			) {
-				send({ type: "LOAD_CONTRACT", data: currentContract });
-			}
-		}
-	}, [
-		initialData,
-		contracts,
-		state.context.id,
-		state.context.contractState,
-		send,
+		isNavigating,
 	]);
 
 	// Use Immer for state updates in handlers
@@ -305,7 +328,12 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		const { formData, id, contractState } = state.context;
 
 		// Allow saving if at least one section is filled out
-		if (!formData.general && !formData.buyer && !formData.payment) {
+		if (
+			!formData.general &&
+			!formData.buyer &&
+			!formData.payment &&
+			!formData.beneficiary
+		) {
 			toast("Cannot Save Empty Form", {
 				description: "Please fill out at least one section before saving.",
 			});
@@ -325,10 +353,12 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		try {
 			if (id) {
 				updateMutation.mutate(contractData, {
-					onSuccess: () => {
+					onSuccess: (savedContract) => {
 						toast("Changes Saved", {
 							description: "Your changes have been saved successfully.",
 						});
+						// Update the contract state to match the saved data
+						send({ type: "LOAD_CONTRACT", data: savedContract });
 					},
 					onError: (error) => {
 						toast("Error Saving Changes", {
@@ -342,9 +372,16 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 			} else {
 				const { id: _, ...newContractData } = contractData;
 				createMutation.mutate(newContractData, {
-					onSuccess: () => {
+					onSuccess: (savedContract) => {
 						toast("Contract Created", {
 							description: "Your contract has been created successfully.",
+						});
+						// Update the contract state to match the saved data
+						send({ type: "LOAD_CONTRACT", data: savedContract });
+						// Navigate to the new contract's route
+						navigate({
+							to: "/test/$contractId",
+							params: { contractId: savedContract.id },
 						});
 					},
 					onError: (error) => {
@@ -363,7 +400,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 				description: "An unexpected error occurred. Please try again.",
 			});
 		}
-	}, [state.context, createMutation, updateMutation]);
+	}, [state.context, createMutation, updateMutation, send, navigate]);
 
 	const getEffectiveContractState = useCallback(() => {
 		if (updateMutation.isPending && updateMutation.variables?.contractState) {
@@ -464,7 +501,10 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 
 	const handleTabChange = useCallback(
 		async (value: string) => {
+			setIsNavigating(true);
 			send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
+			// Add a small delay before allowing unsaved changes to show
+			setTimeout(() => setIsNavigating(false), 100);
 		},
 		[send],
 	);
@@ -478,6 +518,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 							<Button
 								variant="outline"
 								onClick={() => {
+									setIsNavigating(true);
 									navigate({ to: "/test" });
 								}}
 							>

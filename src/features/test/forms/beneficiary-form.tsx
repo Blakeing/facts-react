@@ -10,7 +10,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { Separator } from "@/components/ui/separator";
 import {
 	Select,
@@ -22,29 +21,39 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2Icon } from "lucide-react";
-import { useCallback } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import type { Path, PathValue } from "react-hook-form";
-import type { BeneficiaryData } from "../types/contract";
+import { useEffect, useMemo } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useDebouncedCallback } from "use-debounce";
 import {
 	beneficiaryFormSchema,
 	type BeneficiaryFormValues,
 } from "./schemas/beneficiary-form";
+import { produce } from "immer";
 
 interface BeneficiaryFormProps {
-	defaultValues: BeneficiaryData;
-	onSubmit: (data: BeneficiaryData) => void;
+	defaultValues: BeneficiaryFormValues;
+	onSubmit: (data: BeneficiaryFormValues) => void;
 }
 
 export function BeneficiaryForm({
 	defaultValues,
 	onSubmit,
 }: BeneficiaryFormProps) {
+	// Create a mutable copy of defaultValues
+	const mutableDefaultValues = useMemo(
+		() => produce(defaultValues, (draft) => draft),
+		[defaultValues],
+	);
+
 	const form = useForm<BeneficiaryFormValues>({
 		resolver: zodResolver(beneficiaryFormSchema),
-		defaultValues,
-		mode: "onTouched",
+		defaultValues: mutableDefaultValues,
+		mode: "onChange",
+		reValidateMode: "onChange",
 	});
+
+	const { formState } = form;
+	const { isDirty, isValid, errors } = formState;
 
 	const {
 		fields: phoneFields,
@@ -64,44 +73,25 @@ export function BeneficiaryForm({
 		name: "emails",
 	});
 
-	const handleFieldChange = useCallback(
-		<T extends Path<BeneficiaryFormValues>>(
-			field: T,
-			value: PathValue<BeneficiaryFormValues, T>,
-		) => {
-			form.setValue(field, value);
-			const values = form.getValues();
-			const { mailingAddress, role, ethnicity, race, ...restValues } = values;
-			const formattedValues: BeneficiaryData = {
-				...restValues,
-				name: {
-					...values.name,
-					prefix: values.name.prefix || undefined,
-					middle: values.name.middle || undefined,
-					suffix: values.name.suffix || undefined,
-					companyName: values.name.companyName || undefined,
-					nickname: values.name.nickname || undefined,
-					maiden: values.name.maiden || undefined,
-					gender: values.name.gender || undefined,
-				},
-				dates: {
-					isDeceased: values.dates.isDeceased,
-					...(values.dates.dateOfBirth && {
-						dateOfBirth: values.dates.dateOfBirth,
-					}),
-					...(values.dates.dateOfDeath && {
-						dateOfDeath: values.dates.dateOfDeath,
-					}),
-				},
-				...(mailingAddress && { mailingAddress }),
-				...(role && { role }),
-				...(ethnicity && { ethnicity }),
-				...(race && { race }),
-			};
-			onSubmit(formattedValues);
+	// Create debounced submit handler
+	const debouncedSubmit = useDebouncedCallback(
+		(data: BeneficiaryFormValues) => {
+			if (isValid) {
+				onSubmit(data);
+			}
 		},
-		[form, onSubmit],
+		300,
 	);
+
+	// Handle form changes
+	useEffect(() => {
+		const subscription = form.watch((data) => {
+			if (data && isValid) {
+				debouncedSubmit(data as BeneficiaryFormValues);
+			}
+		});
+		return () => subscription.unsubscribe();
+	}, [form, debouncedSubmit, isValid]);
 
 	return (
 		<Card className="bg-background">
@@ -122,12 +112,7 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>First Name</FormLabel>
 											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.first", e.target.value)
-													}
-												/>
+												<Input {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -140,12 +125,7 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>Last Name</FormLabel>
 											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange("name.last", e.target.value)
-													}
-												/>
+												<Input {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -168,15 +148,7 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>State ID Number</FormLabel>
 											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"identification.stateIdNumber",
-															e.target.value,
-														)
-													}
-												/>
+												<Input {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -189,15 +161,7 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>Issuer</FormLabel>
 											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"identification.issuer",
-															e.target.value,
-														)
-													}
-												/>
+												<Input {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -220,10 +184,8 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>Ethnicity</FormLabel>
 											<Select
-												onValueChange={(value) =>
-													handleFieldChange("ethnicity", value)
-												}
-												{...(field.value && { defaultValue: field.value })}
+												onValueChange={field.onChange}
+												value={field.value || ""}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -248,10 +210,8 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>Race</FormLabel>
 											<Select
-												onValueChange={(value) =>
-													handleFieldChange("race", value)
-												}
-												{...(field.value && { defaultValue: field.value })}
+												onValueChange={field.onChange}
+												value={field.value || ""}
 											>
 												<FormControl>
 													<SelectTrigger>
@@ -285,9 +245,7 @@ export function BeneficiaryForm({
 											<FormControl>
 												<Checkbox
 													checked={field.value}
-													onCheckedChange={(checked) =>
-														handleFieldChange("isVeteran", checked === true)
-													}
+													onCheckedChange={field.onChange}
 												/>
 											</FormControl>
 											<FormLabel>Veteran Status</FormLabel>
@@ -311,15 +269,7 @@ export function BeneficiaryForm({
 										<FormItem>
 											<FormLabel>Street Address</FormLabel>
 											<FormControl>
-												<Input
-													{...field}
-													onChange={(e) =>
-														handleFieldChange(
-															"physicalAddress.street",
-															e.target.value,
-														)
-													}
-												/>
+												<Input {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -333,15 +283,7 @@ export function BeneficiaryForm({
 											<FormItem>
 												<FormLabel>City</FormLabel>
 												<FormControl>
-													<Input
-														{...field}
-														onChange={(e) =>
-															handleFieldChange(
-																"physicalAddress.city",
-																e.target.value,
-															)
-														}
-													/>
+													<Input {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -354,15 +296,7 @@ export function BeneficiaryForm({
 											<FormItem>
 												<FormLabel>State</FormLabel>
 												<FormControl>
-													<Input
-														{...field}
-														onChange={(e) =>
-															handleFieldChange(
-																"physicalAddress.state",
-																e.target.value,
-															)
-														}
-													/>
+													<Input {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -377,15 +311,7 @@ export function BeneficiaryForm({
 											<FormItem>
 												<FormLabel>Postal Code</FormLabel>
 												<FormControl>
-													<Input
-														{...field}
-														onChange={(e) =>
-															handleFieldChange(
-																"physicalAddress.postalCode",
-																e.target.value,
-															)
-														}
-													/>
+													<Input {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -398,15 +324,7 @@ export function BeneficiaryForm({
 											<FormItem>
 												<FormLabel>Country</FormLabel>
 												<FormControl>
-													<Input
-														{...field}
-														onChange={(e) =>
-															handleFieldChange(
-																"physicalAddress.country",
-																e.target.value,
-															)
-														}
-													/>
+													<Input {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -423,12 +341,7 @@ export function BeneficiaryForm({
 											<FormControl>
 												<Switch
 													checked={field.value}
-													onCheckedChange={(checked) =>
-														handleFieldChange(
-															"mailingAddressSameAsPhysical",
-															checked,
-														)
-													}
+													onCheckedChange={field.onChange}
 												/>
 											</FormControl>
 											<FormLabel>Mailing Address Same as Physical</FormLabel>
@@ -454,16 +367,33 @@ export function BeneficiaryForm({
 												<FormItem className="flex-1">
 													<FormLabel>Phone Number</FormLabel>
 													<FormControl>
-														<Input
-															{...field}
-															onChange={(e) =>
-																handleFieldChange(
-																	`phones.${index}.number` as Path<BeneficiaryFormValues>,
-																	e.target.value,
-																)
-															}
-														/>
+														<Input {...field} placeholder="Phone number" />
 													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<Controller
+											control={form.control}
+											name={`phones.${index}.type`}
+											render={({ field: selectField }) => (
+												<FormItem>
+													<FormLabel>Type</FormLabel>
+													<Select
+														onValueChange={selectField.onChange}
+														value={selectField.value}
+													>
+														<FormControl>
+															<SelectTrigger>
+																<SelectValue placeholder="Type" />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectItem value="Mobile">Mobile</SelectItem>
+															<SelectItem value="Home">Home</SelectItem>
+															<SelectItem value="Work">Work</SelectItem>
+														</SelectContent>
+													</Select>
 													<FormMessage />
 												</FormItem>
 											)}
@@ -498,22 +428,24 @@ export function BeneficiaryForm({
 										<FormField
 											control={form.control}
 											name={`emails.${index}.address`}
-											render={({ field }) => (
+											render={({ field, fieldState: { error } }) => (
 												<FormItem className="flex-1">
 													<FormLabel>Email Address</FormLabel>
 													<FormControl>
 														<Input
 															{...field}
 															type="email"
-															onChange={(e) =>
-																handleFieldChange(
-																	`emails.${index}.address` as Path<BeneficiaryFormValues>,
-																	e.target.value,
-																)
-															}
+															placeholder="Email address"
+															onBlur={async () => {
+																if (field.value) {
+																	field.onBlur();
+																	await form.trigger(`emails.${index}.address`);
+																}
+															}}
+															className={error ? "border-red-500" : ""}
 														/>
 													</FormControl>
-													<FormMessage />
+													{error && <FormMessage>{error.message}</FormMessage>}
 												</FormItem>
 											)}
 										/>
@@ -557,12 +489,7 @@ export function BeneficiaryForm({
 											<FormControl>
 												<Checkbox
 													checked={field.value}
-													onCheckedChange={(checked) =>
-														handleFieldChange(
-															"optOutOfFutureMarketing",
-															checked === true,
-														)
-													}
+													onCheckedChange={field.onChange}
 												/>
 											</FormControl>
 											<FormLabel>Opt Out of Future Marketing</FormLabel>

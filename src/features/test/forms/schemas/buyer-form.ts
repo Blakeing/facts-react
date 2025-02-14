@@ -47,10 +47,14 @@ export const addressSchema = z.object({
 });
 export type Address = z.infer<typeof addressSchema>;
 
-export const identificationSchema = z.object({
-	stateIdNumber: z.string().min(1, "State ID number is required"),
-	issuer: z.string().min(1, "Issuer is required"),
-});
+export const identificationSchema = z
+	.object({
+		stateIdNumber: z.string().min(1, "State ID number is required"),
+		issuer: z.string().min(1, "Issuer is required"),
+	})
+	.optional()
+	.transform((v) => v || { stateIdNumber: "", issuer: "" });
+
 export type Identification = z.infer<typeof identificationSchema>;
 
 export const datesSchema = z.object({
