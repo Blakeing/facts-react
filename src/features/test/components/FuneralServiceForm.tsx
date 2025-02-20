@@ -4,14 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useNavigate } from "@tanstack/react-router";
-import { useMachine } from "@xstate/react";
-import { isEqual } from "lodash";
-import { Loader2 } from "lucide-react";
-import { BugIcon } from "lucide-react";
+import { useActorRef, useSelector } from "@xstate/react";
+
+import { Bug as BugIcon, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { UseFormReturn } from "react-hook-form";
-import { FormProvider, useForm } from "react-hook-form";
-import type { FieldValues } from "react-hook-form";
+import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
+
 import { toast } from "sonner";
 import type { ActorRef, SnapshotFrom } from "xstate";
 import { useContractMutations } from "../hooks/useContractMutations";
@@ -19,7 +17,6 @@ import { useContracts } from "../hooks/useContracts";
 import createContractMachine from "../machines/contractMachine";
 import type {
 	Contract,
-	ContractContext,
 	ContractEvent,
 	ContractState,
 	FormData,
@@ -31,13 +28,12 @@ import {
 	BeneficiarySection,
 } from "./sections/BeneficiarySection";
 import { BuyerSection, type BuyerSectionRef } from "./sections/BuyerSection";
-import FinancingSection, {
+import {
+	FinancingSection,
 	type FinancingSectionRef,
 } from "./sections/FinancingSection";
-import type {
-	GeneralFormValues,
-	GeneralSectionRef,
-} from "./sections/GeneralSection";
+import type { FinancingFormValues } from "../forms/schemas/financing-form";
+import type { GeneralSectionRef } from "./sections/GeneralSection";
 import GeneralSection from "./sections/GeneralSection";
 import PaymentSection, {
 	type PaymentSectionRef,
@@ -184,7 +180,15 @@ const FormSection = ({
 				switch (currentState) {
 					case "general":
 					case "draft":
-						return <GeneralSection ref={generalRef} actor={actor} />;
+						return (
+							<GeneralSection
+								ref={generalRef}
+								actor={actor}
+								onDirtyChange={(isDirty) =>
+									onFormDirtyChange("general", isDirty)
+								}
+							/>
+						);
 					case "people":
 						return (
 							<PeopleSection
@@ -206,11 +210,27 @@ const FormSection = ({
 							/>
 						);
 					case "beneficiary":
-						return <BeneficiarySection ref={beneficiaryRef} actor={actor} />;
+						return (
+							<BeneficiarySection
+								ref={beneficiaryRef}
+								actor={actor}
+								onDirtyChange={(isDirty) =>
+									onFormDirtyChange("beneficiary", isDirty)
+								}
+							/>
+						);
 					case "payment":
 						return <PaymentSection ref={paymentRef} actor={actor} />;
 					case "financing":
-						return <FinancingSection ref={financingRef} actor={actor} />;
+						return (
+							<FinancingSection
+								ref={financingRef}
+								actor={actor}
+								onDirtyChange={(isDirty) =>
+									onFormDirtyChange("financing", isDirty)
+								}
+							/>
+						);
 					case "review":
 						return (
 							<ReviewSection
@@ -257,17 +277,24 @@ const FormSection = ({
 };
 
 type ContractMachine = ReturnType<typeof createContractMachine>;
-type ContractSnapshot = SnapshotFrom<ContractMachine> & {
-	context: ContractContext;
-	value: ContractStateValue | { [key: string]: ContractStateValue };
-};
+type ContractSnapshot = SnapshotFrom<ContractMachine>;
 type ContractActor = ActorRef<ContractSnapshot, ContractEvent>;
-type ContractSend = (event: ContractEvent) => void;
+
+// Update selector types
+const selectContext = (snapshot: ContractSnapshot) => snapshot.context;
+const selectValue = (snapshot: ContractSnapshot) =>
+	typeof snapshot.value === "string"
+		? snapshot.value
+		: Object.keys(snapshot.value)[0];
+const selectDraftData = (snapshot: ContractSnapshot) =>
+	snapshot.context.draftData;
+const selectContractState = (snapshot: ContractSnapshot) =>
+	snapshot.context.contractState;
+const selectContractId = (snapshot: ContractSnapshot) => snapshot.context.id;
 
 const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const { createMutation, updateMutation } = useContractMutations();
 	const { data: contracts, isLoading: isContractsLoading } = useContracts();
-	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const [isNavigating, setIsNavigating] = useState(false);
 	const [formDirtyStates, setFormDirtyStates] = useState<
 		Record<FormName, boolean>
@@ -288,7 +315,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const buyerFormRef = useRef<BuyerSectionRef>(null);
 	const beneficiaryFormRef = useRef<BeneficiaryRef>(null);
 	const paymentFormRef = useRef<PaymentSectionRef>(null);
-	const financingFormRef = useRef<FinancingSectionRef>(null);
+	const financingFormRef = useRef<FinancingSectionRef | null>(null);
 
 	// Use ref for stable machine config
 	const mutationsRef = useRef({ createMutation, updateMutation });
@@ -312,11 +339,13 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		[],
 	);
 
-	const [state, send, actor] = useMachine(machine) as [
-		ContractSnapshot,
-		ContractSend,
-		ContractActor,
-	];
+	// Replace useMachine with useActorRef and useSelector
+	const actor = useActorRef(machine);
+	const context = useSelector(actor, selectContext);
+	const currentState = useSelector(actor, selectValue) as ContractStateValue;
+	const draftData = useSelector(actor, selectDraftData);
+	const contractState = useSelector(actor, selectContractState);
+	const contractId = useSelector(actor, selectContractId);
 
 	const navigate = useNavigate();
 
@@ -326,28 +355,23 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 			return;
 		}
 
-		if (initialData && !state.context.id) {
-			send({ type: "LOAD_CONTRACT", data: initialData });
-			// Delay setting initial load to false to ensure state is updated
-			setTimeout(() => setIsInitialLoad(false), 100);
-		} else if (state.context.id && contracts) {
-			const currentContract = contracts.find((c) => c.id === state.context.id);
+		if (initialData && !context.id) {
+			actor.send({ type: "LOAD_CONTRACT", data: initialData });
+		} else if (context.id && contracts) {
+			const currentContract = contracts.find((c) => c.id === context.id);
 			if (
 				currentContract &&
-				currentContract.contractState !== state.context.contractState
+				currentContract.contractState !== context.contractState
 			) {
-				send({ type: "LOAD_CONTRACT", data: currentContract });
+				actor.send({ type: "LOAD_CONTRACT", data: currentContract });
 			}
-			setTimeout(() => setIsInitialLoad(false), 100);
-		} else if (!initialData && !state.context.id) {
-			setTimeout(() => setIsInitialLoad(false), 100);
 		}
 	}, [
 		initialData,
 		contracts,
-		state.context.id,
-		state.context.contractState,
-		send,
+		context.id,
+		context.contractState,
+		actor,
 		isContractsLoading,
 	]);
 
@@ -370,44 +394,53 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		return Object.values(formDirtyStates).some(Boolean);
 	}, [formDirtyStates, isNavigating]);
 
-	// Use Immer for state updates in handlers
+	const resetFormDirtyStates = useCallback(() => {
+		setFormDirtyStates({
+			general: false,
+			buyer: false,
+			beneficiary: false,
+			payment: false,
+			financing: false,
+		});
+	}, []);
+
+	const handleMutationSuccess = useCallback(
+		(savedContract: Contract) => {
+			toast("Changes Saved", {
+				description: "Your changes have been saved successfully.",
+			});
+			resetFormDirtyStates();
+			actor.send({ type: "LOAD_CONTRACT", data: savedContract });
+		},
+		[actor, resetFormDirtyStates],
+	);
+
 	const handleSave = useCallback(() => {
-		const { draftData, id, contractState } = state.context;
-
-		// Save all form sections first
-		const savedData = { ...state.context.draftData };
-
-		// Track XState context after each save
+		const savedData = { ...draftData };
 		const getXStateContext = () => actor.getSnapshot().context.draftData;
 
+		// Save each form section
 		if (generalFormRef.current?.save) {
 			generalFormRef.current.save();
-			const contextAfterGeneral = getXStateContext();
-			savedData.general = contextAfterGeneral.general;
+			savedData.general = getXStateContext().general;
 		}
 		if (buyerFormRef.current?.save) {
-			const buyerFormValues = buyerFormRef.current.form.getValues();
 			buyerFormRef.current.save();
-			const contextAfterBuyer = getXStateContext();
-			savedData.buyer = contextAfterBuyer.buyer;
+			savedData.buyer = getXStateContext().buyer;
 		}
 		if (beneficiaryFormRef.current?.save) {
 			beneficiaryFormRef.current.save();
-			const contextAfterBeneficiary = getXStateContext();
-			savedData.beneficiary = contextAfterBeneficiary.beneficiary;
+			savedData.beneficiary = getXStateContext().beneficiary;
 		}
 		if (paymentFormRef.current?.save) {
 			paymentFormRef.current.save();
-			const contextAfterPayment = getXStateContext();
-			savedData.payment = contextAfterPayment.payment;
+			savedData.payment = getXStateContext().payment;
 		}
 		if (financingFormRef.current?.save) {
 			financingFormRef.current.save();
-			const contextAfterFinancing = getXStateContext();
-			savedData.financing = contextAfterFinancing.financing;
+			savedData.financing = getXStateContext().financing;
 		}
 
-		// Allow saving if at least one section is filled out
 		if (
 			!savedData.general &&
 			!savedData.buyer &&
@@ -420,31 +453,16 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 			return;
 		}
 
-		const nextId = id || crypto.randomUUID();
 		const contractData = {
-			id: nextId,
+			id: contractId || crypto.randomUUID(),
 			contractState: contractState || "draft",
 			formData: savedData,
 		} as Contract;
 
 		try {
-			if (id) {
+			if (contractId) {
 				updateMutation.mutate(contractData, {
-					onSuccess: (savedContract) => {
-						toast("Changes Saved", {
-							description: "Your changes have been saved successfully.",
-						});
-						// Reset all form dirty states
-						setFormDirtyStates({
-							general: false,
-							buyer: false,
-							beneficiary: false,
-							payment: false,
-							financing: false,
-						});
-						// Update the contract state to match the saved data
-						send({ type: "LOAD_CONTRACT", data: savedContract });
-					},
+					onSuccess: handleMutationSuccess,
 					onError: (error) => {
 						toast("Error Saving Changes", {
 							description:
@@ -456,30 +474,17 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 				});
 			} else {
 				const { id: _, ...newContractData } = contractData;
-				setIsNavigating(true); // Set navigating state before creating new contract
+				setIsNavigating(true);
 				createMutation.mutate(newContractData, {
 					onSuccess: (savedContract) => {
-						toast("Contract Created", {
-							description: "Your contract has been created successfully.",
-						});
-						// Reset all form dirty states
-						setFormDirtyStates({
-							general: false,
-							buyer: false,
-							beneficiary: false,
-							payment: false,
-							financing: false,
-						});
-						// Update the contract state to match the saved data
-						send({ type: "LOAD_CONTRACT", data: savedContract });
-						// Navigate to the new contract's route
+						handleMutationSuccess(savedContract);
 						navigate({
 							to: "/test/$contractId",
 							params: { contractId: savedContract.id },
 						});
 					},
 					onError: (error) => {
-						setIsNavigating(false); // Reset navigating state on error
+						setIsNavigating(false);
 						toast("Error Creating Contract", {
 							description:
 								error instanceof Error
@@ -490,18 +495,20 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 				});
 			}
 		} catch (error) {
-			setIsNavigating(false); // Reset navigating state on error
+			setIsNavigating(false);
 			toast("Error", {
 				description: "An unexpected error occurred. Please try again.",
 			});
 		}
 	}, [
-		state.context,
+		draftData,
+		contractId,
+		contractState,
 		createMutation,
 		updateMutation,
-		send,
+		actor,
 		navigate,
-		actor.getSnapshot,
+		handleMutationSuccess,
 	]);
 
 	const getEffectiveContractState = useCallback(() => {
@@ -509,80 +516,78 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 			return updateMutation.variables.contractState;
 		}
 
-		if (state.context.id && contracts) {
-			const currentContract = contracts.find((c) => c.id === state.context.id);
+		if (contractId && contracts) {
+			const currentContract = contracts.find((c) => c.id === contractId);
 			if (currentContract) {
 				return currentContract.contractState;
 			}
 		}
 
-		return state.context.contractState || "draft";
+		return contractState || "draft";
 	}, [
 		updateMutation.isPending,
 		updateMutation.variables,
-		state.context,
+		contractId,
 		contracts,
+		contractState,
 	]);
 
 	const effectiveState = getEffectiveContractState();
 
+	// Replace state.context references with selected values
 	const handleExecute = useCallback(() => {
 		const contractData = {
-			id: state.context.id || crypto.randomUUID(),
+			id: contractId || crypto.randomUUID(),
 			contractState: "executed" as ContractState,
-			formData: state.context.draftData,
+			formData: draftData,
 		};
 
-		if (state.context.id) {
+		if (contractId) {
 			updateMutation.mutate(contractData, {
-				onSuccess: () => send({ type: "EXECUTE" }),
+				onSuccess: () => actor.send({ type: "EXECUTE" }),
 			});
 		} else {
 			const { id: _, ...newContractData } = contractData;
 			createMutation.mutate(newContractData, {
-				onSuccess: () => send({ type: "EXECUTE" }),
+				onSuccess: () => actor.send({ type: "EXECUTE" }),
 			});
 		}
-	}, [send, state.context, createMutation, updateMutation]);
+	}, [draftData, contractId, createMutation, updateMutation, actor]);
 
 	const handleFinalize = useCallback(() => {
 		const contractData = {
-			id: state.context.id || crypto.randomUUID(),
+			id: contractId || crypto.randomUUID(),
 			contractState: "finalized" as ContractState,
-			formData: state.context.draftData,
+			formData: draftData,
 		};
 
-		if (state.context.id) {
+		if (contractId) {
 			updateMutation.mutate(contractData, {
-				onSuccess: () => send({ type: "FINALIZE" }),
+				onSuccess: () => actor.send({ type: "FINALIZE" }),
 			});
 		}
-	}, [send, state.context, updateMutation]);
+	}, [draftData, contractId, updateMutation, actor]);
 
 	const handleVoid = useCallback(() => {
 		const contractData = {
-			id: state.context.id || crypto.randomUUID(),
+			id: contractId || crypto.randomUUID(),
 			contractState: "void" as ContractState,
-			formData: state.context.draftData,
+			formData: draftData,
 		};
 
-		if (state.context.id) {
+		if (contractId) {
 			updateMutation.mutate(contractData, {
-				onSuccess: () => send({ type: "VOID" }),
+				onSuccess: () => actor.send({ type: "VOID" }),
 			});
 		}
-	}, [send, state.context, updateMutation]);
+	}, [draftData, contractId, updateMutation, actor]);
 
 	const handleEdit = useCallback(
 		(section: ReviewSectionType) => {
-			send({ type: SECTION_MAP[section as keyof typeof SECTION_MAP] });
+			actor.send({ type: SECTION_MAP[section as keyof typeof SECTION_MAP] });
 		},
-		[send],
+		[actor],
 	);
-
-	const currentState = (
-		typeof state.value === "string" ? state.value : Object.keys(state.value)[0]
-	) as ContractStateValue;
 
 	const tabValue = (
 		currentState === "draft" ? "general" : currentState
@@ -604,76 +609,50 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 	const handleTabChange = useCallback(
 		async (value: string) => {
 			setIsNavigating(true);
-			send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
+			actor.send({ type: SECTION_MAP[value as keyof typeof SECTION_MAP] });
 			// Add a smaller delay before allowing unsaved changes to show
 			setTimeout(() => setIsNavigating(false), 50);
 		},
-		[send],
+		[actor],
 	);
 
-	// Function to collect form states
+	// Simplify form state collection
 	const collectDebugData = useCallback(() => {
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const formStates: Record<string, any> = {};
+		interface FormState {
+			type: "form";
+			values: unknown;
+			isDirty: boolean;
+			formState: { isDirty: boolean };
+		}
 
-		if (generalFormRef.current?.form) {
-			formStates[FORM_KEYS.GENERAL] = {
-				type: "form",
-				values: generalFormRef.current.form.getValues(),
-				isDirty: generalFormRef.current.isDirty,
-				formState: {
-					isDirty: generalFormRef.current.isDirty,
-				},
-			};
-		}
-		if (buyerFormRef.current?.form) {
-			formStates[FORM_KEYS.BUYER] = {
-				type: "form",
-				values: buyerFormRef.current.form.getValues(),
-				isDirty: buyerFormRef.current.isDirty,
-				formState: {
-					isDirty: buyerFormRef.current.isDirty,
-				},
-			};
-		}
-		if (beneficiaryFormRef.current?.form) {
-			formStates[FORM_KEYS.BENEFICIARY] = {
-				type: "form",
-				values: beneficiaryFormRef.current.form.getValues(),
-				isDirty: beneficiaryFormRef.current.isDirty,
-				formState: {
-					isDirty: beneficiaryFormRef.current.isDirty,
-				},
-			};
-		}
-		if (paymentFormRef.current?.form) {
-			formStates[FORM_KEYS.PAYMENT] = {
-				type: "form",
-				values: paymentFormRef.current.form.getValues(),
-				isDirty: paymentFormRef.current.isDirty,
-				formState: {
-					isDirty: paymentFormRef.current.isDirty,
-				},
-			};
-		}
-		if (financingFormRef.current?.form) {
-			formStates[FORM_KEYS.FINANCING] = {
-				type: "form",
-				values: financingFormRef.current.form.getValues(),
-				isDirty: financingFormRef.current.isDirty,
-				formState: {
-					isDirty: financingFormRef.current.isDirty,
-				},
-			};
+		const formStates: Record<string, FormState> = {};
+
+		for (const [key, value] of Object.entries(FORM_KEYS)) {
+			const ref = {
+				[FORM_KEYS.GENERAL]: generalFormRef,
+				[FORM_KEYS.BUYER]: buyerFormRef,
+				[FORM_KEYS.BENEFICIARY]: beneficiaryFormRef,
+				[FORM_KEYS.PAYMENT]: paymentFormRef,
+				[FORM_KEYS.FINANCING]: financingFormRef,
+			}[value];
+
+			if (ref?.current?.form) {
+				formStates[key] = {
+					type: "form",
+					values: ref.current.form.getValues(),
+					isDirty: ref.current.isDirty,
+					formState: { isDirty: ref.current.isDirty },
+				};
+			}
 		}
 
 		setDebugData({
-			xstateContext: state.context,
+			xstateContext: context,
 			rhfForms: {
 				...formStates,
 				root: {
 					type: "root",
-					values: state.context.draftData as unknown as Record<string, unknown>,
+					values: draftData as unknown as Record<string, unknown>,
 					formDirtyStates,
 					hasUnsavedChanges,
 					isNavigating,
@@ -682,12 +661,13 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 		});
 		openDebugSheet();
 	}, [
-		state.context,
-		setDebugData,
-		openDebugSheet,
+		context,
+		draftData,
 		formDirtyStates,
 		hasUnsavedChanges,
 		isNavigating,
+		setDebugData,
+		openDebugSheet,
 	]);
 
 	return (
@@ -766,7 +746,7 @@ const FuneralServiceForm = ({ initialData }: FuneralServiceFormProps) => {
 						<FormSection
 							currentState={currentState}
 							actor={actor}
-							formData={state.context.draftData}
+							formData={draftData}
 							onEdit={handleEdit}
 							status={currentState}
 							generalRef={generalFormRef}

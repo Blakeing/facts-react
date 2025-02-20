@@ -1,9 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
-import { produce } from "immer";
-import { forwardRef, memo, useCallback, useImperativeHandle } from "react";
-import type { UseFormReturn } from "react-hook-form";
-import { useForm, useFormState } from "react-hook-form";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import {
+	type UseFormReturn,
+	useForm,
+	useFormState,
+	FormProvider,
+} from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import { BeneficiaryForm } from "../../forms/beneficiary-form";
 import {
@@ -13,6 +16,8 @@ import {
 import type createContractMachine from "../../machines/contractMachine";
 import type { BeneficiaryData } from "../../types/contract";
 import type { ContractContext } from "../../types/contract";
+import isEqual from "lodash/isEqual";
+import { Card, CardContent } from "@/components/ui/card";
 
 export interface BeneficiaryRef {
 	form: UseFormReturn<BeneficiaryFormValues>;
@@ -22,20 +27,13 @@ export interface BeneficiaryRef {
 
 interface BeneficiarySectionProps {
 	actor: ActorRefFrom<ReturnType<typeof createContractMachine>>;
-	onSubmit?: (data: BeneficiaryData) => void;
+	onDirtyChange?: (isDirty: boolean) => void;
 }
 
-const defaultBeneficiaryData: BeneficiaryData = {
+const defaultBeneficiaryData: BeneficiaryFormValues = {
 	name: {
 		first: "",
 		last: "",
-		prefix: undefined,
-		middle: undefined,
-		suffix: undefined,
-		companyName: undefined,
-		nickname: undefined,
-		maiden: undefined,
-		gender: undefined,
 	},
 	physicalAddress: {
 		street: "",
@@ -45,54 +43,61 @@ const defaultBeneficiaryData: BeneficiaryData = {
 		country: "United States",
 	},
 	mailingAddressSameAsPhysical: true,
-	mailingAddress: undefined,
 	identification: {
 		stateIdNumber: "",
 		issuer: "",
 	},
 	dates: {
-		dateOfBirth: undefined,
-		dateOfDeath: undefined,
 		isDeceased: false,
 	},
-	role: undefined,
-	ethnicity: undefined,
-	race: undefined,
 	isVeteran: false,
 	phones: [{ number: "", type: "Mobile", isPreferred: true }],
 	emails: [{ address: "", isPreferred: true }],
 	optOutOfFutureMarketing: false,
 };
 
-const beneficiaryDataSelector = (state: { context: ContractContext }) =>
-	state.context.draftData.beneficiary || defaultBeneficiaryData;
+const selectBeneficiaryData = (state: { context: ContractContext }) =>
+	state.context.draftData.beneficiary ?? defaultBeneficiaryData;
+
+const compareBeneficiaryData = (
+	prev: BeneficiaryFormValues,
+	next: BeneficiaryFormValues,
+) => isEqual(prev, next);
 
 export const BeneficiarySection = forwardRef<
 	BeneficiaryRef,
 	BeneficiarySectionProps
->(({ actor, onSubmit }, ref) => {
-	const send = actor.send;
-	const formData = useSelector(actor, beneficiaryDataSelector);
+>(({ actor, onDirtyChange }, ref) => {
+	// Get initial data from XState
+	const beneficiaryData = useSelector(
+		actor,
+		selectBeneficiaryData,
+		compareBeneficiaryData,
+	);
 
+	// Initialize form with RHF
 	const form = useForm<BeneficiaryFormValues>({
 		resolver: zodResolver(beneficiaryFormSchema),
-		defaultValues: formData,
-		mode: "onChange",
+		defaultValues: beneficiaryData,
+		mode: "onSubmit", // Only validate on submit
 	});
 
+	// Track form state for dirty tracking
 	const formState = useFormState({
 		control: form.control,
 	});
 
+	// Function to save form data to XState
 	const saveToXState = useCallback(() => {
 		const data = form.getValues();
-		const beneficiaryData = produce(data, (draft) => draft) as BeneficiaryData;
-		send({ type: "UPDATE_BENEFICIARY", data: beneficiaryData });
-		if (onSubmit) {
-			onSubmit(beneficiaryData);
-		}
-	}, [form, send, onSubmit]);
+		actor.send({
+			type: "UPDATE_BENEFICIARY",
+			data: data as BeneficiaryData,
+			isValid: true, // Always valid in draft mode
+		});
+	}, [form, actor]);
 
+	// Expose form methods, dirty state, and save function to parent
 	useImperativeHandle(
 		ref,
 		() => ({
@@ -103,7 +108,35 @@ export const BeneficiarySection = forwardRef<
 		[form, formState.isDirty, saveToXState],
 	);
 
-	return <BeneficiaryForm defaultValues={formData} onSubmit={saveToXState} />;
+	// Reset form when external data changes and form isn't dirty
+	useEffect(() => {
+		if (!formState.isDirty) {
+			// Only reset if the data is actually different
+			const currentValues = form.getValues();
+			const isDifferent = !isEqual(currentValues, beneficiaryData);
+			if (isDifferent) {
+				form.reset(beneficiaryData);
+			}
+		}
+	}, [form, beneficiaryData, formState.isDirty]);
+
+	// Notify parent of dirty state changes
+	useEffect(() => {
+		onDirtyChange?.(formState.isDirty);
+	}, [formState.isDirty, onDirtyChange]);
+
+	return (
+		<Card>
+			<CardContent>
+				<FormProvider {...form}>
+					<BeneficiaryForm
+						onSubmit={saveToXState}
+						onDirtyChange={onDirtyChange || undefined}
+					/>
+				</FormProvider>
+			</CardContent>
+		</Card>
+	);
 });
 
 BeneficiarySection.displayName = "BeneficiarySection";

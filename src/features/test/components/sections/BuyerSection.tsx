@@ -1,22 +1,18 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "@xstate/react";
 import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 import {
 	FormProvider,
-	type Resolver,
 	type UseFormReturn,
 	useForm,
 	useFormState,
 } from "react-hook-form";
 import type { ActorRefFrom } from "xstate";
 import { BuyerForm } from "../../forms/buyer-form";
-import {
-	type BuyerFormValues,
-	buyerFormSchema,
-} from "../../forms/schemas/buyer-form";
+import type { BuyerFormValues } from "../../forms/schemas/buyer-form";
 import type createContractMachine from "../../machines/contractMachine";
 import type { BuyerData } from "../../types/buyer";
 import type { ContractContext } from "../../types/contract";
+import isEqual from "lodash/isEqual";
 
 export interface BuyerSectionRef {
 	form: UseFormReturn<BuyerFormValues>;
@@ -55,20 +51,16 @@ const defaultBuyerData: BuyerFormValues = {
 	optOutOfFutureMarketing: false,
 };
 
+const selectBuyerData = (state: { context: ContractContext }) =>
+	state.context.draftData.buyer ?? defaultBuyerData;
+
+const compareBuyerData = (prev: BuyerFormValues, next: BuyerFormValues) =>
+	isEqual(prev, next);
+
 export const BuyerSection = forwardRef<BuyerSectionRef, BuyerSectionProps>(
 	({ actor, onDirtyChange }, ref) => {
 		// Get initial data from XState
-		const buyerData = useSelector(
-			actor,
-			(state: { context: ContractContext }) => {
-				return state.context.draftData.buyer ?? defaultBuyerData;
-			},
-		);
-
-		const contractState = useSelector(
-			actor,
-			(state: { context: ContractContext }) => state.context.contractState,
-		);
+		const buyerData = useSelector(actor, selectBuyerData, compareBuyerData);
 
 		// Initialize form with RHF
 		const form = useForm<BuyerFormValues>({
@@ -107,8 +99,7 @@ export const BuyerSection = forwardRef<BuyerSectionRef, BuyerSectionProps>(
 			if (!formState.isDirty) {
 				// Only reset if the data is actually different
 				const currentValues = form.getValues();
-				const isDifferent =
-					JSON.stringify(currentValues) !== JSON.stringify(buyerData);
+				const isDifferent = !isEqual(currentValues, buyerData);
 				if (isDifferent) {
 					form.reset(buyerData);
 				}

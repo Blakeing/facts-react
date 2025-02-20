@@ -18,11 +18,12 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useGeneralForm } from "../hooks/useGeneralForm";
 import type { GeneralFormValues } from "../types";
+import isEqual from "lodash/isEqual";
 
 const formSchema = z.object({
 	serviceDate: z.string().min(1, "Service date is required"),
@@ -42,6 +43,16 @@ interface GeneralFormProps {
 	mode?: "create" | "edit";
 }
 
+const defaultFormValues: GeneralFormValues = {
+	serviceDate: "",
+	contractSignDate: "",
+	prePrintedContractNumber: "",
+	funeralDirector: "",
+	atNeedType: "",
+	contractType: "",
+	campaign: "",
+};
+
 export function GeneralForm({
 	defaultValues,
 	onSubmit,
@@ -49,9 +60,18 @@ export function GeneralForm({
 	onFieldChange,
 	mode = "create",
 }: GeneralFormProps) {
+	// Memoize the merged default values
+	const mergedDefaultValues = useMemo(
+		() => ({
+			...defaultFormValues,
+			...defaultValues,
+		}),
+		[defaultValues],
+	);
+
 	const form = useForm<GeneralFormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues,
+		defaultValues: mergedDefaultValues,
 	});
 
 	const {
@@ -60,41 +80,42 @@ export function GeneralForm({
 		handleSubmit: handleStateMachineSubmit,
 		handleReset: handleStateMachineReset,
 		setInitialData,
-	} = useGeneralForm(defaultValues);
+	} = useGeneralForm(mergedDefaultValues);
 
-	// Reset form when defaultValues change
+	// Reset form when defaultValues change, but only if they're different
 	useEffect(() => {
-		form.reset(defaultValues);
-		setInitialData({
-			...defaultValues,
-			serviceDate: defaultValues.serviceDate || "",
-			contractSignDate: defaultValues.contractSignDate || "",
-			prePrintedContractNumber: defaultValues.prePrintedContractNumber || "",
-			funeralDirector: defaultValues.funeralDirector || "",
-			atNeedType: defaultValues.atNeedType || "",
-			contractType: defaultValues.contractType || "",
-			campaign: defaultValues.campaign || "",
-		} as GeneralFormValues);
-	}, [defaultValues, form, setInitialData]);
+		if (!isEqual(form.getValues(), mergedDefaultValues)) {
+			form.reset(mergedDefaultValues);
+			setInitialData(mergedDefaultValues);
+		}
+	}, [mergedDefaultValues, form, setInitialData]);
 
-	// Notify parent of field changes
-	useEffect(() => {
+	// Memoized field change handler
+	const handleFieldChange = useCallback(() => {
 		if (isDirty) {
 			onFieldChange?.();
 		}
 	}, [isDirty, onFieldChange]);
 
-	const handleFormSubmit = async (data: GeneralFormValues) => {
-		await handleStateMachineSubmit(async () => {
-			await onSubmit(data);
-		});
-	};
+	// Notify parent of field changes
+	useEffect(() => {
+		handleFieldChange();
+	}, [handleFieldChange]);
 
-	const handleFormReset = () => {
-		form.reset();
+	const handleFormSubmit = useCallback(
+		async (data: GeneralFormValues) => {
+			await handleStateMachineSubmit(async () => {
+				await onSubmit(data);
+			});
+		},
+		[handleStateMachineSubmit, onSubmit],
+	);
+
+	const handleFormReset = useCallback(() => {
+		form.reset(mergedDefaultValues);
 		handleStateMachineReset();
 		onReset?.();
-	};
+	}, [form, mergedDefaultValues, handleStateMachineReset, onReset]);
 
 	return (
 		<Form {...form}>

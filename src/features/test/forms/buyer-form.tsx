@@ -18,8 +18,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 
-import { forwardRef, useEffect } from "react";
-import { useFieldArray, useFormContext, useFormState } from "react-hook-form";
+import { forwardRef } from "react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import type { BuyerFormValues } from "./schemas/buyer-form";
 
 interface BuyerFormProps {
@@ -29,9 +29,6 @@ interface BuyerFormProps {
 export const BuyerForm = forwardRef<HTMLFormElement, BuyerFormProps>(
 	({ onSubmit }, ref) => {
 		const methods = useFormContext<BuyerFormValues>();
-		const formState = useFormState({
-			control: methods.control,
-		});
 
 		const {
 			fields: phoneFields,
