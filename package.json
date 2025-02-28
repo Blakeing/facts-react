@@ -8,11 +8,12 @@
 		"lint": "biome lint .",
 		"format": "biome format --write .",
 		"check": "biome check --write .",
-		"dev": "concurrently \"vite\" \"pnpm run server\"",
+		"dev": "concurrently \"vite\" \"pnpm run server:multi\"",
 		"build": "vite build",
 		"serve": "vite preview",
 		"start": "vite",
 		"server": "json-server --watch db.json --port 3001",
+		"server:multi": "node scripts/start-db.js",
 		"clear:vite": "rm -rf node_modules/.vite"
 	},
 	"dependencies": {

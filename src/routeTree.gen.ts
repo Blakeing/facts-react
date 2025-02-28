@@ -20,6 +20,7 @@ import { Route as DepositsImport } from './routes/deposits'
 import { Route as CommissionsImport } from './routes/commissions'
 import { Route as IndexImport } from './routes/index'
 import { Route as TestIndexImport } from './routes/test/index'
+import { Route as PropertyIndexImport } from './routes/property/index'
 import { Route as WorkflowTrackingImport } from './routes/workflow/tracking'
 import { Route as WorkflowScanImport } from './routes/workflow/scan'
 import { Route as TestContractIdImport } from './routes/test/$contractId'
@@ -44,16 +45,22 @@ import { Route as SetupEmployeesImport } from './routes/setup/employees'
 import { Route as SetupContractsImport } from './routes/setup/contracts'
 import { Route as SetupCommissionsImport } from './routes/setup/commissions'
 import { Route as SetupAccountingImport } from './routes/setup/accounting'
+import { Route as PropertyGraveImport } from './routes/property/grave'
+import { Route as PropertyBlockImport } from './routes/property/block'
 import { Route as PaymentsUnappliedImport } from './routes/payments/unapplied'
 import { Route as PaymentsBatchesImport } from './routes/payments/batches'
 import { Route as ContractsPreNeedIndexImport } from './routes/contracts/pre-need/index'
 import { Route as ContractsAtNeedIndexImport } from './routes/contracts/at-need/index'
+import { Route as PropertyGraveGraveIdImport } from './routes/property/grave.$graveId'
 import { Route as ContractsPreNeedNewImport } from './routes/contracts/pre-need/new'
 import { Route as ContractsPreNeedContractIdImport } from './routes/contracts/pre-need/$contractId'
 import { Route as ContractsAtNeedNewImport } from './routes/contracts/at-need/new'
 import { Route as ContractsAtNeedContractNumberImport } from './routes/contracts/at-need/$contractNumber'
 import { Route as ContractsAtNeedContractIdImport } from './routes/contracts/at-need/$contractId'
 import { Route as ContractsAtNeedContractNumberSectionImport } from './routes/contracts/at-need/$contractNumber/$section'
+import { Route as PropertySectionIdLotIdBlockIdIndexImport } from './routes/property/$sectionId/$lotId/$blockId/index'
+import { Route as PropertySectionIdLotIdBlockIdGraveGraveIdImport } from './routes/property/$sectionId.$lotId.$blockId.grave.$graveId'
+import { Route as PropertyPropertySectionIdLotIdBlockIdGraveGraveIdImport } from './routes/property/property.$sectionId.$lotId.$blockId.grave.$graveId'
 
 // Create/Update Routes
 
@@ -108,6 +115,12 @@ const IndexRoute = IndexImport.update({
 const TestIndexRoute = TestIndexImport.update({
   id: '/test/',
   path: '/test/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PropertyIndexRoute = PropertyIndexImport.update({
+  id: '/property/',
+  path: '/property/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -255,6 +268,18 @@ const SetupAccountingRoute = SetupAccountingImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PropertyGraveRoute = PropertyGraveImport.update({
+  id: '/property/grave',
+  path: '/property/grave',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PropertyBlockRoute = PropertyBlockImport.update({
+  id: '/property/block',
+  path: '/property/block',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const PaymentsUnappliedRoute = PaymentsUnappliedImport.update({
   id: '/payments/unapplied',
   path: '/payments/unapplied',
@@ -277,6 +302,12 @@ const ContractsAtNeedIndexRoute = ContractsAtNeedIndexImport.update({
   id: '/contracts/at-need/',
   path: '/contracts/at-need/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const PropertyGraveGraveIdRoute = PropertyGraveGraveIdImport.update({
+  id: '/$graveId',
+  path: '/$graveId',
+  getParentRoute: () => PropertyGraveRoute,
 } as any)
 
 const ContractsPreNeedNewRoute = ContractsPreNeedNewImport.update({
@@ -317,6 +348,27 @@ const ContractsAtNeedContractNumberSectionRoute =
     id: '/$section',
     path: '/$section',
     getParentRoute: () => ContractsAtNeedContractNumberRoute,
+  } as any)
+
+const PropertySectionIdLotIdBlockIdIndexRoute =
+  PropertySectionIdLotIdBlockIdIndexImport.update({
+    id: '/property/$sectionId/$lotId/$blockId/',
+    path: '/property/$sectionId/$lotId/$blockId/',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const PropertySectionIdLotIdBlockIdGraveGraveIdRoute =
+  PropertySectionIdLotIdBlockIdGraveGraveIdImport.update({
+    id: '/property/$sectionId/$lotId/$blockId/grave/$graveId',
+    path: '/property/$sectionId/$lotId/$blockId/grave/$graveId',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute =
+  PropertyPropertySectionIdLotIdBlockIdGraveGraveIdImport.update({
+    id: '/property/property/$sectionId/$lotId/$blockId/grave/$graveId',
+    path: '/property/property/$sectionId/$lotId/$blockId/grave/$graveId',
+    getParentRoute: () => rootRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -391,6 +443,20 @@ declare module '@tanstack/react-router' {
       path: '/payments/unapplied'
       fullPath: '/payments/unapplied'
       preLoaderRoute: typeof PaymentsUnappliedImport
+      parentRoute: typeof rootRoute
+    }
+    '/property/block': {
+      id: '/property/block'
+      path: '/property/block'
+      fullPath: '/property/block'
+      preLoaderRoute: typeof PropertyBlockImport
+      parentRoute: typeof rootRoute
+    }
+    '/property/grave': {
+      id: '/property/grave'
+      path: '/property/grave'
+      fullPath: '/property/grave'
+      preLoaderRoute: typeof PropertyGraveImport
       parentRoute: typeof rootRoute
     }
     '/setup/accounting': {
@@ -561,6 +627,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowTrackingImport
       parentRoute: typeof rootRoute
     }
+    '/property/': {
+      id: '/property/'
+      path: '/property'
+      fullPath: '/property'
+      preLoaderRoute: typeof PropertyIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/test/': {
       id: '/test/'
       path: '/test'
@@ -603,6 +676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractsPreNeedNewImport
       parentRoute: typeof rootRoute
     }
+    '/property/grave/$graveId': {
+      id: '/property/grave/$graveId'
+      path: '/$graveId'
+      fullPath: '/property/grave/$graveId'
+      preLoaderRoute: typeof PropertyGraveGraveIdImport
+      parentRoute: typeof PropertyGraveImport
+    }
     '/contracts/at-need/': {
       id: '/contracts/at-need/'
       path: '/contracts/at-need'
@@ -624,10 +704,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractsAtNeedContractNumberSectionImport
       parentRoute: typeof ContractsAtNeedContractNumberImport
     }
+    '/property/$sectionId/$lotId/$blockId/': {
+      id: '/property/$sectionId/$lotId/$blockId/'
+      path: '/property/$sectionId/$lotId/$blockId'
+      fullPath: '/property/$sectionId/$lotId/$blockId'
+      preLoaderRoute: typeof PropertySectionIdLotIdBlockIdIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/property/$sectionId/$lotId/$blockId/grave/$graveId': {
+      id: '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      path: '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      fullPath: '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      preLoaderRoute: typeof PropertySectionIdLotIdBlockIdGraveGraveIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/property/property/$sectionId/$lotId/$blockId/grave/$graveId': {
+      id: '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      path: '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      fullPath: '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
+      preLoaderRoute: typeof PropertyPropertySectionIdLotIdBlockIdGraveGraveIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
+
+interface PropertyGraveRouteChildren {
+  PropertyGraveGraveIdRoute: typeof PropertyGraveGraveIdRoute
+}
+
+const PropertyGraveRouteChildren: PropertyGraveRouteChildren = {
+  PropertyGraveGraveIdRoute: PropertyGraveGraveIdRoute,
+}
+
+const PropertyGraveRouteWithChildren = PropertyGraveRoute._addFileChildren(
+  PropertyGraveRouteChildren,
+)
 
 interface ContractsAtNeedContractNumberRouteChildren {
   ContractsAtNeedContractNumberSectionRoute: typeof ContractsAtNeedContractNumberSectionRoute
@@ -655,6 +768,8 @@ export interface FileRoutesByFullPath {
   '/trust': typeof TrustRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/property/block': typeof PropertyBlockRoute
+  '/property/grave': typeof PropertyGraveRouteWithChildren
   '/setup/accounting': typeof SetupAccountingRoute
   '/setup/commissions': typeof SetupCommissionsRoute
   '/setup/contracts': typeof SetupContractsRoute
@@ -679,15 +794,20 @@ export interface FileRoutesByFullPath {
   '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/property': typeof PropertyIndexRoute
   '/test': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/property/grave/$graveId': typeof PropertyGraveGraveIdRoute
   '/contracts/at-need': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
   '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
+  '/property/$sectionId/$lotId/$blockId': typeof PropertySectionIdLotIdBlockIdIndexRoute
+  '/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertySectionIdLotIdBlockIdGraveGraveIdRoute
+  '/property/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -701,6 +821,8 @@ export interface FileRoutesByTo {
   '/trust': typeof TrustRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/property/block': typeof PropertyBlockRoute
+  '/property/grave': typeof PropertyGraveRouteWithChildren
   '/setup/accounting': typeof SetupAccountingRoute
   '/setup/commissions': typeof SetupCommissionsRoute
   '/setup/contracts': typeof SetupContractsRoute
@@ -725,15 +847,20 @@ export interface FileRoutesByTo {
   '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/property': typeof PropertyIndexRoute
   '/test': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/property/grave/$graveId': typeof PropertyGraveGraveIdRoute
   '/contracts/at-need': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need': typeof ContractsPreNeedIndexRoute
   '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
+  '/property/$sectionId/$lotId/$blockId': typeof PropertySectionIdLotIdBlockIdIndexRoute
+  '/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertySectionIdLotIdBlockIdGraveGraveIdRoute
+  '/property/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute
 }
 
 export interface FileRoutesById {
@@ -748,6 +875,8 @@ export interface FileRoutesById {
   '/trust': typeof TrustRoute
   '/payments/batches': typeof PaymentsBatchesRoute
   '/payments/unapplied': typeof PaymentsUnappliedRoute
+  '/property/block': typeof PropertyBlockRoute
+  '/property/grave': typeof PropertyGraveRouteWithChildren
   '/setup/accounting': typeof SetupAccountingRoute
   '/setup/commissions': typeof SetupCommissionsRoute
   '/setup/contracts': typeof SetupContractsRoute
@@ -772,15 +901,20 @@ export interface FileRoutesById {
   '/test/$contractId': typeof TestContractIdRoute
   '/workflow/scan': typeof WorkflowScanRoute
   '/workflow/tracking': typeof WorkflowTrackingRoute
+  '/property/': typeof PropertyIndexRoute
   '/test/': typeof TestIndexRoute
   '/contracts/at-need/$contractId': typeof ContractsAtNeedContractIdRoute
   '/contracts/at-need/$contractNumber': typeof ContractsAtNeedContractNumberRouteWithChildren
   '/contracts/at-need/new': typeof ContractsAtNeedNewRoute
   '/contracts/pre-need/$contractId': typeof ContractsPreNeedContractIdRoute
   '/contracts/pre-need/new': typeof ContractsPreNeedNewRoute
+  '/property/grave/$graveId': typeof PropertyGraveGraveIdRoute
   '/contracts/at-need/': typeof ContractsAtNeedIndexRoute
   '/contracts/pre-need/': typeof ContractsPreNeedIndexRoute
   '/contracts/at-need/$contractNumber/$section': typeof ContractsAtNeedContractNumberSectionRoute
+  '/property/$sectionId/$lotId/$blockId/': typeof PropertySectionIdLotIdBlockIdIndexRoute
+  '/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertySectionIdLotIdBlockIdGraveGraveIdRoute
+  '/property/property/$sectionId/$lotId/$blockId/grave/$graveId': typeof PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute
 }
 
 export interface FileRouteTypes {
@@ -796,6 +930,8 @@ export interface FileRouteTypes {
     | '/trust'
     | '/payments/batches'
     | '/payments/unapplied'
+    | '/property/block'
+    | '/property/grave'
     | '/setup/accounting'
     | '/setup/commissions'
     | '/setup/contracts'
@@ -820,15 +956,20 @@ export interface FileRouteTypes {
     | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/property'
     | '/test'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
+    | '/property/grave/$graveId'
     | '/contracts/at-need'
     | '/contracts/pre-need'
     | '/contracts/at-need/$contractNumber/$section'
+    | '/property/$sectionId/$lotId/$blockId'
+    | '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+    | '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -841,6 +982,8 @@ export interface FileRouteTypes {
     | '/trust'
     | '/payments/batches'
     | '/payments/unapplied'
+    | '/property/block'
+    | '/property/grave'
     | '/setup/accounting'
     | '/setup/commissions'
     | '/setup/contracts'
@@ -865,15 +1008,20 @@ export interface FileRouteTypes {
     | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/property'
     | '/test'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
+    | '/property/grave/$graveId'
     | '/contracts/at-need'
     | '/contracts/pre-need'
     | '/contracts/at-need/$contractNumber/$section'
+    | '/property/$sectionId/$lotId/$blockId'
+    | '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+    | '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
   id:
     | '__root__'
     | '/'
@@ -886,6 +1034,8 @@ export interface FileRouteTypes {
     | '/trust'
     | '/payments/batches'
     | '/payments/unapplied'
+    | '/property/block'
+    | '/property/grave'
     | '/setup/accounting'
     | '/setup/commissions'
     | '/setup/contracts'
@@ -910,15 +1060,20 @@ export interface FileRouteTypes {
     | '/test/$contractId'
     | '/workflow/scan'
     | '/workflow/tracking'
+    | '/property/'
     | '/test/'
     | '/contracts/at-need/$contractId'
     | '/contracts/at-need/$contractNumber'
     | '/contracts/at-need/new'
     | '/contracts/pre-need/$contractId'
     | '/contracts/pre-need/new'
+    | '/property/grave/$graveId'
     | '/contracts/at-need/'
     | '/contracts/pre-need/'
     | '/contracts/at-need/$contractNumber/$section'
+    | '/property/$sectionId/$lotId/$blockId/'
+    | '/property/$sectionId/$lotId/$blockId/grave/$graveId'
+    | '/property/property/$sectionId/$lotId/$blockId/grave/$graveId'
   fileRoutesById: FileRoutesById
 }
 
@@ -933,6 +1088,8 @@ export interface RootRouteChildren {
   TrustRoute: typeof TrustRoute
   PaymentsBatchesRoute: typeof PaymentsBatchesRoute
   PaymentsUnappliedRoute: typeof PaymentsUnappliedRoute
+  PropertyBlockRoute: typeof PropertyBlockRoute
+  PropertyGraveRoute: typeof PropertyGraveRouteWithChildren
   SetupAccountingRoute: typeof SetupAccountingRoute
   SetupCommissionsRoute: typeof SetupCommissionsRoute
   SetupContractsRoute: typeof SetupContractsRoute
@@ -957,6 +1114,7 @@ export interface RootRouteChildren {
   TestContractIdRoute: typeof TestContractIdRoute
   WorkflowScanRoute: typeof WorkflowScanRoute
   WorkflowTrackingRoute: typeof WorkflowTrackingRoute
+  PropertyIndexRoute: typeof PropertyIndexRoute
   TestIndexRoute: typeof TestIndexRoute
   ContractsAtNeedContractIdRoute: typeof ContractsAtNeedContractIdRoute
   ContractsAtNeedContractNumberRoute: typeof ContractsAtNeedContractNumberRouteWithChildren
@@ -965,6 +1123,9 @@ export interface RootRouteChildren {
   ContractsPreNeedNewRoute: typeof ContractsPreNeedNewRoute
   ContractsAtNeedIndexRoute: typeof ContractsAtNeedIndexRoute
   ContractsPreNeedIndexRoute: typeof ContractsPreNeedIndexRoute
+  PropertySectionIdLotIdBlockIdIndexRoute: typeof PropertySectionIdLotIdBlockIdIndexRoute
+  PropertySectionIdLotIdBlockIdGraveGraveIdRoute: typeof PropertySectionIdLotIdBlockIdGraveGraveIdRoute
+  PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute: typeof PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -978,6 +1139,8 @@ const rootRouteChildren: RootRouteChildren = {
   TrustRoute: TrustRoute,
   PaymentsBatchesRoute: PaymentsBatchesRoute,
   PaymentsUnappliedRoute: PaymentsUnappliedRoute,
+  PropertyBlockRoute: PropertyBlockRoute,
+  PropertyGraveRoute: PropertyGraveRouteWithChildren,
   SetupAccountingRoute: SetupAccountingRoute,
   SetupCommissionsRoute: SetupCommissionsRoute,
   SetupContractsRoute: SetupContractsRoute,
@@ -1002,6 +1165,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestContractIdRoute: TestContractIdRoute,
   WorkflowScanRoute: WorkflowScanRoute,
   WorkflowTrackingRoute: WorkflowTrackingRoute,
+  PropertyIndexRoute: PropertyIndexRoute,
   TestIndexRoute: TestIndexRoute,
   ContractsAtNeedContractIdRoute: ContractsAtNeedContractIdRoute,
   ContractsAtNeedContractNumberRoute:
@@ -1011,6 +1175,12 @@ const rootRouteChildren: RootRouteChildren = {
   ContractsPreNeedNewRoute: ContractsPreNeedNewRoute,
   ContractsAtNeedIndexRoute: ContractsAtNeedIndexRoute,
   ContractsPreNeedIndexRoute: ContractsPreNeedIndexRoute,
+  PropertySectionIdLotIdBlockIdIndexRoute:
+    PropertySectionIdLotIdBlockIdIndexRoute,
+  PropertySectionIdLotIdBlockIdGraveGraveIdRoute:
+    PropertySectionIdLotIdBlockIdGraveGraveIdRoute,
+  PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute:
+    PropertyPropertySectionIdLotIdBlockIdGraveGraveIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -1033,6 +1203,8 @@ export const routeTree = rootRoute
         "/trust",
         "/payments/batches",
         "/payments/unapplied",
+        "/property/block",
+        "/property/grave",
         "/setup/accounting",
         "/setup/commissions",
         "/setup/contracts",
@@ -1057,6 +1229,7 @@ export const routeTree = rootRoute
         "/test/$contractId",
         "/workflow/scan",
         "/workflow/tracking",
+        "/property/",
         "/test/",
         "/contracts/at-need/$contractId",
         "/contracts/at-need/$contractNumber",
@@ -1064,7 +1237,10 @@ export const routeTree = rootRoute
         "/contracts/pre-need/$contractId",
         "/contracts/pre-need/new",
         "/contracts/at-need/",
-        "/contracts/pre-need/"
+        "/contracts/pre-need/",
+        "/property/$sectionId/$lotId/$blockId/",
+        "/property/$sectionId/$lotId/$blockId/grave/$graveId",
+        "/property/property/$sectionId/$lotId/$blockId/grave/$graveId"
       ]
     },
     "/": {
@@ -1096,6 +1272,15 @@ export const routeTree = rootRoute
     },
     "/payments/unapplied": {
       "filePath": "payments/unapplied.tsx"
+    },
+    "/property/block": {
+      "filePath": "property/block.tsx"
+    },
+    "/property/grave": {
+      "filePath": "property/grave.tsx",
+      "children": [
+        "/property/grave/$graveId"
+      ]
     },
     "/setup/accounting": {
       "filePath": "setup/accounting.tsx"
@@ -1169,6 +1354,9 @@ export const routeTree = rootRoute
     "/workflow/tracking": {
       "filePath": "workflow/tracking.tsx"
     },
+    "/property/": {
+      "filePath": "property/index.tsx"
+    },
     "/test/": {
       "filePath": "test/index.tsx"
     },
@@ -1190,6 +1378,10 @@ export const routeTree = rootRoute
     "/contracts/pre-need/new": {
       "filePath": "contracts/pre-need/new.tsx"
     },
+    "/property/grave/$graveId": {
+      "filePath": "property/grave.$graveId.tsx",
+      "parent": "/property/grave"
+    },
     "/contracts/at-need/": {
       "filePath": "contracts/at-need/index.tsx"
     },
@@ -1199,6 +1391,15 @@ export const routeTree = rootRoute
     "/contracts/at-need/$contractNumber/$section": {
       "filePath": "contracts/at-need/$contractNumber/$section.tsx",
       "parent": "/contracts/at-need/$contractNumber"
+    },
+    "/property/$sectionId/$lotId/$blockId/": {
+      "filePath": "property/$sectionId/$lotId/$blockId/index.tsx"
+    },
+    "/property/$sectionId/$lotId/$blockId/grave/$graveId": {
+      "filePath": "property/$sectionId.$lotId.$blockId.grave.$graveId.tsx"
+    },
+    "/property/property/$sectionId/$lotId/$blockId/grave/$graveId": {
+      "filePath": "property/property.$sectionId.$lotId.$blockId.grave.$graveId.tsx"
     }
   }
 }

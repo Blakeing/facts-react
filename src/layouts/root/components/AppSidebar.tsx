@@ -1,4 +1,5 @@
 import {
+	Banknote,
 	BarChart3,
 	Building2,
 	ClipboardList,
@@ -90,6 +91,11 @@ const data = {
 		{
 			title: "Deposits",
 			url: "/deposits",
+			icon: Banknote,
+		},
+		{
+			title: "Property",
+			url: "/property",
 			icon: Building2,
 		},
 		{

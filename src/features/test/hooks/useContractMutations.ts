@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import type { Contract } from "../types/contract";
+import { DB_CONFIG } from "@/config/db";
+import type { Contract } from "../types";
 
-const API_URL = "http://localhost:3001";
+const API_URL = `${DB_CONFIG.baseUrl}`;
 
 export const useContractMutations = () => {
 	const queryClient = useQueryClient();

@@ -1,6 +1,7 @@
-import type { Contract } from "./types/contract";
+import { DB_CONFIG } from "@/config/db";
+import type { Contract } from "./types";
 
-const API_URL = "http://localhost:3001/contracts";
+const API_URL = `${DB_CONFIG.baseUrl}/contracts`;
 
 // Helper function to simulate network delay
 // const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
