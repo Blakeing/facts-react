@@ -1,7 +1,147 @@
 {
-	"properties": [],
-	"sections": [],
-	"lots": [],
-	"blocks": [],
-	"graves": []
+	"properties": [
+		{
+			"id": 1,
+			"name": "Memorial Gardens Cemetery",
+			"location": "Springfield, IL",
+			"description": "A peaceful cemetery established in 1950",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		}
+	],
+	"sections": [
+		{
+			"id": 1,
+			"propertyId": 1,
+			"name": "Garden of Peace",
+			"description": "Traditional burial section with manicured lawns",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 2,
+			"propertyId": 1,
+			"name": "Mausoleum Gardens",
+			"description": "Above-ground burial section with mausoleums",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		}
+	],
+	"lots": [
+		{
+			"id": 1,
+			"sectionId": 1,
+			"name": "Lot A",
+			"description": "Premium lot with lake view",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 2,
+			"sectionId": 1,
+			"name": "Lot B",
+			"description": "Standard lot with tree line",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 3,
+			"sectionId": 2,
+			"name": "Mausoleum A",
+			"description": "Premium mausoleum with chapel",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		}
+	],
+	"blocks": [
+		{
+			"id": 1,
+			"lotId": 1,
+			"name": "Block 1",
+			"description": "First block in Lot A",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 2,
+			"lotId": 1,
+			"name": "Block 2",
+			"description": "Second block in Lot A",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 3,
+			"lotId": 2,
+			"name": "Block 1",
+			"description": "First block in Lot B",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 4,
+			"lotId": 3,
+			"name": "Level 1",
+			"description": "Ground level of Mausoleum A",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		}
+	],
+	"graves": [
+		{
+			"id": 1,
+			"blockId": 1,
+			"name": "Grave 1",
+			"size": "Standard",
+			"price": 2500,
+			"status": "Available",
+			"locationNotes": "Near the lake, row 1, plot 1",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 2,
+			"blockId": 1,
+			"name": "Grave 2",
+			"size": "Standard",
+			"price": 2500,
+			"status": "Reserved",
+			"locationNotes": "Near the lake, row 1, plot 2",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 3,
+			"blockId": 2,
+			"name": "Grave 1",
+			"size": "Oversized",
+			"price": 3500,
+			"status": "Available",
+			"locationNotes": "Row 1, plot 1",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 4,
+			"blockId": 3,
+			"name": "Grave 1",
+			"size": "Standard",
+			"price": 2000,
+			"status": "Sold",
+			"locationNotes": "Under oak tree, row 1, plot 1",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		},
+		{
+			"id": 5,
+			"blockId": 4,
+			"name": "Crypt 1",
+			"size": "Mausoleum",
+			"price": 5000,
+			"status": "Available",
+			"locationNotes": "Ground level, row 1, crypt 1",
+			"createdAt": "2024-02-20T00:00:00.000Z",
+			"updatedAt": "2024-02-20T00:00:00.000Z"
+		}
+	]
 }

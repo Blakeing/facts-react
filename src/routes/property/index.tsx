@@ -8,6 +8,7 @@ import {
 	Folder,
 	FileText,
 	Plus,
+	Loader2,
 } from "lucide-react";
 import { createIdSlug } from "@/utils/url";
 
@@ -29,6 +30,15 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 import {
 	useProperties,
@@ -224,14 +234,29 @@ function PropertyPage() {
 	};
 
 	if (isLoadingProperties || isLoadingSections) {
-		return <div className="py-8 text-center">Loading property data...</div>;
+		return (
+			<div className="flex h-full w-full items-center justify-center">
+				<div className="flex flex-col items-center gap-2">
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
+					<p className="text-sm text-muted-foreground">
+						Loading property data...
+					</p>
+				</div>
+			</div>
+		);
 	}
 
 	if (!properties || properties.length === 0) {
 		return (
-			<div className="py-8 text-center">
-				<p className="mb-4">No properties found.</p>
-				<CreatePropertyDialog onSuccess={() => refetchProperties()} />
+			<div className="flex h-full w-full items-center justify-center">
+				<Card className="w-[400px]">
+					<CardHeader>
+						<CardTitle className="text-center">No Properties Found</CardTitle>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<CreatePropertyDialog onSuccess={() => refetchProperties()} />
+					</CardContent>
+				</Card>
 			</div>
 		);
 	}
@@ -244,16 +269,16 @@ function PropertyPage() {
 	}
 
 	return (
-		<div className="h-full w-full p-4 overflow-hidden">
-			<div className="flex h-full w-full overflow-hidden rounded-md border bg-background">
+		<div className="h-full w-full p-6 overflow-hidden">
+			<div className="flex h-full w-full overflow-hidden rounded-lg border bg-background shadow-sm">
 				{/* Left sidebar - contained within the main content area */}
-				<div className="w-[250px] border-r">
+				<div className="w-[280px] border-r">
 					<div className="h-full flex flex-col">
-						<div className="border-b px-4 py-2">
+						<div className="border-b px-4 py-3">
 							<div className="flex items-center justify-between">
 								<div className="flex items-center gap-2">
-									<Building2 className="h-5 w-5" />
-									<h2 className="text-lg font-semibold">Property Viewer</h2>
+									<Building2 className="h-5 w-5 text-primary" />
+									<h2 className="text-lg font-semibold">Property Explorer</h2>
 								</div>
 								<TooltipProvider>
 									<Tooltip>
@@ -279,8 +304,8 @@ function PropertyPage() {
 							</div>
 						</div>
 						<div className="flex-1 overflow-auto">
-							<div className="px-2 py-2 font-medium text-sm text-muted-foreground">
-								CONTAINER LIST
+							<div className="px-4 py-3 font-medium text-xs uppercase tracking-wider text-muted-foreground">
+								Container Hierarchy
 							</div>
 							<TreeView
 								data={treeData}
@@ -288,6 +313,7 @@ function PropertyPage() {
 								initialSelectedItemId={selectedItemId}
 								defaultNodeIcon={Folder}
 								defaultLeafIcon={FileText}
+								className="px-2"
 							/>
 						</div>
 					</div>
@@ -295,10 +321,12 @@ function PropertyPage() {
 
 				{/* Right content area */}
 				<div className="flex-1 overflow-auto">
-					<div className="p-4">
-						<div className="mb-4">
-							<div className="flex items-center justify-between">
-								<h2 className="text-xl font-semibold">INVENTORY</h2>
+					<div className="p-6">
+						<div className="mb-6">
+							<div className="flex items-center justify-between mb-4">
+								<h2 className="text-2xl font-semibold text-primary">
+									Inventory Management
+								</h2>
 								<div className="flex space-x-2">
 									{selectedProperty && !selectedSection && (
 										<CreateSectionDialog
@@ -326,126 +354,229 @@ function PropertyPage() {
 									)}
 								</div>
 							</div>
-							<div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+
+							<Breadcrumb className="mb-4">
+								<BreadcrumbList>
+									{selectedProperty && (
+										<BreadcrumbItem>
+											<BreadcrumbLink
+												onClick={() => {
+													setSelectedSection(null);
+													setSelectedLot(null);
+													setSelectedBlock(null);
+												}}
+												className="font-medium cursor-pointer"
+											>
+												{selectedProperty.name}
+											</BreadcrumbLink>
+										</BreadcrumbItem>
+									)}
+									{selectedSection && (
+										<>
+											<BreadcrumbSeparator />
+											<BreadcrumbItem>
+												<BreadcrumbLink
+													onClick={() => {
+														setSelectedLot(null);
+														setSelectedBlock(null);
+													}}
+													className="font-medium cursor-pointer"
+												>
+													{selectedSection.name}
+												</BreadcrumbLink>
+											</BreadcrumbItem>
+										</>
+									)}
+									{selectedLot && (
+										<>
+											<BreadcrumbSeparator />
+											<BreadcrumbItem>
+												<BreadcrumbLink
+													onClick={() => {
+														setSelectedBlock(null);
+													}}
+													className="font-medium cursor-pointer"
+												>
+													{selectedLot.name}
+												</BreadcrumbLink>
+											</BreadcrumbItem>
+										</>
+									)}
+									{selectedBlock && (
+										<>
+											<BreadcrumbSeparator />
+											<BreadcrumbItem>
+												<BreadcrumbLink className="font-medium">
+													{selectedBlock.name}
+												</BreadcrumbLink>
+											</BreadcrumbItem>
+										</>
+									)}
+								</BreadcrumbList>
+							</Breadcrumb>
+
+							<div className="text-sm text-muted-foreground">
 								{selectedProperty && (
-									<span className="font-medium">
-										{selectedProperty.name} ({selectedProperty.location})
+									<span>
+										Location:{" "}
+										<span className="font-medium">
+											{selectedProperty.location}
+										</span>
 									</span>
-								)}
-								{selectedSection && (
-									<>
-										<ChevronRight className="h-4 w-4" />
-										<span className="font-medium">{selectedSection.name}</span>
-									</>
-								)}
-								{selectedLot && (
-									<>
-										<ChevronRight className="h-4 w-4" />
-										<span className="font-medium">{selectedLot.name}</span>
-									</>
-								)}
-								{selectedBlock && (
-									<>
-										<ChevronRight className="h-4 w-4" />
-										<span className="font-medium">{selectedBlock.name}</span>
-									</>
 								)}
 							</div>
 						</div>
 
+						<Separator className="my-4" />
+
 						{/* Inventory table */}
 						{selectedBlock && graves ? (
-							<ScrollArea className="h-[calc(100vh-20rem)]">
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="w-[100px]">Actions</TableHead>
-											<TableHead>Name</TableHead>
-											<TableHead>Size</TableHead>
-											<TableHead>Price</TableHead>
-											<TableHead>Status</TableHead>
-											<TableHead>Notes</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{graves.map((grave) => (
-											<TableRow key={grave.id}>
-												<TableCell className="flex space-x-1">
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8"
-														asChild
-													>
-														<Link
-															to="/property/grave/$graveId"
-															params={{
-																graveId: String(grave.id),
-															}}
-															search={() => ({
-																sectionId: selectedSection?.id
-																	? String(selectedSection.id)
-																	: "",
-																sectionName: selectedSection?.name || "",
-																lotId: selectedLot?.id
-																	? String(selectedLot.id)
-																	: "",
-																lotName: selectedLot?.name || "",
-																blockId: String(selectedBlock.id),
-																blockName: selectedBlock.name,
-																graveName: grave.name,
-															})}
-														>
-															<Edit className="h-4 w-4" />
-														</Link>
-													</Button>
-													<DeleteGraveDialog
-														grave={grave}
-														onSuccess={() => refetchGraves()}
-													/>
-												</TableCell>
-												<TableCell>
-													<Link
-														to="/property/grave/$graveId"
-														params={{
-															graveId: String(grave.id),
-														}}
-														search={() => ({
-															sectionId: selectedSection?.id
-																? String(selectedSection.id)
-																: "",
-															sectionName: selectedSection?.name || "",
-															lotId: selectedLot?.id
-																? String(selectedLot.id)
-																: "",
-															lotName: selectedLot?.name || "",
-															blockId: String(selectedBlock.id),
-															blockName: selectedBlock.name,
-															graveName: grave.name,
-														})}
-														className="hover:underline cursor-pointer"
-													>
-														{grave.name}
-													</Link>
-												</TableCell>
-												<TableCell>{grave.size}</TableCell>
-												<TableCell>${grave.price.toLocaleString()}</TableCell>
-												<TableCell>
-													<Badge variant={getStatusBadgeVariant(grave.status)}>
-														{grave.status}
-													</Badge>
-												</TableCell>
-												<TableCell className="max-w-[200px] truncate">
-													{grave.locationNotes}
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</ScrollArea>
+							<>
+								<div className="flex items-center justify-between mb-4">
+									<h3 className="text-lg font-medium">Grave Inventory</h3>
+									{isLoadingGraves && (
+										<div className="flex items-center gap-2">
+											<Loader2 className="h-4 w-4 animate-spin" />
+											<span className="text-sm text-muted-foreground">
+												Refreshing...
+											</span>
+										</div>
+									)}
+								</div>
+								<div className="rounded-lg border shadow-sm overflow-hidden">
+									<ScrollArea className="h-[calc(100vh-24rem)]">
+										<Table>
+											<TableHeader>
+												<TableRow className="bg-muted/50">
+													<TableHead className="w-[100px]">Actions</TableHead>
+													<TableHead>Name</TableHead>
+													<TableHead>Size</TableHead>
+													<TableHead>Price</TableHead>
+													<TableHead>Status</TableHead>
+													<TableHead>Notes</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{graves.length === 0 ? (
+													<TableRow>
+														<TableCell colSpan={6} className="h-24 text-center">
+															No graves found in this block
+														</TableCell>
+													</TableRow>
+												) : (
+													graves.map((grave) => (
+														<TableRow key={grave.id}>
+															<TableCell className="flex space-x-1">
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-8 w-8"
+																	asChild
+																>
+																	<Link
+																		to="/property/grave/$graveId"
+																		params={{
+																			graveId: String(grave.id),
+																		}}
+																		search={() => ({
+																			sectionId: selectedSection?.id
+																				? String(selectedSection.id)
+																				: "",
+																			sectionName: selectedSection?.name || "",
+																			lotId: selectedLot?.id
+																				? String(selectedLot.id)
+																				: "",
+																			lotName: selectedLot?.name || "",
+																			blockId: String(selectedBlock.id),
+																			blockName: selectedBlock.name,
+																			graveId: String(grave.id),
+																			graveName: grave.name,
+																		})}
+																	>
+																		<Edit className="h-4 w-4" />
+																	</Link>
+																</Button>
+																<DeleteGraveDialog
+																	grave={grave}
+																	onSuccess={() => refetchGraves()}
+																/>
+															</TableCell>
+															<TableCell>
+																<Link
+																	to="/property/grave/$graveId"
+																	params={{
+																		graveId: String(grave.id),
+																	}}
+																	search={() => ({
+																		sectionId: selectedSection?.id
+																			? String(selectedSection.id)
+																			: "",
+																		sectionName: selectedSection?.name || "",
+																		lotId: selectedLot?.id
+																			? String(selectedLot.id)
+																			: "",
+																		lotName: selectedLot?.name || "",
+																		blockId: String(selectedBlock.id),
+																		blockName: selectedBlock.name,
+																		graveId: String(grave.id),
+																		graveName: grave.name,
+																	})}
+																	className="font-medium hover:underline cursor-pointer text-primary"
+																>
+																	{grave.name}
+																</Link>
+															</TableCell>
+															<TableCell>{grave.size}</TableCell>
+															<TableCell>
+																${grave.price.toLocaleString()}
+															</TableCell>
+															<TableCell>
+																<Badge
+																	variant={getStatusBadgeVariant(grave.status)}
+																>
+																	{grave.status}
+																</Badge>
+															</TableCell>
+															<TableCell className="max-w-[200px] truncate">
+																{grave.locationNotes || "—"}
+															</TableCell>
+														</TableRow>
+													))
+												)}
+											</TableBody>
+										</Table>
+									</ScrollArea>
+								</div>
+							</>
 						) : (
-							<div className="flex h-[calc(100vh-20rem)] items-center justify-center text-muted-foreground">
-								{isLoading ? "Loading..." : "Select a block to view inventory"}
+							<div className="flex flex-col h-[calc(100vh-24rem)] items-center justify-center rounded-lg border bg-muted/10 p-8">
+								{isLoading ? (
+									<div className="flex flex-col items-center gap-2">
+										<Loader2 className="h-8 w-8 animate-spin text-primary" />
+										<p className="text-muted-foreground">
+											Loading inventory data...
+										</p>
+									</div>
+								) : (
+									<div className="flex flex-col items-center gap-4 text-center">
+										<FileText className="h-12 w-12 text-muted-foreground/50" />
+										<div>
+											<h3 className="text-lg font-medium mb-1">
+												No Block Selected
+											</h3>
+											<p className="text-sm text-muted-foreground">
+												Select a block from the tree view to display its
+												inventory
+											</p>
+										</div>
+										{selectedLot && (
+											<CreateBlockDialog
+												lotId={selectedLot.id}
+												onSuccess={() => refetchBlocks()}
+											/>
+										)}
+									</div>
+								)}
 							</div>
 						)}
 					</div>

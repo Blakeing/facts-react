@@ -56,7 +56,7 @@ export function SiteHeader() {
 					<SidebarIcon />
 				</Button>
 				<Separator orientation="vertical" className="mr-2 h-4" />
-				<Breadcrumb className="hidden sm:block">
+				{/* <Breadcrumb className="hidden sm:block">
 					<BreadcrumbList>
 						<BreadcrumbItem>
 							<BreadcrumbLink asChild>
@@ -80,7 +80,7 @@ export function SiteHeader() {
 							</React.Fragment>
 						))}
 					</BreadcrumbList>
-				</Breadcrumb>
+				</Breadcrumb> */}
 				<SearchForm className="w-full sm:ml-auto sm:w-auto" />
 			</div>
 		</header>
