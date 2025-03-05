@@ -18,7 +18,7 @@
 	"organizeImports": { "enabled": true },
 	"linter": {
 		"enabled": true,
-		"rules": { "recommended": true }
+		"rules": { "recommended": true, "correctness": { "noChildrenProp": "off" } }
 	},
 	"javascript": { "formatter": { "quoteStyle": "double" } }
 }

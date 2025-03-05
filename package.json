@@ -12,7 +12,7 @@
 		"build": "vite build",
 		"serve": "vite preview",
 		"start": "vite",
-		"server": "json-server --watch db.json --port 3001",
+		"server": "node scripts/start-json-server.js",
 		"clear:vite": "rm -rf node_modules/.vite"
 	},
 	"dependencies": {
@@ -46,6 +46,7 @@
 		"@radix-ui/react-tooltip": "^1.1.8",
 		"@tailwindcss/upgrade": "^4.0.2",
 		"@tailwindcss/vite": "^4.0.1",
+		"@tanstack/react-form": "^1.0.0",
 		"@tanstack/react-query": "^5.65.1",
 		"@tanstack/react-query-devtools": "^5.65.1",
 		"@tanstack/react-router": "^1.97.25",
