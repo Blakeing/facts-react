@@ -18,7 +18,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { zodValidator } from "../../hooks/useCreateForm.tsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Badge } from "@/components/ui/badge";
+import { isEqual } from "lodash";
 
 // Helper function to simulate server validation delay
 async function sleep(ms: number) {
@@ -155,6 +157,18 @@ export const PeoplePage = () => {
 		},
 	});
 
+	// Store the original person data for comparison
+	const originalPersonRef = useRef<PeopleFormType | null>(null);
+
+	// Effect to store the original person data when entering edit mode
+	useEffect(() => {
+		if (editMode && editPerson) {
+			originalPersonRef.current = { ...editPerson };
+		} else {
+			originalPersonRef.current = null;
+		}
+	}, [editMode, editPerson]);
+
 	// Effect to ensure form is reset when edit mode changes
 	useEffect(() => {
 		// Only reset the form if we have the current person data and we're in edit mode
@@ -163,16 +177,38 @@ export const PeoplePage = () => {
 		}
 	}, [editMode, editPerson, isLoading, form]);
 
+	// Create a ref to track current form values
+	const currentFormValuesRef = useRef<PeopleFormType | null>(null);
+
 	// Function to handle edit button click
 	const handleEdit = (person: PeopleFormType) => {
-		// First set edit mode
-		setEditMode(true);
-		// Set the current person being edited
 		setEditPerson(person);
+		setEditMode(true);
 	};
 
 	// Function to handle cancel edit
 	const handleCancelEdit = () => {
+		// Get current form values from the ref
+		const currentValues = currentFormValuesRef.current;
+		const originalValues = originalPersonRef.current;
+
+		// Check if there are actual changes
+		const hasChanges =
+			currentValues && originalValues
+				? !isEqual(currentValues, originalValues)
+				: false;
+
+		// If there are actual changes, ask for confirmation
+		if (hasChanges) {
+			const confirmCancel = window.confirm(
+				"You have unsaved changes. Are you sure you want to cancel?",
+			);
+			if (!confirmCancel) {
+				return; // User chose to continue editing
+			}
+		}
+
+		// Reset form and exit edit mode
 		form.reset(defaultPeopleFormValues);
 		setEditMode(false);
 		setEditPerson(null);
@@ -191,11 +227,41 @@ export const PeoplePage = () => {
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+			{/* Hidden component to track form values */}
+			<form.Subscribe
+				selector={(state) => state.values}
+				children={(values) => {
+					// Update the current values ref whenever form values change
+					currentFormValuesRef.current = values;
+					return null;
+				}}
+			/>
+
 			{/* Form Column */}
 			<div>
-				<h2 className="text-xl font-semibold mb-4">
-					{editMode ? "Edit Person" : "Add New Person"}
-				</h2>
+				<div className="flex items-center gap-2 mb-4">
+					<h2 className="text-xl font-semibold">
+						{editMode ? "Edit Person" : "Add New Person"}
+					</h2>
+					{editMode && (
+						<form.Subscribe
+							selector={(state) => state.values}
+							children={(values) => {
+								const hasChanges = originalPersonRef.current
+									? !isEqual(values, originalPersonRef.current)
+									: false;
+								return hasChanges ? (
+									<Badge
+										variant="outline"
+										className="bg-yellow-100 text-yellow-800 border-yellow-300"
+									>
+										Unsaved Changes
+									</Badge>
+								) : null;
+							}}
+						/>
+					)}
+				</div>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
