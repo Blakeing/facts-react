@@ -4,14 +4,21 @@ import {
 	peopleFormOpts,
 	peopleFormSchema,
 	type PeopleFormType,
+	defaultPeopleFormValues,
 } from "./shared-form.tsx";
 import { cn } from "@/lib/utils";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createPerson, fetchPeople } from "./api.ts";
+import {
+	createPerson,
+	fetchPeople,
+	updatePerson,
+	deletePerson,
+} from "./api.ts";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { zodValidator } from "../../hooks/useCreateForm.tsx";
+import { useState, useEffect } from "react";
 
 // Helper function to simulate server validation delay
 async function sleep(ms: number) {
@@ -38,6 +45,9 @@ async function validatePhoneNumber(phone: string) {
 
 export const PeoplePage = () => {
 	const queryClient = useQueryClient();
+	const [editMode, setEditMode] = useState(false);
+	// Store the current person being edited
+	const [editPerson, setEditPerson] = useState<PeopleFormType | null>(null);
 
 	// Query to fetch people data
 	const { data: people, isLoading } = useQuery({
@@ -59,6 +69,35 @@ export const PeoplePage = () => {
 		},
 	});
 
+	// Mutation to update a person
+	const updatePersonMutation = useMutation({
+		mutationFn: ({ id, data }: { id: string; data: PeopleFormType }) =>
+			updatePerson(id, data),
+		onSuccess: () => {
+			// Invalidate the people query to refetch the data
+			queryClient.invalidateQueries({ queryKey: ["people"] });
+			toast.success("Person updated successfully!");
+			form.reset();
+			setEditMode(false);
+		},
+		onError: (error) => {
+			toast.error(`Error updating person: ${error.message}`);
+		},
+	});
+
+	// Mutation to delete a person
+	const deletePersonMutation = useMutation({
+		mutationFn: deletePerson,
+		onSuccess: () => {
+			// Invalidate the people query to refetch the data
+			queryClient.invalidateQueries({ queryKey: ["people"] });
+			toast.success("Person deleted successfully!");
+		},
+		onError: (error) => {
+			toast.error(`Error deleting person: ${error.message}`);
+		},
+	});
+
 	const form = useAppForm({
 		...peopleFormOpts,
 		validators: {
@@ -69,9 +108,16 @@ export const PeoplePage = () => {
 				try {
 					// Run multiple validations in parallel
 					const [isEmailAvailable, isPhoneValid] = await Promise.all([
-						// Skip email check if email is empty
+						// Email validation logic:
+						// 1. If no email provided, skip validation (email is optional)
+						// 2. In edit mode, only validate if email changed from original
+						// 3. Check if email is used by any other person
 						value.email
-							? !(await checkIfEmailExists(value.email, people || []))
+							? (editMode && editPerson?.email === value.email) ||
+								!(await checkIfEmailExists(
+									value.email,
+									people?.filter((p) => p.id !== value.id) || [],
+								))
 							: true,
 						validatePhoneNumber(value.phone),
 					]);
@@ -98,12 +144,46 @@ export const PeoplePage = () => {
 		},
 		onSubmit: async ({ value }) => {
 			try {
-				await createPersonMutation.mutateAsync(value);
+				if (editMode && value.id) {
+					await updatePersonMutation.mutateAsync({ id: value.id, data: value });
+				} else {
+					await createPersonMutation.mutateAsync(value);
+				}
 			} catch (error) {
 				console.error(error);
 			}
 		},
 	});
+
+	// Effect to ensure form is reset when edit mode changes
+	useEffect(() => {
+		// Only reset the form if we have the current person data and we're in edit mode
+		if (editPerson && !isLoading && editMode) {
+			form.reset(editPerson);
+		}
+	}, [editMode, editPerson, isLoading, form]);
+
+	// Function to handle edit button click
+	const handleEdit = (person: PeopleFormType) => {
+		// First set edit mode
+		setEditMode(true);
+		// Set the current person being edited
+		setEditPerson(person);
+	};
+
+	// Function to handle cancel edit
+	const handleCancelEdit = () => {
+		form.reset(defaultPeopleFormValues);
+		setEditMode(false);
+		setEditPerson(null);
+	};
+
+	// Function to handle delete button click
+	const handleDelete = async (id: string) => {
+		if (window.confirm("Are you sure you want to delete this person?")) {
+			await deletePersonMutation.mutateAsync(id);
+		}
+	};
 
 	if (isLoading) {
 		return <div>Loading people data...</div>;
@@ -113,6 +193,9 @@ export const PeoplePage = () => {
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 			{/* Form Column */}
 			<div>
+				<h2 className="text-xl font-semibold mb-4">
+					{editMode ? "Edit Person" : "Add New Person"}
+				</h2>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -198,15 +281,29 @@ export const PeoplePage = () => {
 							children={([canSubmit, isSubmitting]) => (
 								<>
 									<Button type="submit" disabled={!canSubmit || isSubmitting}>
-										{isSubmitting ? "Submitting..." : "Submit"}
+										{isSubmitting
+											? "Submitting..."
+											: editMode
+												? "Update"
+												: "Submit"}
 									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() => form.reset()}
-									>
-										Reset
-									</Button>
+									{editMode ? (
+										<Button
+											type="button"
+											variant="outline"
+											onClick={handleCancelEdit}
+										>
+											Cancel
+										</Button>
+									) : (
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => form.reset()}
+										>
+											Reset
+										</Button>
+									)}
 								</>
 							)}
 						/>
@@ -277,6 +374,22 @@ export const PeoplePage = () => {
 											{person.email}
 										</div>
 										<div className="text-sm">{person.phone}</div>
+										<div className="mt-2 flex gap-2">
+											<Button
+												size="sm"
+												variant="outline"
+												onClick={() => handleEdit(person)}
+											>
+												Edit
+											</Button>
+											<Button
+												size="sm"
+												variant="destructive"
+												onClick={() => handleDelete(person.id as string)}
+											>
+												Delete
+											</Button>
+										</div>
 									</li>
 								))}
 							</ul>
